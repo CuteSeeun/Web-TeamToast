@@ -1,32 +1,10 @@
 //좌측 사이드바
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
 
-// const SidebarContainer = styled.div`
-//   width: 240px;
-//   background-color: #fff;
-//   border-right: 1px solid #ddd;
-//   padding: 20px;
-// `;
-
-// const MenuItem = styled.div`
-//   display: flex;
-//   align-items: center;
-//   margin-bottom: 20px;
-//   cursor: pointer;
-
-//   svg {
-//     width: 24px;
-//     height: 24px;
-//     margin-right: 10px;
-//   }
-
-//   &:hover {
-//     color: #0052cc;
-//   }
-// `;
 const SidebarContainer = styled.div`
   width: 240px;
   background-color: #ffffff;
@@ -73,13 +51,14 @@ const AddIssueButton = styled.button`
   }
 `;
 
-const MenuItem = styled.div<{ active?: boolean }>`
+const MenuItem = styled(Link)<{ active?: boolean }>`
   display: flex;
   align-items: center;
   padding: 10px 0;
   cursor: pointer;
   font-size: 14px;
   color: ${(props) => (props.active ? '#ffffff' : '#4d4d4d')};
+  text-decoration: none; /* Link 기본 스타일 제거 */
   background-color: ${(props) => (props.active ? '#E6F4F4' : 'transparent')};
   border-radius: 5px;
 
@@ -111,23 +90,23 @@ const Sidebar: React.FC = () => {
         </AddIssueButton>
 
         {/* 메뉴 항목 */}
-        <MenuItem active>
+        <MenuItem to="/" active>
           <FaTasks />
           활성 스프린트
         </MenuItem>
-        <MenuItem>
+        <MenuItem to="/dashboard">
           <FaChartPie />
           대시보드
         </MenuItem>
-        <MenuItem>
+        <MenuItem to="/backlog">
           <FaClipboardList />
           백로그
         </MenuItem>
-        <MenuItem>
+        <MenuItem to="/issuelist">
           <FaClipboardList />
           이슈 목록
         </MenuItem>
-        <MenuItem>
+        <MenuItem to="/chat">
           <FaComments />
           채팅
         </MenuItem>
@@ -135,7 +114,7 @@ const Sidebar: React.FC = () => {
 
       {/* 하단 메뉴 */}
       <BottomSection>
-        <MenuItem>
+        <MenuItem to="/invite">
           <FaUsers />
           팀원 초대하기
         </MenuItem>

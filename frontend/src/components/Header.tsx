@@ -12,14 +12,10 @@ const HeaderContainer = styled.div`
   padding: 0 20px;
   background-color: #ffffff;
   border-bottom: 1px solid #ddd;
+  width: 100%; /* 헤더가 화면 전체를 채우도록 */
+  max-width: 100%; /* 화면 폭 이상으로 확장되지 않도록 제한 */
+  box-sizing: border-box; /* 패딩과 너비를 함께 계산 */
 `;
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   height: 60px;
-//   padding: 0 20px;
-//   background-color: #ffffff;
-//   border-bottom: 1px solid #ddd;
 
 const LeftSection = styled.div`
   display: flex;
@@ -40,13 +36,6 @@ const Logo = styled.div`
     height: auto;
   }
 `;
-// display: flex;
-//   align-items: center;
-
-//   svg {
-//     width: 150px; /* 로고 크기 */
-//     height: auto;
-//   }
 
 const NavLinks = styled.div`
   display: flex;
@@ -63,19 +52,6 @@ const NavLinks = styled.div`
     color: #038C8C; /* 호버 색상 */
   }
 `;
-// display: flex;
-//   align-items: center;
-
-//   & > * {
-//     margin-left: 20px;
-//     cursor: pointer;
-//     font-size: 20px; /* React Icons 크기 */
-//     color: #4d4d4d; /* 기본 색상 */
-//   }
-
-//   & > *:hover {
-//     color: #038C8C; /* 호버 색상 */
-//   }
 
 const TeamMenu = styled.div`
   display: flex;

@@ -1,9 +1,10 @@
 // pages/ActiveSprint.tsx
 import React from 'react';
 import styled from 'styled-components';
-import Sidebar from '../components/Sidebar';
-import Board from '../components/Board';
-import Header from '../components/Header';
+import Sidebar from '../../components/Sidebar';
+import SBoard from './SBoard';
+import Layout from '../../components/Layout';
+import Header from '../../components/Header';
 
 const PageContainer = styled.div`
   display: flex;
@@ -22,10 +23,15 @@ const ActiveSprint: React.FC = () => {
       <Header />
       <ContentContainer>
         <Sidebar />
-        <Board />
+        <SBoard />
       </ContentContainer>
     </PageContainer>
   );
+  // return (
+  //   <Layout>
+  //     <Board />
+  //   </Layout>
+  // );
 };
 
 export default ActiveSprint;
