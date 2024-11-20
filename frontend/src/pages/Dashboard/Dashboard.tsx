@@ -20,7 +20,6 @@ const ContentContainer = styled.div`
 const ActiveSprint: React.FC = () => {
   return (
     <PageContainer>
-      <Header />
       <ContentContainer>
         <Sidebar />
         <DBoard />

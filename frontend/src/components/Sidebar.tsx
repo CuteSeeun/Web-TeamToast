@@ -1,4 +1,5 @@
 //좌측 사이드바
+//세은
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -7,6 +8,8 @@ import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } fro
 
 const SidebarContainer = styled.div`
   width: 240px;
+  /* height: 600px; */
+  /* height: 100vh; */
   background-color: #ffffff;
   border-right: 1px solid #ddd;
   display: flex;
@@ -81,65 +84,26 @@ const MenuItem = styled(Link)<{ active?: boolean }>`
 const Sidebar: React.FC = () => {
   return (
     <SidebarContainer>
-      {/* 상단 메뉴 */}
-      <TopSection>
-        {/* 새 이슈 버튼 */}
-        <AddIssueButton>
-          <FaPlus />
-          새 이슈
-        </AddIssueButton>
+
+      <TopSection>{/* 상단 메뉴 */}
+        <AddIssueButton><FaPlus />새 이슈</AddIssueButton> {/* 새 이슈 버튼 */}
 
         {/* 메뉴 항목 */}
-        <MenuItem to="/" active>
-          <FaTasks />
-          활성 스프린트
-        </MenuItem>
-        <MenuItem to="/dashboard">
-          <FaChartPie />
-          대시보드
-        </MenuItem>
-        <MenuItem to="/backlog">
-          <FaClipboardList />
-          백로그
-        </MenuItem>
-        <MenuItem to="/issuelist">
-          <FaClipboardList />
-          이슈 목록
-        </MenuItem>
-        <MenuItem to="/chat">
-          <FaComments />
-          채팅
-        </MenuItem>
+        <MenuItem to="/activesprint" active><FaTasks />활성 스프린트</MenuItem>
+        <MenuItem to="/dashboard"><FaChartPie />대시보드</MenuItem>
+        <MenuItem to="/backlog"><FaClipboardList />백로그</MenuItem>
+        <MenuItem to="/issuelist"><FaClipboardList />이슈 목록</MenuItem>
+        <MenuItem to="/chat"><FaComments />채팅</MenuItem>
+
       </TopSection>
 
       {/* 하단 메뉴 */}
       <BottomSection>
-        <MenuItem to="/invite">
-          <FaUsers />
-          팀원 초대하기
-        </MenuItem>
+        <MenuItem to="/invite"><FaUsers />팀원 초대하기</MenuItem>
       </BottomSection>
+
     </SidebarContainer>
   );
 };
-
-// const Sidebar: React.FC = () => {
-//   return (
-//     <SidebarContainer>
-//       <MenuItem>
-//         <SprintIcon />
-//         활성 스프린트
-//       </MenuItem>
-//       <MenuItem>
-//         <BacklogIcon />
-//         백로그
-//       </MenuItem>
-//       <MenuItem>
-//         <ChatIcon />
-//         채팅
-//       </MenuItem>
-//     </SidebarContainer>
-//   );
-// };
 
 export default Sidebar;

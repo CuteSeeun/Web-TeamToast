@@ -9,8 +9,12 @@ const BoardContainer = styled.div`
   position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
   display: flex;
   flex-direction: column;
-  padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  overflow: hidden; /* BoardContainer에서 스크롤 막기 */
+  padding-left: 25px; 
+  padding-right: 70px;
+  width: 1600px;
+  overflow: hidden; 
+  /* background: yellow; */
+
 `;
 
 const BoardHeader = styled.div`
@@ -18,6 +22,7 @@ const BoardHeader = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
+  width:100%;
   padding: 20px;
 `;
 
@@ -51,17 +56,17 @@ const Filters = styled.div`
   }
 `;
 
-
-
 const SprintBox = styled.div`
   background-color: #f2f2f2;
   margin-top: 20px;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  width: calc(100% - 60px); /* 양쪽 30px 간격 */
-  max-width: 1200px; /* 최대 너비 제한 */
+  width: 100%; /* 양쪽 30px 간격 */
+  max-width: 1300px; 
 `;
+
+
 
 const SprintHeader = styled.div`
   display: flex;
@@ -171,42 +176,20 @@ margin-right: 10px;
 }
 `;
 
+const BacklogSection = styled.div`
+    margin-top: 20px;
+    /* padding: 20px; */
+`
 
-// const BoardMain = styled.div`
-//   display: flex;
-//   flex: 1;
-//   flex-wrap: nowrap; /* 줄바꿈 허용하지 않음 */
-//   margin-left: 18px; /* 왼쪽 여백을 주고 싶다면 margin-left를 사용하세요 */
-//   margin-top: 0px; /* 필요하다면 위쪽 여백을 제거하세요 */
+const Div = styled.div`
+display:flex;
+justify-content: center;
+align-items:center;
+flex-direction: column;
+position:relative;
 
-//   // overflow-x: auto; /* 필요하면 스크롤 추가 */
-//   overflow-y: hidden; /* 세로 스크롤 방지 */ /*근데 이걸 해야 가로 스크롤이 생김..*/
-//   // width: 100%; /* 부모 컨테이너 크기에 맞춤 */
-// `;
+`
 
-// const SprintCompleteButton = styled.button`
-//   position: absolute;
-//   top: 100px;
-//   right: 20px;
-//   padding: 10px 10px;
-//   background-color: #038C8C;
-//   color: #fff;
-//   font-size: 14px;
-//   // font-weight: bold;
-//   border: none;
-//   border-radius: 10px;
-//   cursor: pointer;
-//   margin-top : 30px;
-//   // box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-
-//   &:hover {
-//     background-color: #026b6b;
-//   }
-
-//   &:active {
-//     transform: translateY(2px); /* 클릭 시 약간 눌리는 효과 */
-//   }
-// `;
 
 const BBoard: React.FC = () => {
     return (
@@ -224,6 +207,9 @@ const BBoard: React.FC = () => {
             </BoardHeader>
 
             {/* 스프린트 박스 */}
+
+            <Div>
+                
             <SprintBox>
                 <SprintHeader>
                     <div>
@@ -331,43 +317,48 @@ const BBoard: React.FC = () => {
             </SprintBox>
 
 
-            {/* 스프린트 생성 버튼 */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-                <AddSprint>스프린트 생성</AddSprint>
-            </div>
-            {/* 백로그 박스 */}
-            <SprintBox>
-                <SprintHeader>
-                    <div>
-                        <SprintName>백로그</SprintName>
-                    </div>
-                </SprintHeader>
-                <IssueTable>
-                    <thead>
-                        <tr>
-                            <th>이슈</th>
-                            <th>작업 상태</th>
-                            <th>우선순위</th>
-                            <th>담당자</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>이슈 이름 1</td>
-                            <td style={{ color: '#d9534f' }}>백로그</td>
-                            <td>높음</td>
-                            <td>
-                                <img
-                                    src="https://via.placeholder.com/24"
-                                    alt="담당자"
-                                    style={{ borderRadius: '50%' }}
-                                />
-                            </td>
-                        </tr>
-                    </tbody>
-                </IssueTable>
-                <AddIssueLink>+ 이슈 추가하기</AddIssueLink>
-            </SprintBox>
+
+            
+                {/* 스프린트 생성 버튼 */}
+                {/* <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px',  }}> */}
+                <div style={{ marginTop: '20px', marginLeft:'1150px' }}>
+                    <AddSprint>스프린트 생성</AddSprint>
+                </div>
+                {/* 백로그 박스 */}
+                <SprintBox>
+                    <SprintHeader>
+                        <div>
+                            <SprintName>백로그</SprintName>
+                        </div>
+                    </SprintHeader>
+                    <IssueTable>
+                        <thead>
+                            <tr>
+                                <th>이슈</th>
+                                <th>작업 상태</th>
+                                <th>우선순위</th>
+                                <th>담당자</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>이슈 이름 1</td>
+                                <td style={{ color: '#d9534f' }}>백로그</td>
+                                <td>높음</td>
+                                <td>
+                                    <img
+                                        src="https://via.placeholder.com/24"
+                                        alt="담당자"
+                                        style={{ borderRadius: '50%' }}
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </IssueTable>
+                    <AddIssueLink>+ 이슈 추가하기</AddIssueLink>
+                </SprintBox>
+            </Div>
+
         </BoardContainer >
     );
 };

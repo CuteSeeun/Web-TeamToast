@@ -17,7 +17,8 @@ const GlobalStyles = createGlobalStyle`
     figure, figcaption, footer, header, hgroup, 
     menu, nav, output, ruby, section, summary,
     time, mark, audio, video {
-        
+        margin: 0;
+        padding: 0;
         font-size: 100%;
         font: inherit;
         font-family: Pretendard-Regular, Roboto-Regular;
@@ -48,6 +49,9 @@ const GlobalStyles = createGlobalStyle`
     table {
         border-collapse: collapse;
         border-spacing: 0;
+    }
+    a{
+        text-decoration:none;
     }
 `;
 

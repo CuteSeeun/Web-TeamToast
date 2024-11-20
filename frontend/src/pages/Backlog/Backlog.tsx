@@ -8,30 +8,22 @@ import BBoard from './BBoard';
 
 const PageContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  height: 100vh;
+  flex-direction: row;
+  /* height: 100vh; */
+  /* background: pink; */
+  /* flex: 1; */
+
 `;
 
-const ContentContainer = styled.div`
-  display: flex;
-  flex: 1;
-`;
-
-const ActiveSprint: React.FC = () => {
+const Backlog: React.FC = () => {
   return (
-    <PageContainer>
-      <Header />
-      <ContentContainer>
-        <Sidebar />
-        <BBoard />
-      </ContentContainer>
-    </PageContainer>
+    
+     <PageContainer>
+      <Sidebar />
+      <BBoard />
+     </PageContainer>
+    
   );
-  // return (
-  //   <Layout>
-  //     <Board />
-  //   </Layout>
-  // );
 };
 
-export default ActiveSprint;
+export default Backlog;

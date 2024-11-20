@@ -1,4 +1,5 @@
 // components/Header.tsx
+//세은
 import React from 'react';
 import styled from 'styled-components';
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
@@ -6,7 +7,7 @@ import { FaBell, FaCog, FaUserCircle, FaChevronDown } from 'react-icons/fa'; // 
 
 const HeaderContainer = styled.div`
     display: flex;
-  justify-content: space-between;
+  justify-content: space-between;                
   align-items: center;
   height: 60px;
   padding: 0 20px;
@@ -112,18 +113,3 @@ const Header: React.FC = () => {
 };
 
 export default Header;
-
-// return (
-//     <HeaderContainer>
-//         <Logo>
-//             <LogoIcon />
-//         </Logo>
-//         <NavLinks>
-//             <span>프로젝트</span>
-//             <span>팀</span>
-//             <FaBell />
-//             <FaCog />
-//             <FaUserCircle />
-//         </NavLinks>
-//     </HeaderContainer>
-// );
