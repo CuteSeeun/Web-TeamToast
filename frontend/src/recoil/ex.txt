@@ -1,3 +1,0 @@
-atoms폴더 :
-selectors폴더 :
-effects폴더 : 
