@@ -3,7 +3,7 @@
 import React from 'react';
 import { RatePlanWrap } from './ratePlanStyle';
 import { Link, useNavigate } from 'react-router-dom';
-import { userState } from '../../recoil/userAtoms';
+import { userState } from '../../recoil/atoms/userAtoms';
 import { useRecoilValue } from 'recoil';
 
 interface User {

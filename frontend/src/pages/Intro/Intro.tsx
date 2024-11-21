@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { userState } from '../../recoil/userAtoms';
+import { userState } from '../../recoil/atoms/userAtoms';
 import { Link } from 'react-router-dom';
 
 const Intro = () => {

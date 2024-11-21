@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SpaceEditWrap } from '../../components/SpaceStyle';
-import { userState } from '../../recoil/userAtoms';
+import { userState } from '../../recoil/atoms/userAtoms';
 import { useRecoilValue } from 'recoil';
 import { useNavigate } from 'react-router-dom';
 

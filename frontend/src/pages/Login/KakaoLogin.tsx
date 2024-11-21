@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { userState } from '../../recoil/userAtoms';
+import { userState } from '../../recoil/atoms/userAtoms';
 import { useSetRecoilState } from 'recoil';
 
 const OAuthCallback = () => {

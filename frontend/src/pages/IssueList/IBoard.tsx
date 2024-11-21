@@ -3,6 +3,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FaChevronDown } from 'react-icons/fa'; // 다운 화살표 아이콘 추가
+import { Link } from 'react-router-dom'; // React Router import
 
 const BoardContainer = styled.div`
 //   position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
@@ -245,7 +246,7 @@ const IBoard: React.FC = () => {
             ].map((issue, index) => (
               <tr key={index}>
                 <td>{issue.type}</td>
-                <td>{issue.title}</td>
+                <Link to={`/issue/${index}`}>{issue.title}</Link>
                 <td>{issue.status}</td>
                 <td>{issue.priority}</td>
                 <td>{issue.assignee}</td>

@@ -2,7 +2,7 @@ import React from 'react';
 import { IntroHeaderWrap } from '../../styles/HeaderStyle';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { userState } from '../../recoil/userAtoms';
+import { userState } from '../../recoil/atoms/userAtoms';
 
 const IntroHeader = () => {
 
