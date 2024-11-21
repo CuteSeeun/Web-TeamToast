@@ -1,9 +1,6 @@
 // components/Layout.tsx
 //세은
-import React from 'react';
 import Header from './MainHeader';
-import Sidebar from './Sidebar';
-import styled from 'styled-components';
 import { Outlet } from 'react-router-dom';
 
 // const LayoutContainer = styled.div`

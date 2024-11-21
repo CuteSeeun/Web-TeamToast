@@ -183,7 +183,7 @@ export const SpaceModalWrap = styled.div`
 `
 
 export const SpaceEditWrap = styled.div`
-max-width: 800px;
+   max-width: 800px;
  margin: 60px auto 0;
  padding: 40px;
  background: white;
@@ -390,105 +390,69 @@ max-width: 800px;
  }
 
  .plan-section {
-   .plan-options {
-     display: flex;
-     gap: 16px;
-     margin-bottom: 32px;
+    h2 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      color: #333;
+    }
 
-     .plan-card {
-       flex: 1;
-       padding: 20px;
-       border: 1px solid #e5e7eb;
-       border-radius: 8px;
-       display: flex;
-       gap: 12px;
+    .plan-info-grid {
+      margin-bottom: 24px;
+    }
 
-       &.selected {
-         background: #f0f9ff;
-         border-color: #00A3BF;
-       }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
 
-       input[type="radio"] {
-         margin-top: 4px;
-       }
+      span:first-child {
+        color: #666;
+      }
 
-       .plan-info {
-         h3 {
-           margin-bottom: 12px;
-           font-weight: 500;
-         }
+      span:last-child {
+        color: #333;
+        font-weight: 500;
+      }
+    }
 
-         p {
-           color: #666;
-           margin-bottom: 4px;
-         }
+    .plan-manage-btn, .card-change-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      background: #038c8c;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 40px;
 
-         .price {
-           margin-top: 12px;
-           font-weight: 500;
-         }
-       }
-     }
-   }
+      &:hover {
+        background: #017276;
+      }
+    }
 
-   .calculator {
-     background: #f9fafb;
-     padding: 24px;
-     border-radius: 8px;
+    .card-info {
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 1px solid #e5e7eb;
 
-     h3 {
-       margin-bottom: 20px;
-     }
+      .info-row {
+        margin-bottom: 24px;
+      }
 
-     .calc-row {
-       display: flex;
-       justify-content: space-between;
-       align-items: center;
-       margin-bottom: 12px;
+      .card-change-btn {
+        background: white;
+        border: 1px solid #00A3BF;
+        color: #00A3BF;
 
-       input {
-         width: 80px;
-         padding: 6px 12px;
-         border: 1px solid #e5e7eb;
-         border-radius: 4px;
-       }
-     }
-
-     .summary {
-       margin: 20px 0;
-       padding: 16px 0;
-       border-top: 1px solid #e5e7eb;
-       border-bottom: 1px solid #e5e7eb;
-
-       .row {
-         display: flex;
-         justify-content: space-between;
-         margin-bottom: 8px;
-       }
-     }
-
-     .total-price {
-       display: flex;
-       justify-content: space-between;
-       font-weight: 500;
-       margin-bottom: 24px;
-     }
-
-     .change-btn {
-       width: 100%;
-       padding: 12px;
-       background: #00A3BF;
-       color: white;
-       border: none;
-       border-radius: 4px;
-       cursor: pointer;
-
-       &:hover {
-         background: #009CAB;
-       }
-     }
-   }
- }
+        &:hover {
+          background: #f0f9ff;
+        }
+      }
+    }
+  }
 
  .delete-btn {
    &:disabled {

@@ -19,6 +19,7 @@ import TeamMa from './pages/TeamList/TeamList';
 import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
+import Plan from './pages/Plan/Plan';
 
 
 const App: React.FC = () => {
@@ -45,6 +46,7 @@ const App: React.FC = () => {
             <Route path="/payment" element={<Payment/>}/>
             <Route path="/spacemanagement" element={<SpaceManagement/>}/>
             <Route path="/profile" element={<Profile/>}/>
+            <Route path="/plan" element={<Plan/>}/>
           </Route>
         </Routes>
       </Router>
