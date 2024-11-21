@@ -4,7 +4,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { LogoHeaderWrap } from '../styles/HeaderStyle';
 import { useRecoilValue } from 'recoil';
-import { userState } from '../recoil/userAtoms';
+import { userState } from '../recoil/atoms/userAtoms';
 
 const LogoHeader = () => {
 

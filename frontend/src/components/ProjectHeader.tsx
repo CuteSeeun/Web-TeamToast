@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { userState } from '../recoil/userAtoms';
+import { userState } from '../recoil/atoms/userAtoms';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴

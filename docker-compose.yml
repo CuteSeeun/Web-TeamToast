@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8080:80" # 호스트의 8080 포트를 컨테이너의 80번 포트로 매핑
+    depends_on:
+      - backend # 백엔드가 실행된 후 프론트엔드 실행
+    volumes:
+      - ./frontend:/usr/src/app
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=database
+      - DB_USER=root
+      - DB_PASSWORD=password
+      - DB_NAME=my_database
+
+  database:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: my_database
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+
+# 프론트엔드 : 리액트 앱을 엔진엑스로 서빙하며 엔진엑스 설저에 따라 /api/ 요청은 백엔드로 전달된다.
+# 백엔드 : express 서버로 3000번 포트에서 실행된다.
+# 디비 : MySQL 컨테이너는 3306번 포트에서 실행되며 데이터는 db_data 볼륨에 저장된다.
