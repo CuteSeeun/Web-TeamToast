@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SpaceEditWrap } from '../../components/SpaceStyle';
 import { userState } from '../../recoil/atoms/userAtoms';
 import { useRecoilValue } from 'recoil';
+import { useNavigate } from 'react-router-dom';
 
 interface ValidationMessage {
     text: string;
@@ -17,6 +18,7 @@ const SpaceManagement = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showPlanModal, setShowPlanModal] = useState(false);
     const [activeTab, setActiveTab] = useState<'space' | 'plan'>('space');
+    const navi = useNavigate();
 
 
 
@@ -161,80 +163,33 @@ const SpaceManagement = () => {
            )}
 
            {activeTab === 'plan' && (
-               <div className="plan-section">
-                   <div className="plan-options">
-                       <div className="plan-card">
-                           <input 
-                               type="radio" 
-                               name="plan" 
-                               value="free" 
-                           />
-                           <div className="plan-info">
-                               <h3>무료 요금제</h3>
-                               <p>팀 인원</p>
-                               <p>10명까지 사용 가능</p>
-                               <p className="price">￦0 / 월</p>
-                           </div>
-                       </div>
+                 <div className="plan-section">
+                 <h2>플랜 정보</h2>
+                 <div className="plan-info-grid">
+                     <div className="info-row">
+                         <span>내 요금제</span>
+                         <span>팀 요금제</span>
+                     </div>
+                     <div className="info-row">
+                         <span>추가 인원</span>
+                         <span>8명</span>
+                     </div>
+                     <div className="info-row">
+                         <span>월별 결제 요금</span>
+                         <span>24,000 원</span>
+                     </div>
+                 </div>
+                 <button className="plan-manage-btn" onClick={()=>navi('/plan')}>플랜 관리</button>
 
-                       <div className="plan-card selected">
-                           <input 
-                               type="radio" 
-                               name="plan" 
-                               value="team" 
-                               checked 
-                           />
-                           <div className="plan-info">
-                               <h3>팀 요금제</h3>
-                               <p>팀 인원</p>
-                               <p>11명 이상부터 사용</p>
-                               <p className="price">인당 ￦3,000 / 월</p>
-                           </div>
-                       </div>
-                   </div>
-
-                   <div className="calculator">
-                       <h3>팀 요금제 계산기</h3>
-                       <div className="calc-row">
-                           <span>현재 인원</span>
-                           <span>7명</span>
-                       </div>
-                       <div className="calc-row">
-                           <span>추가 인원</span>
-                           <input type="number" defaultValue="15" /> 명
-                       </div>
-                       <div className="summary">
-                           <div className="row">
-                               <span>무료</span>
-                               <span>7명</span>
-                           </div>
-                           <div className="row">
-                               <span>추가 인원</span>
-                               <span>12명 × ￦3,000 = ￦36,000</span>
-                           </div>
-                       </div>
-                       <div className="total-price">
-                           <span>월별 결제 요금</span>
-                           <span>￦36,000</span>
-                       </div>
-                       <button className="change-btn" onClick={handlePlanChange}>변경</button>
-                   </div>
-               </div>
-           )}
-            {showPlanModal && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h3>플랜 변경 완료</h3>
-                        <p>
-                            플랜이 성공적으로 변경되었습니다. 
-                        <p>변경된 인원 수에 따라 월 요금이 조정되며, 다음
-                        결제일에 반영됩니다.</p> 
-                        </p>
-                        <button onClick={closePlanModal} className="confirm">
-                            확인
-                        </button>
-                    </div>
-                </div>
+                 <div className="card-info">
+                     <h2>카드 정보</h2>
+                     <div className="info-row">
+                         <span>카드번호</span>
+                         <span>**** **** **** 4242</span>
+                     </div>
+                     <button className="card-change-btn">카드 변경하기</button>
+                 </div>
+             </div>
             )}
         </SpaceEditWrap>
     );
