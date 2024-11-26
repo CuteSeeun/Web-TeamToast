@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ProjectModalWrap } from './ProjectStyle';
 
-
 interface ProjectModalProps {
     type: 'create' | 'edit' | 'delete';
     isOpen: boolean;
@@ -16,7 +15,7 @@ interface ProjectModalProps {
 }
 
 const ProjectModal = (props: ProjectModalProps): JSX.Element | null  => {
-    //React.ReactNode는 JSX.Element, null, undefined, boolean  등
+    // React.ReactNode는 JSX.Element, null, undefined, boolean  등
     // 모든 반환 타입을 허용합니다.
     // 단순히 JSX만 반환하면 JSX.Element
     // null도 반환할 수 있으면 JSX.Element | null
@@ -42,8 +41,13 @@ const ProjectModal = (props: ProjectModalProps): JSX.Element | null  => {
             alert('이미 존재하는 프로젝트 이름입니다.');
             return;
         }
+        if (props.projectData) {
+            props.onSubmit(projectName, projectDescription);
+        };
 
-        props.onSubmit(projectName, projectDescription);
+        // 인풋 필드
+        setProjectName('');
+        setProjectDescription('');
     };
 
     if (!props.isOpen) return null;
