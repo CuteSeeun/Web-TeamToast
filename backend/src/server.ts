@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import sprintRouter from './routes/sprintRouter';
+import userRouter from './routes/userRouter';
+import phoneRouter from './routes/phoneRouter';
 import path from 'path';
 import pool from './config/dbpool';
 
@@ -12,6 +14,8 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/sprint', sprintRouter); // 라우터 등록
+app.use('/editUser',userRouter); // 로그인 회원가입 이메일체크
+app.use('/phone',phoneRouter); // 폰 인증 / 중복 체크
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

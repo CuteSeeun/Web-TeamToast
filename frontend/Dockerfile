@@ -1,5 +1,5 @@
 # 1. Node.js 환경에서 React 앱 빌드
-FROM node:16 as build
+FROM node:18 as build
 
 # 작업 디렉토리 설정
 WORKDIR /usr/src/app
@@ -16,7 +16,7 @@ RUN npm run build
 FROM nginx:1.21
 
 # Nginx 기본 설정 파일 삭제
-RUN rm /etc/nginx/conf.d/default.conf
+RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Nginx 설정 복사
 COPY nginx.conf /etc/nginx/conf.d

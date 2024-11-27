@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
+const userRouter_1 = __importDefault(require("./routes/userRouter"));
+const phoneRouter_1 = __importDefault(require("./routes/phoneRouter"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const app = (0, express_1.default)();
@@ -14,6 +16,8 @@ app.use((0, cors_1.default)());
 // 정적 파일 서빙 설정
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use('/sprint', sprintRouter_1.default); // 라우터 등록
+app.use('/editUser', userRouter_1.default); // 로그인 회원가입 이메일체크
+app.use('/phone', phoneRouter_1.default); // 폰 인증 / 중복 체크
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

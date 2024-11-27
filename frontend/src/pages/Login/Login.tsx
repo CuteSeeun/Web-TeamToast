@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { LoginWrap } from '../../components/NavStyle'; 
 import { RiKakaoTalkFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
@@ -24,7 +24,7 @@ const Login:React.FC = () => {
         }
         
         try {
-            const response= await axios.post('http://localhost:3333/editUser/loginUser',{
+            const response= await axios.post('http://localhost:3001/editUser/loginUser',{
                 useremail,
                 userpw
             });
@@ -36,6 +36,7 @@ const Login:React.FC = () => {
             }
 
             sessionStorage.setItem('token',token);
+          
             navi('/')
             window.location.reload();
 
@@ -53,7 +54,8 @@ const Login:React.FC = () => {
 
     const getKakao = async() =>{
         try {
-            const response = await axios.get('http://localhost:3333/editUser/kakao-login');
+            // const response = await axios.get('http://localhost:3001/editUser/kakao-login');
+            const response = await axios.get('/editUser/kakao-login');
             const {redirectUrl} = response.data;
             window.location.href = redirectUrl;
         } catch (error) {
@@ -91,6 +93,12 @@ const Login:React.FC = () => {
                         <i><FcGoogle /></i><span>구글 로그인/회원가입</span>
                     </button>
                 </div>
+
+                <div className='join-pass'>
+                    <span onClick={() => navi('/join')}>회원가입</span>
+                    <span onClick={() => navi('/pass')}>비밀번호 찾기</span>
+                </div>
+
             </div>
         </LoginWrap>
     );

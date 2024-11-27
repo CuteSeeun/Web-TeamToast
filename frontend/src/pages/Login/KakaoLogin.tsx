@@ -13,7 +13,12 @@ const OAuthCallback = () => {
     useEffect(()=>{
         const code = new URLSearchParams(location.search).get('code');
         if(code){
-            axios.post('http://localhost:3333/editUser/kakao-token',{code})
+            // axios.post('http://localhost:3001/editUser/kakao-token',{code},
+            axios.post('/editUser/kakao-token',{code},
+                {
+                     baseURL: 'http://localhost:8080'
+                }
+            )
             .then(response => {
                 const {token,user} = response.data;
                 sessionStorage.setItem('token',token);

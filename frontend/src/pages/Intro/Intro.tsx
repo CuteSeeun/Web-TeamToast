@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 const Intro = () => {
 
     const user = useRecoilValue(userState);
+   
 
     const loginGo = () =>{
         alert('로그인 후 사용해주세요.');
@@ -16,7 +17,7 @@ const Intro = () => {
             {user ? (
                 <>
                 <Link to='/space'>
-                <button>{user.name}님 반갑습니다 !  스페이스로 이동</button>
+                <button>{user.uname}님 반갑습니다 !  스페이스로 이동</button>
                 </Link>
                 </>
             ):(

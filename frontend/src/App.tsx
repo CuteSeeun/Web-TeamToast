@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
 import ActiveSprint from './pages/ActiveSprint/ActiveSprint';
@@ -20,9 +20,56 @@ import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
+import PassFind from './pages/Login/PassFind';
+import { userState } from './recoil/atoms/userAtoms';
+import { useSetRecoilState } from 'recoil';
+import axios from 'axios';
 
 
 const App: React.FC = () => {
+
+  const setUser = useSetRecoilState(userState);
+
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = sessionStorage.getItem('token');
+      console.log('Token in App:', token); // 토큰 확인
+      if (token) {
+        try {
+          const response = await axios.get('http://localhost:3001/editUser/me', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
+          console.log('API Response:', response.data);
+          
+          if (response.data && response.data.user) {
+            setUser({
+              uid: response.data.user.uid,
+              uname: response.data.user.uname,
+              email: response.data.user.email,
+              isLoggedIn: true,
+              token: token,
+              role: 'member'
+            });
+          } else {
+            setUser(null);
+          }
+        } catch (error) {
+          console.error('에러 발생', error);
+          sessionStorage.removeItem('token');
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+    };
+
+    fetchUserData();
+  }, [setUser]);
+  
   return (
     <>
       <GlobalStyles />
@@ -48,6 +95,8 @@ const App: React.FC = () => {
             <Route path="/profile" element={<Profile/>}/>
             <Route path="/issue/:id" element={<IssueDetail/>}/>
             <Route path="/plan" element={<Plan/>}/>
+            <Route path="/pass" element={<PassFind/>}/>
+            
           </Route>
         </Routes>
       </Router>

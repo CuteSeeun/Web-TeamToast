@@ -95,7 +95,7 @@ const ProjectHeader = () => {
                     <div className="menu-wrap">
                         {/* <span className="menu-text">{user.name} </span> */}
                         <div className="user-circle">
-                            {user?.name?.charAt(0)} 
+                            {user?.uname?.charAt(0)} 
                         </div>
                         <ul className="sub-menu">
                             <Link to='/profile'><li>프로필</li></Link>

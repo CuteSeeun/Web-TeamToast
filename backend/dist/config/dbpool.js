@@ -15,7 +15,8 @@ const pool = (0, promise_1.createPool)({
     port: Number(process.env.DB_PORT),
     waitForConnections: true,
     connectionLimit: Number(process.env.DB_CONNECTION_LIMIT),
-    queueLimit: 0
+    queueLimit: 0,
+    connectTimeout: 60000,
 });
 console.log('Database Host:', process.env.DB_HOST);
 console.log('Database User:', process.env.DB_USER);

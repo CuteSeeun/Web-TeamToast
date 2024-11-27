@@ -7,7 +7,6 @@ import { FcGoogle } from "react-icons/fc";
 
 interface dataType {
     name:string,
-    // userid:string,
     email:string,
     tel:string,
     userpw:string,
@@ -17,7 +16,6 @@ interface dataType {
 const Join: React.FC = () => {
     const [data, setData] = useState<dataType>({
         name: '',
-        // userid: '',
         email: '',
         tel: '',
         userpw: '',
@@ -72,7 +70,7 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3333/editUser/checkPhone',{
+            const response = await axios.post('http://localhost:3001/phone/checkPhone',{
                 tel:data.tel
             })
             if(response.data.isAvailable){
@@ -96,14 +94,9 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
 
     const sendCode = async()=>{
 
-        if(!isPhoneCheck) {
-            setPhoneMessage('동일한 휴대폰 번호가 있습니다.');
-            return;
-        }
-
         try {
             setPloading(true);
-            const response = await axios.post('http://localhost:3333/editUser/auth/sendverification',{
+            const response = await axios.post('http://localhost:3001/phone/auth/sendverification',{
                 phoneNumber : data.tel
             })
             setPhoneMessage(response.data.message);
@@ -118,7 +111,7 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
     const VerifyCode = async()=>{
         try {
             setPloading(true);
-            const response = await axios.post('http://localhost:3333/editUser/auth/verifyPhone',{
+            const response = await axios.post('http://localhost:3001/phone/auth/verifyPhone',{
                 phoneNumber : data.tel,
                 code : verificationCode
             });
@@ -136,11 +129,9 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
             alert('이메일을 입력해주세요');
             return;
         }
-        
-
         try {
             setEloading(true);
-            const response = await axios.post('http://localhost:3333/editUser/checkEmail',{
+            const response = await axios.post('http://localhost:3001/editUser/checkEmail',{
                 email : data.email
             });
             if(response.data.isAvailable){
@@ -181,9 +172,8 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3333/editUser/saveUser', {
+            const response = await axios.post('http://localhost:3001/editUser/saveUser', {
                 name: data.name,
-                // userid: data.userid,
                 email: data.email,
                 tel: data.tel,
                 userpw: data.userpw,
@@ -199,7 +189,7 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
 
     const kakaoLogin = async()=>{
         try {
-            const response = await axios.get('http://localhost:3333/editUser/kakao-login');
+            const response = await axios.get('http://localhost:3001/editUser/kakao-login');
             window.location.href = response.data.redirectUrl;
         } catch (error) {
             console.error('카카오 로그인 연결 실패 : ',error);
@@ -212,6 +202,7 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
             <div className="inner">
                 <h2>회원가입</h2>
                 <form onSubmit={handleSubmit}>
+
                     <div className="inputBox">
                         <span>이름</span>
                         <input
@@ -238,14 +229,17 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
                         onClick={checkEmail}
                         disabled={eloading}
                         >{eloading ? '확인중...':'중복확인'}</button>
+
                         {emailMessage && (
                             <span style={{
                                 color: isEmailCheck ? 'green' : 'red', 
-                                fontSize: '12px'
+                                fontSize: '12px',
+                                marginTop:'5px'
                             }}>
                                 {emailMessage}
                             </span>
                         )}
+
                     </div>
 
                     <div className="inputBox">
@@ -338,6 +332,12 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
                         <span>구글 로그인/회원가입</span>
                     </button>
                 </div>
+
+                <div className='Join-pass'>
+                    <p onClick={()=>navigate('/login')}>로그인</p>
+                    <p onClick={()=>navigate('/pass')}>비밀번호 찾기</p>
+                </div>
+
             </div>
         </JoinWrap>
     );

@@ -14,22 +14,24 @@ services:
     build:
       context: ./backend
     ports:
-      - "3000:3000"
-    environment:
-      - DB_HOST=database
-      - DB_USER=root
-      - DB_PASSWORD=password
-      - DB_NAME=my_database
+      - "3001:3001"
+    env_file:
+      - ./backend/.env
+    # environment:
+    #   - DB_HOST=database
+    #   - DB_USER=root
+    #   - DB_PASSWORD=password
+    #   - DB_NAME=my_database
 
   database:
     image: mysql:8
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: my_database
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: "teampassword"
+      MYSQL_DATABASE: "TeamToast"
+      MYSQL_USER: "bigbro"
+      MYSQL_PASSWORD: "Jogkdud123$%"
     volumes:
       - db_data:/var/lib/mysql
 

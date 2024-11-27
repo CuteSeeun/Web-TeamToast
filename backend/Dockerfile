@@ -1,5 +1,5 @@
 # Node.js 이미지 사용
-FROM node:16
+FROM node:18
 
 # 컨테이너 작업 디렉토리 설정
 WORKDIR /usr/src/app
@@ -12,8 +12,8 @@ RUN npm install
 COPY . .
 
 # 애플리케이션 실행 포트 설정
-EXPOSE 3000
+EXPOSE 3001
 
 # 서버 실행
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
 

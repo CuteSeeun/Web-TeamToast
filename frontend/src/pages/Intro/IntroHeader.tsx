@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IntroHeaderWrap } from '../../styles/HeaderStyle';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
@@ -9,6 +9,10 @@ const IntroHeader = () => {
     const user = useRecoilValue(userState);
     const setUser = useSetRecoilState(userState);
     const navigate = useNavigate();
+
+    console.log(user);
+    
+
 
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
@@ -40,7 +44,7 @@ const IntroHeader = () => {
                     <div className="rightIntro">
                     <div className="menu-wrap">
                     <div className="user-circle">
-                            {user?.name?.charAt(0)} 
+                            {user?.uname?.charAt(0)} 
                         </div>
                         <ul className="sub-menu">
                             <Link to='/profile'><li>프로필</li></Link>
@@ -57,6 +61,7 @@ const IntroHeader = () => {
 
                 )
             }
+
 
             </div>
         </IntroHeaderWrap>
