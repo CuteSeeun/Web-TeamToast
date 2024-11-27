@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { ProjectModalWrap } from './ProjectStyle';
+import { Project } from '../../types/projectTypes';
 
 interface ProjectModalProps {
     type: 'create' | 'edit' | 'delete';
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (name: string, description: string) => void;
+    onSubmit: (pname: string, description: string) => void;
     onDelete?: () => void;
     projectData?: {
-        name: string;
+        pname: string;
         description: string;
     };
     existingNames?: string[];
@@ -24,9 +25,9 @@ const ProjectModal = (props: ProjectModalProps): JSX.Element | null  => {
     const [projectName, setProjectName] = useState<string>('');
     const [projectDescription, setProjectDescription] = useState<string>('');
 
-    useEffect(() => {
+    useEffect(() => {        
         if (props.projectData && (props.type === 'edit')) {
-            setProjectName(props.projectData.name);
+            setProjectName(props.projectData.pname);
             setProjectDescription(props.projectData.description);
         } else {
             setProjectName('');
@@ -36,14 +37,14 @@ const ProjectModal = (props: ProjectModalProps): JSX.Element | null  => {
 
     const handleSubmit = (e: React.FormEvent): void => {
         e.preventDefault();
+        console.log(`projectData: ${props.projectData}`);
         
         if (props.existingNames?.includes(projectName) && props.type === 'create') {
             alert('이미 존재하는 프로젝트 이름입니다.');
             return;
-        }
-        if (props.projectData) {
-            props.onSubmit(projectName, projectDescription);
         };
+        // 부모 컴포넌트로 데이터 전달
+        props.onSubmit(projectName, projectDescription);
 
         // 인풋 필드
         setProjectName('');
@@ -53,6 +54,8 @@ const ProjectModal = (props: ProjectModalProps): JSX.Element | null  => {
     if (!props.isOpen) return null;
 
     if (props.type === 'delete') {
+        // user role 확인, 관리자가 아니라면 alert 띄우고 return
+        // 혹은 삼항연산자 사용해서 return 안에 오류 모달 띄우기
         return (
             <ProjectModalWrap>
                 <div className="modal">

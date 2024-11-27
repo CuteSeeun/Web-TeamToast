@@ -11,16 +11,16 @@ const setTemporaryUser = (req, res, next) => {
     //   role: 'normal', // 'manager' 또는 'top_manager' 중 하나로 테스트 가능
     //   space_id: 1,
     // };
-    // req.userRole = {
-    //   user: 'jane.smith@example.com',
-    //   role: 'manager', // 권한 있음
-    //   space_id: 1,
-    // };
     req.userRole = {
-        user: 'kim.lee@example.com',
-        role: 'top_manager', // 권한 있음
-        space_id: 2,
+        user: 'jane.smith@example.com',
+        role: 'manager', // 권한 있음
+        space_id: 1,
     };
+    // req.userRole = {
+    //   user: 'kim.lee@example.com',
+    //   role: 'top_manager', // 권한 있음
+    //   space_id: 2,
+    // };
     next();
 };
 exports.setTemporaryUser = setTemporaryUser;

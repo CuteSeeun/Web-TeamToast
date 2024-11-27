@@ -6,21 +6,16 @@ import ProjectModal from './ProjectModal';
 import { Link } from 'react-router-dom';
 import { toSvg } from "jdenticon";
 import axios from "axios";
-
-interface Project {
-    pid: number;
-    pname: string;
-    description: string;
-    // image: string;
-}
+import { Project } from '../../types/projectTypes';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { currentProjectState } from '../../recoil/atoms/projectAtoms';
+import { Issue, issueListState } from '../../recoil/atoms/issueAtoms';
 
 interface ModalState {
     isOpen: boolean;
     type: 'create' | 'edit' | 'delete' | null;
     projectId?: number;
 }
-
-
 
 const ProjectList = () => {
     const [isAdmin] = useState<boolean>(true); // 로그인 여부 스테이트, 실제로는 로그인 상태에서 가져와야 함
@@ -29,14 +24,8 @@ const ProjectList = () => {
     const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null }); // 모달창 상태 관련 스테이트
     const [projects, setProjects] = useState<Project[]>([]); // 현재 스페이스 안에 있는 프로젝트 리스트를 저장하는 스테이트
     const [isLoading, setIsLoading] = useState<boolean>(false); // 로딩 상태 스테이트
-
-    // 임시 데이터
-    // const projects: Project[] = Array.from({ length: 30 }, (_, i) => ({
-    //     id: i + 1,
-    //     name: `프로젝트 이름 ${i + 1}`,
-    //     description: `프로젝트 설명 ${i + 1}+4시간전 완료됨`,
-    //     image: '/api/placeholder/40/40'
-    // }));
+    const setCurrentProject = useSetRecoilState(currentProjectState);
+    const setIssueList = useSetRecoilState(issueListState);
 
   // 프로젝트 데이터 가져오기
   useEffect(() => {
@@ -54,6 +43,7 @@ const ProjectList = () => {
       };
     };
     getProjList();
+    
   }, []); // 빈 의존성 배열로 마운트 시 한 번만 실행
 
 
@@ -100,7 +90,13 @@ const ProjectList = () => {
 
      // 모달 관련 핸들러
     const openModal = (type: 'create' | 'edit' | 'delete', projectId?: number) => {
+      if (type === 'edit' || type === 'delete') {
+        // 수정 모드, 삭제 모드에서 projectId를 사용
         setModal({ isOpen: true, type, projectId });
+    } else {
+        // 생성 모드
+        setModal({ isOpen: true, type });
+    }
     };
 
     const closeModal = () => {
@@ -109,74 +105,108 @@ const ProjectList = () => {
 
     // 생성 / 수정 모달
     const handleSubmit = async ( name: string, description: string ) => {
-      if (modal.type === 'create') {
-        // 생성 API 호출
-        try {
-          setIsLoading(true); // 로딩 시작
-          const { data } = await axios.post(`http://localhost:3001/projects/new/1`, {
-            pname: name,
-            description: description,
-          }); // 실제 sid를 받아오도록 수정 필요
+      try {
+        setIsLoading(true); // 로딩 시작
+        if (modal.type === 'create') {
+            // 생성 API 호출
+            const { data } = await axios.post(`http://localhost:3001/projects/new/1`, {
+                pname: name,
+                description: description,
+            });
+            console.log(`생성 완료: ${data.pname}, ${data.description}`);
 
-          console.log(`생성 완료: ${ data.pname }, ${ data.description }`);
-
-          // projects 목록 업데이트
-          setProjects([...projects, data]);
-        } catch (err) {
-          console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
-        } finally {
-          setIsLoading(false); // 로딩 종료
-        };
-      } else if (modal.type === 'edit' && modal.projectId) {
-        // 수정 API 호출
-        try {
-          setIsLoading(true); // 로딩 시작
+            // projects 목록 업데이트
+            setProjects([...projects, data]);
+        } else if (modal.type === 'edit' && modal.projectId) {
+          // 수정 API 호출
           const { data } = await axios.put(`http://localhost:3001/projects/modify/1/${modal.projectId}`, {
             pname: name,
             description: description,
-          }); // 실제 sid를 받아오도록 수정 필요
+          });
+          console.log(`수정 완료: ${data.pname}, ${data.description}`);
 
-          console.log(`수정 완료: ${ data.pname }, ${ data.description }`);
-
-          // 기존 프로젝트 목록에서 수정된 항목 업데이트
+          // projects 목록 업데이트
           setProjects(projects.map(project => 
             project.pid === modal.projectId ? { ...project, pname: name, description: description } : project
           ));
-        } catch (err) {
-          console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
-        } finally {
-          setIsLoading(false); // 로딩 종료
-        };
-      };
-      closeModal();
+        }
+      } catch (err) {
+        console.error(`API 호출 중 오류 발생: ${err}`);
+      } finally {
+         setIsLoading(false); // 로딩 종료
+        closeModal(); // 모달 닫기
+      }
     };
 
     // 삭제 모달
-    const handleDelete = () => {
+    const handleDelete = async () => {
         if (modal.projectId) {
             // 삭제 API 호출
             console.log('삭제:', modal.projectId);
-        }
+          try {
+            await axios.delete(`http://localhost:3001/projects/delete/${modal.projectId}`);
+
+            // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외
+            const newProjects = projects.filter(project => project.pid !== modal.projectId);
+            setProjects(newProjects);
+
+          } catch (err) {
+            console.error(`프로젝트를 삭제하는 중 에러 발생: ${err}`);
+          };
+        };
         closeModal();
     };
 
     // 현재 편집중인 프로젝트 데이터 가져오기
     const getProjectData = () => {
         if (modal.projectId) {
-            const project = projects.find(p => p.pid === modal.projectId);
-            if (project) {
+            const proj = projects.find(p => p.pid === modal.projectId);
+            if (proj) {
                 return {
-                    name: project.pname,
-                    description: project.description
+                    pname: proj.pname,
+                    description: proj.description
                 };
             }
         }
         return undefined;
     };
 
+    // 클릭한 프로젝트의 데이터를 저장하는 함수
+    const saveProjectData = ( pid: number ) => {
+      // projects에서 해당하는 프로젝트 찾기
+      const selectedProject = projects.find((project) => project.pid === pid);
+      if (selectedProject) {
+        setCurrentProject(selectedProject); // Recoil 상태 업데이트
+      } else {
+        console.log(`${pid}에 해당하는 프로젝트를 프로젝트 목록에서 찾을 수 없습니다.`);
+      };
+    };
+
+    // 클릭한 프로젝트의 이슈 목록 저장하기
+    const saveIssuesData = async ( pid: number ) => {
+      // projects에서 해당하는 프로젝트 찾기
+      const selectedProject = projects.find((project) => project.pid === pid);
+
+      // 프로젝트가 없으면 return
+      if (!selectedProject) {
+        console.error(`프로젝트를 찾을 수 없습니다: ${pid}`);
+        return;
+      };
+
+      try {
+        // 이슈 데이터 get 요청
+        const { data } = await axios.get(`http://localhost:3001/issues/all/${pid}`);
+        if (data) {
+          // issueList에 받아온 이슈 데이터 넣기
+          setIssueList(data);
+        };
+      } catch (err) {
+        console.error(`이슈를 받아오는 중 에러 발생: ${err}`);
+      };
+    };
+    
     // 프로젝트 이름 목록 (중복 체크용)
     const existingNames = projects.map(p => p.pname);
-
 
     return (
       <ProjectListWrap>
@@ -205,7 +235,10 @@ const ProjectList = () => {
             {currentItems.map((project) => (
               <tr key={project.pid}>
                 <td>
-                  <Link to='/activesprint'>
+                  <Link to='/activesprint' onClick={(e) => {
+                    saveProjectData(project.pid);
+                    saveIssuesData(project.pid);
+                    }}>
                     <div className="project-info">
                       {projImage(project)}
                       {project.pname}

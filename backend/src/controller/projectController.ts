@@ -6,11 +6,14 @@ import { getAllProjectsQuery, getProjectsQuery, getProjectQuery, newProjectQuery
 import { ResultSetHeader } from 'mysql2';
 
 import { Project } from '../types/projectTypes'; // 프로젝트 타입 인터페이스
+import { checkUserInSpace } from '../utils/dbHelpers.js'; // UserRole 테이블에서 리퀘스트를 요청한 user가 sid에 권한이 있는지 확인하기 위한 헬퍼함수
 
 
-// 모든 프로젝트 가져오기
+// 모든 프로젝트 가져오기 (admin)
 export const getAllProjects: RequestHandler = async (req, res) => {
   try {
+    // 사이트 관리자만 쓸 수 있음 (로직, 권한 설정 필요)
+
     const projects: Project[] = await getAllProjectsQuery();
     if (projects.length === 0) {
       res.status(404).json({ error: '프로젝트가 없습니다.' });
@@ -28,6 +31,13 @@ export const getAllProjects: RequestHandler = async (req, res) => {
 export const getProjects: RequestHandler = async (req, res) => {
   try {
     const sid: number = parseInt(req.params.sid, 10);
+    const user: string = req.userRole.user;
+    // UserRole 테이블에서 권한 검증
+    if (!(await checkUserInSpace(user, sid))) {
+      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+      return;
+    };
+
     const projects: Project[] = await getProjectsQuery(sid);
     if (projects.length === 0) {
       res.status(404).json({ error: '해당 space_id의 프로젝트가 없습니다.' });
@@ -40,10 +50,18 @@ export const getProjects: RequestHandler = async (req, res) => {
   };
 };
 
-// 프로젝트 하나 가져오기(/:pid)
+// 프로젝트 하나 가져오기
 // pid와 일치하는 프로젝트를 가져옴
 export const getProject: RequestHandler = async (req, res) => {
   try {
+    const sid: number = parseInt(req.params.sid, 10);
+    const user: string = req.userRole.user;
+    // UserRole 테이블에서 권한 검증
+    if (!(await checkUserInSpace(user, sid))) {
+      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+      return;
+    };
+
     const pid: number = parseInt(req.params.pid, 10);
     const projects: Project[] = (await getProjectQuery(pid)) as Project[];
     if (projects.length === 0) {
@@ -62,6 +80,13 @@ export const getProject: RequestHandler = async (req, res) => {
 export const newProject: RequestHandler = async (req, res) => {
   try {
   const sid: number = parseInt(req.params.sid, 10);
+  const user: string = req.userRole.user;
+  // UserRole 테이블에서 권한 검증
+  if (!(await checkUserInSpace(user, sid))) {
+    res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+    return;
+  };
+
   const pname: string = req.body.pname;
   const desc: string = req.body.description;
       
@@ -85,7 +110,7 @@ export const newProject: RequestHandler = async (req, res) => {
 };
 
 // PUT
-// 프로젝트 정보 수정 (/:sid/:pid)
+// 프로젝트 정보 수정
 //  pid와 일치하는 데이터의 pname과 desc값을 수정, space 안에 중복되는 pname이 있다면 수정 불가
 export const modifyProject: RequestHandler = async (req, res) => {
   try {
@@ -93,6 +118,12 @@ export const modifyProject: RequestHandler = async (req, res) => {
     const pid: number = parseInt(req.params.pid, 10);
     const pname: string = req.body.pname;
     const desc: string = req.body.description;
+    const user: string = req.userRole.user;
+    // UserRole 테이블에서 권한 검증
+    if (!(await checkUserInSpace(user, sid))) {
+      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+      return;
+    };
 
     const result: ResultSetHeader = (await modifyProjectQuery(pname, desc, pid, sid)) as ResultSetHeader;
 
@@ -114,12 +145,19 @@ export const modifyProject: RequestHandler = async (req, res) => {
 };
 
 // DELETE
-// 프로젝트 삭제 (/:pid)
+// 프로젝트 삭제
 // pid와 일치하는 프로젝트 데이터 삭제
 export const deleteProject: RequestHandler = async (req, res) => {
   try {
+    const sid: number = parseInt(req.params.sid, 10);
+    const user: string = req.userRole.user;
+    // UserRole 테이블에서 권한 검증
+    if (!(await checkUserInSpace(user, sid))) {
+      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+      return;
+    };
+    
     const pid: number = parseInt(req.params.pid, 10);
-
     const result: ResultSetHeader = (await deleteProjectQuery(pid)) as ResultSetHeader;
 
     // 삭제된 데이터가 없다면 에러 처리

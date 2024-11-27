@@ -3,7 +3,7 @@ import cors from 'cors';
 
 import sprintRouter from './routes/sprintRouter';
 import projectRouter from './routes/projectRouter';
-// import issueRouter from './routes/issueRouter';
+import issueRouter from './routes/issueRouter';
 
 import path from 'path';
 import pool from './config/dbpool';
@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/sprint', sprintRouter); // 라우터 등록
 app.use('/projects', projectRouter);
-// app.use('/issues', issueRouter);
+app.use('/issues', issueRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

@@ -12,17 +12,17 @@ export const setTemporaryUser = (req: Request, res: Response, next: NextFunction
   //   space_id: 1,
   // };
 
-  // req.userRole = {
-  //   user: 'jane.smith@example.com',
-  //   role: 'manager', // 권한 있음
-  //   space_id: 1,
-  // };
-  
   req.userRole = {
-    user: 'kim.lee@example.com',
-    role: 'top_manager', // 권한 있음
-    space_id: 2,
+    user: 'jane.smith@example.com',
+    role: 'manager', // 권한 있음
+    space_id: 1,
   };
+  
+  // req.userRole = {
+  //   user: 'kim.lee@example.com',
+  //   role: 'top_manager', // 권한 있음
+  //   space_id: 2,
+  // };
 
   next();
 };
