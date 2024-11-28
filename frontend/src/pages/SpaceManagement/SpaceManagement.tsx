@@ -23,8 +23,8 @@ const SpaceManagement = () => {
 
 
     useEffect(() => {
-        if (currentSpace?.name) {
-            setSpaceName(currentSpace.name);
+        if (currentSpace?.uname) {
+            setSpaceName(currentSpace.uname);
         }
     }, [currentSpace]);
 
@@ -38,7 +38,7 @@ const SpaceManagement = () => {
 
         if (value === '') {
             setValidationMsg(null);
-        } else if (value === currentSpace?.name) {
+        } else if (value === currentSpace?.uname) {
             setValidationMsg({
                 text: '스페이스 명이 동일합니다.',
                 type: 'success'
@@ -62,7 +62,7 @@ const SpaceManagement = () => {
     };
 
     const handleDelete = () => {
-        if (deleteSpaceName !== currentSpace?.name) {
+        if (deleteSpaceName !== currentSpace?.uname) {
             alert('스페이스 명을 다시 확인해주세요.');
             return;
         }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { LoginWrap } from '../../components/NavStyle'; 
 import { RiKakaoTalkFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
@@ -10,6 +10,9 @@ const Login:React.FC = () => {
     const [userpw , setUserpw] = useState<string>('');
     const navi = useNavigate();
 
+    //로그인 정보 확인
+    // 입력값 유효성 확인하고 서버에 로그인 요청함
+    // 로그인 성공 시 토큰 저장
     const infoCheck = async(e:React.FormEvent)=>{
         e.preventDefault();
         if(useremail === '' && userpw === ''){
@@ -24,7 +27,7 @@ const Login:React.FC = () => {
         }
         
         try {
-            const response= await axios.post('http://localhost:3333/editUser/loginUser',{
+            const response= await axios.post('http://localhost:3001/editUser/loginUser',{
                 useremail,
                 userpw
             });
@@ -36,6 +39,7 @@ const Login:React.FC = () => {
             }
 
             sessionStorage.setItem('token',token);
+          
             navi('/')
             window.location.reload();
 
@@ -51,9 +55,12 @@ const Login:React.FC = () => {
         }
     };
 
+    // 카카오 소셜 로그인 처리
+    // 서버로부터 카카오 로그인 url 받아와서 리다이렉트
     const getKakao = async() =>{
         try {
-            const response = await axios.get('http://localhost:3333/editUser/kakao-login');
+            // const response = await axios.get('http://localhost:3001/editUser/kakao-login');
+            const response = await axios.get('/editUser/kakao-login');
             const {redirectUrl} = response.data;
             window.location.href = redirectUrl;
         } catch (error) {
@@ -91,6 +98,12 @@ const Login:React.FC = () => {
                         <i><FcGoogle /></i><span>구글 로그인/회원가입</span>
                     </button>
                 </div>
+
+                <div className='join-pass'>
+                    <span onClick={() => navi('/join')}>회원가입</span>
+                    <span onClick={() => navi('/pass')}>비밀번호 찾기</span>
+                </div>
+
             </div>
         </LoginWrap>
     );
