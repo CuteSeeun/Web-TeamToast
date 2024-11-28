@@ -40,7 +40,7 @@ const IntroHeader = () => {
                     <div className="rightIntro">
                     <div className="menu-wrap">
                     <div className="user-circle">
-                            {user?.name?.charAt(0)} 
+                            {user?.uname?.charAt(0)} 
                         </div>
                         <ul className="sub-menu">
                             <Link to='/profile'><li>프로필</li></Link>

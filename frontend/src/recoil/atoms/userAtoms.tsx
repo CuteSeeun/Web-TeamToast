@@ -1,23 +1,15 @@
 import {atom} from 'recoil';
 
-// interface UserState {
-//     id: number | undefined;
-//     name: string | undefined;
-//     email: string | undefined;
-//     userid: string | undefined;
-//     token: string | undefined;
-//     isLoggedIn: boolean;
-// }
+interface UserState {
+    uid: number | undefined;
+    uname: string | undefined;
+    email: string | undefined;
+    token: string | undefined;
+    isLoggedIn: boolean;
+    role: 'admin' | 'member' | null; 
+}
 
-// export const userState = atom<UserState>({
-export const userState = atom<any>({
+export const userState = atom<UserState | null>({
     key : 'userState',
-    default:{
-        id: undefined,
-        name: undefined,
-        email: undefined,
-        userid: undefined,
-        token: undefined,
-        isLoggedIn: false,
-    },
+    default: null
 });

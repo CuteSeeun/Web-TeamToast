@@ -12,7 +12,7 @@ RUN npm install
 COPY . .
 
 # 애플리케이션 실행 포트 설정
-EXPOSE 3000
+EXPOSE 3001
 
 # 서버 실행
 CMD ["npm", "start"]

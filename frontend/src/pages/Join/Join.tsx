@@ -7,7 +7,6 @@ import { FcGoogle } from "react-icons/fc";
 
 interface dataType {
     name:string,
-    // userid:string,
     email:string,
     tel:string,
     userpw:string,
@@ -17,7 +16,6 @@ interface dataType {
 const Join: React.FC = () => {
     const [data, setData] = useState<dataType>({
         name: '',
-        // userid: '',
         email: '',
         tel: '',
         userpw: '',
@@ -28,13 +26,14 @@ const Join: React.FC = () => {
     const [isCodeSent,setIsCodeSent] = useState<boolean>(false);
     const [isPhoneVerified,setIsPhoneVerified]=useState<boolean>(false);
     const [emailMessage, setEmailMessage] = useState<string>('');  // 이메일 관련 메시지
-const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관련 메시지
+    const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관련 메시지
     const [eloading,setEloading]=useState<boolean>(false);
     const [ploading,setPloading]=useState<boolean>(false);
     const [passOk , setPassOk] = useState<boolean>(true);
     const [isEmailCheck , setIsEmailCheck] = useState<boolean>(false);
     const [isPhoneCheck , setIsPhoneCheck] = useState<boolean>(false);
     const navigate = useNavigate();
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -49,7 +48,6 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
                 setIsEmailCheck(false);
             }
 
-
             if(name === 'userpw' || name === 'userpwConfirm'){
                 setPassOk(
                     name === 'userpw' ? value === newData.userpwConfirm : 
@@ -62,17 +60,22 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
 
     };
     
+    //핸드폰 번호 형식 검증
+    //01 시작하는 8-9자리 숫자인지 체크 하이픈 제거 후
     const vailPhoneNumber = (number:string)=>{
         return /^01[0-9]{8,9}$/.test(number.replace(/-/g, ''));
     };
 
+    //핸드폰 번호 중복 체크
+    //유효성 검사 후 서버 중복 확인
+    //가능하면 인증번호 발송
     const checkPhone = async() =>{
         if(!vailPhoneNumber(data.tel)){
             setPhoneMessage('유효한 휴대폰 번호를 입력해주세요.');
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3333/editUser/checkPhone',{
+            const response = await axios.post('http://localhost:3001/editUser/checkPhone',{
                 tel:data.tel
             })
             if(response.data.isAvailable){
@@ -93,17 +96,12 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
 
     }
 
-
+    //핸드폰 인증번호 발송 요청
+    //서버에 인증번호 발송을 요청하고 결과 메세지를 나타냄
     const sendCode = async()=>{
-
-        if(!isPhoneCheck) {
-            setPhoneMessage('동일한 휴대폰 번호가 있습니다.');
-            return;
-        }
-
         try {
             setPloading(true);
-            const response = await axios.post('http://localhost:3333/editUser/auth/sendverification',{
+            const response = await axios.post('http://localhost:3001/editUser/auth/sendverification',{
                 phoneNumber : data.tel
             })
             setPhoneMessage(response.data.message);
@@ -115,10 +113,12 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
         }
     };
 
+    //입력받은 인증번호 확인 함수
+    //서버에 인증번호 검증 보내고 결과에 따라 인증 상태 업데이트
     const VerifyCode = async()=>{
         try {
             setPloading(true);
-            const response = await axios.post('http://localhost:3333/editUser/auth/verifyPhone',{
+            const response = await axios.post('http://localhost:3001/editUser/auth/verifyPhone',{
                 phoneNumber : data.tel,
                 code : verificationCode
             });
@@ -131,16 +131,16 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
         }
     };
 
+    //이메일 중복 체크
+    //서버에 이메일 중복 확인을 요청하고 표시
     const checkEmail = async() =>{
         if(!data.email){
             alert('이메일을 입력해주세요');
             return;
         }
-        
-
         try {
             setEloading(true);
-            const response = await axios.post('http://localhost:3333/editUser/checkEmail',{
+            const response = await axios.post('http://localhost:3001/editUser/checkEmail',{
                 email : data.email
             });
             if(response.data.isAvailable){
@@ -159,6 +159,8 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
     };
 
 
+    //회원가입 form 제출 
+    // 모든 필수 검증을 확인하고 서버에 회원가입 요청
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -181,9 +183,8 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3333/editUser/saveUser', {
+            const response = await axios.post('http://localhost:3001/editUser/saveUser', {
                 name: data.name,
-                // userid: data.userid,
                 email: data.email,
                 tel: data.tel,
                 userpw: data.userpw,
@@ -197,9 +198,11 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
         }
     };
 
+    // 카카오 소셜 로그인 요청
+    // 서버에 카카오 로그인 url 받아오고 리다이렉트
     const kakaoLogin = async()=>{
         try {
-            const response = await axios.get('http://localhost:3333/editUser/kakao-login');
+            const response = await axios.get('http://localhost:3001/editUser/kakao-login');
             window.location.href = response.data.redirectUrl;
         } catch (error) {
             console.error('카카오 로그인 연결 실패 : ',error);
@@ -212,6 +215,7 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
             <div className="inner">
                 <h2>회원가입</h2>
                 <form onSubmit={handleSubmit}>
+
                     <div className="inputBox">
                         <span>이름</span>
                         <input
@@ -238,14 +242,17 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
                         onClick={checkEmail}
                         disabled={eloading}
                         >{eloading ? '확인중...':'중복확인'}</button>
+
                         {emailMessage && (
                             <span style={{
                                 color: isEmailCheck ? 'green' : 'red', 
-                                fontSize: '12px'
+                                fontSize: '12px',
+                                marginTop:'5px'
                             }}>
                                 {emailMessage}
                             </span>
                         )}
+
                     </div>
 
                     <div className="inputBox">
@@ -338,6 +345,12 @@ const [phoneMessage, setPhoneMessage] = useState<string>('');  // 휴대폰 관�
                         <span>구글 로그인/회원가입</span>
                     </button>
                 </div>
+
+                <div className='Join-pass'>
+                    <p onClick={()=>navigate('/login')}>로그인</p>
+                    <p onClick={()=>navigate('/pass')}>비밀번호 찾기</p>
+                </div>
+
             </div>
         </JoinWrap>
     );
