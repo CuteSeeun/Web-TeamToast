@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
+const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
+const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const app = (0, express_1.default)();
@@ -14,6 +16,8 @@ app.use((0, cors_1.default)());
 // 정적 파일 서빙 설정
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 app.use('/sprint', sprintRouter_1.default); // 라우터 등록
+app.use('/projects', projectRouter_1.default);
+app.use('/issues', issueRouter_1.default);
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
@@ -23,6 +27,7 @@ dbpool_1.default.getConnection()
     .then(connection => {
     console.log('Database connected');
     connection.release();
+    console.log('DB connection released');
 })
     .catch(err => {
     console.error('Database connection error:', err);

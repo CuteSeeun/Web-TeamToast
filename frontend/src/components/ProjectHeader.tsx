@@ -49,7 +49,7 @@ const ProjectHeader = () => {
                             </Link>
                         </div>
                         <div className="menu-wrap">
-                            <span className="menu-text">팀 <IoChevronDownOutline /></span>
+                            <span className="menu-text"><span className='text-with-rigth-icon'>팀</span><IoChevronDownOutline /></span>
                             <ul className="sub-menu">
                                 <li onClick={() => setIsInviteModalOpen(true)}>사용자 초대</li>
                                 <Link to='/team'><li>사용자 목록</li></Link>
@@ -61,15 +61,13 @@ const ProjectHeader = () => {
                     </nav>
                 </div>
 
-                <div className="rightPro">
+                <div className="rightPro" style={{display:"flex", alignItems:"center"}}>
                     <div className="notification-icon">
-                        <span style={{fontSize:'25px'}}>
-                    <GoBell />
-                        </span>
+                    <GoBell className="icon-wrap" />
                         <span className="notification-badge"></span>
                     </div>
                     <div className="menu-wrap">
-                        <span className="menu-text" style={{fontSize:'25px'}}><IoSettingsOutline /></span>
+                        <IoSettingsOutline className='icon-wrap' />
                         <ul className="sub-menu">
                         {/* {isAdmin ? (
                                 <Link to='/spaceedit'>

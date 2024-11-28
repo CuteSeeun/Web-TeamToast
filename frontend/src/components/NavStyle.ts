@@ -187,7 +187,7 @@ export const JoinWrap = styled.div`
     margin-top: 10px;
 
     &:hover {
-      background: #026868;
+      background: #017276;
     }
   }
 
