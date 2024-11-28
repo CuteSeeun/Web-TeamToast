@@ -1,3 +1,5 @@
+// 2024-11-25 한채경 수정
+// NavStyle.ts
 //로그인, 회원가입, 카카오톡
 
 import styled from 'styled-components';
