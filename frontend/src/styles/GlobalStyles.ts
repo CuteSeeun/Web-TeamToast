@@ -1,4 +1,6 @@
-// global.ts
+// 2024-11-25 한채경
+// GlobalStyles.ts
+
 import { createGlobalStyle } from "styled-components";
 
 // 스타일 초기화

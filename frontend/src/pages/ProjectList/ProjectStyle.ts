@@ -1,10 +1,15 @@
+// 2024-11-25 한채경 수정, 11-28 마지막 수정
+// ProjectStyle.ts
+
 import styled from "styled-components";
 
+// 프로젝트 페이지 스타일
 export const ProjectListWrap = styled.div`
-   max-width: 800px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 
+  // 헤더 스타일
   .project-header {
     text-align: center;
 
@@ -16,38 +21,42 @@ export const ProjectListWrap = styled.div`
       margin-bottom: 50px;
     }
   }
- 
+  // ============
 
-  .table-container {
-    position: relative;
-    margin-bottom: 80px;
-
-    .create-btn {
-      position: absolute;
-      right: 0;
-      top: -40px; // 테이블 헤더와 h2 사이에 위치
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 8px 16px;
-      background: #038C8C;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
+  // 생성 버튼 스타일
+  .create-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: #038C8C;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
 
       
-      &:hover {
-        background: #017276;
-      }
+    &:hover {
+      background: #017276;
+    }
 
-      svg {
-        font-size: 16px;
-      }
+    svg {
+      font-size: 16px;
     }
   }
 
+  // 버튼 컨테이너 스타일
+  .table-container {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: flex-end;
+
+
+  }
+  // ============
+
+  // 테이블 스타일
   .project-table {
     width: 100%;
     border-collapse: collapse;
@@ -104,7 +113,9 @@ export const ProjectListWrap = styled.div`
       }
     }
   }
+  // ============
 
+  // 페이지네이션 스타일
   .pagination {
     display: flex;
     justify-content: center;
@@ -135,8 +146,35 @@ export const ProjectListWrap = styled.div`
       }
     }
   }
+  // ============
+
+  // 프로젝트 없을 시 띄우는 알림 스타일
+  .project-alert-container {
+    margin: 0 auto;
+    text-align: center;
+
+    .project-alert-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .alert-svg {
+      width: 256px;
+      height: 256px;
+      padding: 80px 40px 40px;
+    }
+
+    p {
+      font-size: 20px;
+      color: #4D4D4D;
+      padding-bottom: 40px;
+    }
+  }
 `
 
+// 프로젝트 모달 스타일
 export const ProjectModalWrap = styled.div`
  position: fixed;
  top: 0;

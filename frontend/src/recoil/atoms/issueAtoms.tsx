@@ -18,7 +18,7 @@ export interface Issue {
 // Status ENUM 속성 지정
 export enum Status {
   Backlog = '백로그',
-  Working = ' 작업중',
+  Working = '작업중',
   Dev = '개발완료',
   QA = 'QA완료',
 }

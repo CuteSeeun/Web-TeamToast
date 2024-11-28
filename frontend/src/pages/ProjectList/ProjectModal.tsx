@@ -1,3 +1,6 @@
+// 2024-11-26 한채경 수정, 11-28 마지막 수정
+// ProjectModal.tsx
+
 import React, { useEffect, useState } from 'react';
 import { ProjectModalWrap } from './ProjectStyle';
 import { Project } from '../../types/projectTypes';
