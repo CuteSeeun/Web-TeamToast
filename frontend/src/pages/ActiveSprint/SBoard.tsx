@@ -68,6 +68,7 @@ const BoardMain = styled.div`
 `;
 
 const SprintCompleteButton = styled.button`
+
   position: absolute;
   top: 100px;
   right: 20px;
@@ -79,7 +80,6 @@ const SprintCompleteButton = styled.button`
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  /* margin-top : 30px; */
   // box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
 
   &:hover {
@@ -97,13 +97,25 @@ const SBoard: React.FC = () => {
   //columns 상태는 컬럼과 그 안에 태스크 목록을 저장한다
   const [columns, setColumns] = useState<{
     //타입 지정
-    backlog: string[]; inProgress: string[]; done: string[]; qa: string[];
+    backlog: { id: string; title: string; type: 'task' | 'bug' }[]; 
+    inProgress: { id: string; title: string; type: 'task' | 'bug' }[]; 
+    done: { id: string; title: string; type: 'task' | 'bug' }[]; 
+    qa: { id: string; title: string; type: 'task' | 'bug' }[];
   }>({
     //태스크 목록 초기 상태 (이는 아톰에서 받아올거임)
-    backlog: ['이슈 1', '이슈 2'],
-    inProgress: ['이슈 3', '이슈 4'],
-    done: ['이슈 5'],
-    qa: [],
+    backlog: [
+      { id: "1", title: "이슈 이름 1", type: "task" }
+    ],
+    inProgress: [
+      { id: "2", title: "이슈 이름 2", type: "bug" },
+      { id: "3", title: "이슈 이름 3", type: "bug" }
+    ],
+    done: [
+      { id: "4", title: "이슈 이름 4", type: "task" }
+    ],
+    qa: [
+      { id: "5", title: "이슈 이름 5", type: "bug" }
+    ],
   });
 
 

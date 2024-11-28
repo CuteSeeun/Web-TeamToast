@@ -30,7 +30,11 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Layout/>}>
-            <Route index element={<Intro/>}/>
+            {/* <Route index element={<Intro/>}/> */}
+
+            <Route index element={<ActiveSprint/>}/>
+            
+
             <Route path="/login" element={<Login/>}/>
             <Route path="/join" element={<Join/>}/>
             <Route path="/rate" element={<RatePlan/>}/>

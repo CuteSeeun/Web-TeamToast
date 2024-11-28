@@ -7,7 +7,7 @@ import DropZoneComponent from './DropZone';
 import { useDrop } from 'react-dnd';
 
 type ColumnKey = "backlog" | "inProgress" | "done" | "qa";
-
+type Task = { id: string; title: string; type: 'task' | 'bug' };
 
 //각 컬럼보드
 const ColumnContainer = styled.div`
@@ -34,7 +34,7 @@ const ColumnTitle = styled.h2`
 //hover와 drop 이벤트에서 Task 데이터와 상태를 동기화. hover에서 task위치가 실시간으로 변경되도록 수정한다. 
 const Column: React.FC<{
   //컴포넌트 선언
-  title: string; tasks: string[]; columnId: ColumnKey; // string 타입 대신 ColumnKey 타입을 사용
+  title: string; tasks: Task[]; columnId: ColumnKey; // string 타입 대신 ColumnKey 타입을 사용
   onMoveTask: (fromColumn: ColumnKey, toColumn: ColumnKey,
                fromIndex: number, toIndex: number
   ) => void;
@@ -128,8 +128,8 @@ const Column: React.FC<{
 
         <React.Fragment key={index}>
           <DropZoneComponent index={index} columnId={columnId} onDropTask={handleDropTask}/>
-          <Task id={`task-${index}`} title={task}
-                index={index} columnId={columnId} />
+          <Task id={`task-${index}`} title={task.title}
+                index={index} columnId={columnId} type={task.type} />
         </React.Fragment>
       ))}
       <DropZoneComponent index={tasks.length} columnId={columnId} onDropTask={handleDropTask}/>

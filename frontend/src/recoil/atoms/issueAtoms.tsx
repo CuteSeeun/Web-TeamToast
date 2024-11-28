@@ -4,21 +4,21 @@ import { atom } from "recoil";
 
 export interface Issue {
   title: string;
-  detail?: string | null;
+  detail?: string;
   type: Type;
   status: Status;
   sprint_id: number | null;
   project_id: number;
-  manager?: string | null;
-  created_by?: string | null;
-  file?: string | null;
+  manager?: string;
+  created_by?: string;
+  file?: string;
   priority: Priority;
 }
 
 // Status ENUM 속성 지정
 export enum Status {
   Backlog = '백로그',
-  Working = ' 작업중',
+  Working = '작업중',
   Dev = '개발완료',
   QA = 'QA완료',
 }
