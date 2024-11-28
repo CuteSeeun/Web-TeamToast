@@ -9,9 +9,9 @@ export const ProjectListWrap = styled.div`
     text-align: center;
 
     h2 {
-      font-size: 20px;
+      font-size: 32px;
       font-weight: 600;
-      color: #333;
+      color: #1A1A1A;
       margin: 0;
       margin-bottom: 50px;
     }
@@ -30,7 +30,7 @@ export const ProjectListWrap = styled.div`
       align-items: center;
       gap: 4px;
       padding: 8px 16px;
-      background: #00A3BF;
+      background: #038C8C;
       color: white;
       border: none;
       border-radius: 4px;
@@ -39,7 +39,7 @@ export const ProjectListWrap = styled.div`
 
       
       &:hover {
-        background: #009CAB;
+        background: #017276;
       }
 
       svg {
@@ -61,12 +61,12 @@ export const ProjectListWrap = styled.div`
 
     th {
       font-weight: 500;
-      color: #666;
+      color: #1A1A1A;
       padding: 12px;
     }
 
     td {
-      color: #333;
+      color: #4D4D4D;
     }
 
     .project-info {
@@ -90,16 +90,16 @@ export const ProjectListWrap = styled.div`
         background: none;
         border: none;
         cursor: pointer;
-        color: #666;
-        padding: 0;
+        color: #4D4D4D;
+        padding: 4px;
         
         &:hover {
-          color: #009CA8;
+          color: #038C8C;
         }
 
         svg {
-          width: 16px;
-          height: 16px;
+          width: 20px;
+          height: 20px;
         }
       }
     }
@@ -113,26 +113,25 @@ export const ProjectListWrap = styled.div`
 
     button {
       padding: 6px 10px;
-      border: 1px solid #e5e7eb;
+      border: none;
       border-radius: 4px;
       background: white;
       cursor: pointer;
       font-size: 14px;
-      color: #666;
+      color: #4D4D4D;
 
       &.active {
-        background: #f5f5f5;
-        border-color: #e5e7eb;
-        color: #333;
+        background: #E6E6E6;
+        color: #4D4D4D;
       }
 
       &:hover:not(.active):not(:disabled) {
-        background: #f5f5f5;
+        background: #E6E6E680;
       }
 
       &:disabled {
         cursor: not-allowed;
-        opacity: 0.5;
+        color: #B3B3B3;
       }
     }
   }
@@ -162,11 +161,11 @@ export const ProjectModalWrap = styled.div`
      margin: 0 0 20px 0;
      font-size: 18px;
      font-weight: 600;
-     color: #333;
+     color: #4D4D4D;
    }
 
    p {
-     color: #666;
+     color: #4D4D4D;
      font-size: 14px;
      line-height: 1.5;
      margin-bottom: 20px;
@@ -179,7 +178,7 @@ export const ProjectModalWrap = styled.div`
        display: block;
        margin-bottom: 8px;
        font-size: 14px;
-       color: #666;
+       color: #4D4D4D;
      }
 
      input {
@@ -191,7 +190,7 @@ export const ProjectModalWrap = styled.div`
 
        &:focus {
          outline: none;
-         border-color: #00A3BF;
+         border-color: #038C8C;
          box-shadow: 0 0 0 2px rgba(0, 163, 191, 0.1);
        }
 
@@ -218,7 +217,7 @@ export const ProjectModalWrap = styled.div`
        &:first-child {
          background: white;
          border: 1px solid #e5e7eb;
-         color: #666;
+         color: #4D4D4D;
 
          &:hover {
            background: #f9fafb;
@@ -226,12 +225,12 @@ export const ProjectModalWrap = styled.div`
        }
 
        &:last-child {
-         background: #00A3BF;
+         background: #038C8C;
          border: none;
          color: white;
 
          &:hover {
-           background: #009CAB;
+           background: #038C8C;
          }
 
          &.delete {

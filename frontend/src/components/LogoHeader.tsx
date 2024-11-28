@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { LogoHeaderWrap } from '../styles/HeaderStyle';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
+import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg';
 
 const LogoHeader = () => {
 
@@ -17,13 +18,13 @@ const LogoHeader = () => {
                 {user ? (
                         <>
                <Link to="/space">
-                   <h1>TeamToast</h1>
+               <LogoIcon />
                </Link>
                         </>
                 ):(
                         <>
                <Link to="/">
-                   <h1>TeamToast</h1>
+               <LogoIcon />
                </Link>
                         </>
                 )

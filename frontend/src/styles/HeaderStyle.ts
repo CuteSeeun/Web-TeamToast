@@ -39,7 +39,6 @@ export const ProjectHeaderWrap = styled.div`
 
     .menu-wrap {
       position: relative;
-      padding: 4px 8px;
 
       &:hover .sub-menu {
         display: block;
@@ -47,14 +46,28 @@ export const ProjectHeaderWrap = styled.div`
     }
 
     .menu-text {
-        width: 32px;
-        height: 32px;
-        color: #666;
+      width: 100%;
+      height: 32px;
+      color: #4D4D4D;
       cursor: pointer;
+      line-height:32px;
+      display: flex;
+      justify-content:center;
+      align-items:center;
+      border-radius: 5px;
+      padding: 0 5px;
+
+      &:hover {
+        background: #E6E6E680;
+      }
 
       &:hover {
         color: #333;
       }
+    }
+
+    .text-with-rigth-icon{
+      padding-right: 5px;
     }
 
     .sub-menu {
@@ -72,7 +85,7 @@ export const ProjectHeaderWrap = styled.div`
       li {
         padding: 8px 16px;
         font-size: 14px;
-        color: #666;
+        color: #4D4D4D;
         cursor: pointer;
 
         &:hover {
@@ -87,14 +100,30 @@ export const ProjectHeaderWrap = styled.div`
     display: flex;
     align-items: center;
     gap: 20px;
+    color: #4D4D4D;
+    font-size: 24px;
+    margin-right:10px;
+    line-height:50%;
 
     .menu-wrap {
       position: relative;
-      padding: 4px 8px;
+      border-radius: 5px;
+
+    &:hover {
+      background: #E6E6E680;
+    }
+      &:last-of-type {
+        border-radius: 50%;
+        padding: 4px;
+      }
 
       &:hover .sub-menu {
         display: block;
       }
+    }
+    
+    .icon-wrap{
+      padding: 8px;
     }
 
     .user-circle {
@@ -112,11 +141,16 @@ export const ProjectHeaderWrap = styled.div`
 
 .notification-icon {
     position: relative;
+    border-radius: 5px;
+
+    &:hover {
+      background: #E6E6E680;
+    }
     
     .notification-badge {
         position: absolute;
-        top: -2px;
-        right: -2px;
+        top: 4px;
+        right: 4px;
         width: 8px;
         height: 8px;
         background: #ff4d4f;
@@ -125,12 +159,10 @@ export const ProjectHeaderWrap = styled.div`
 }
 
     /* .notification-icon {
-      width: 32px;
-      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #666;
+      color: #4D4D4D;
       border-radius: 50%;
       cursor: pointer;
 
@@ -140,8 +172,6 @@ export const ProjectHeaderWrap = styled.div`
     } */
 
     .menu-text {
-      font-size: 14px;
-      color: #666;
       cursor: pointer;
 
       &:hover {
@@ -160,11 +190,12 @@ export const ProjectHeaderWrap = styled.div`
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       min-width: 150px;
       padding: 8px 0;
+      line-height: 1.5;
 
       li {
         padding: 8px 16px;
         font-size: 14px;
-        color: #666;
+        color: #4D4D4D;
         cursor: pointer;
 
         &:hover {
@@ -202,7 +233,7 @@ export const IntroHeaderWrap = styled.div`
       .logo {
         font-size: 20px;
         font-weight: 600;
-        color: #00A2B9;
+        color: #038C8C;
         text-decoration: none;
         
         &:hover {
@@ -216,9 +247,9 @@ export const IntroHeaderWrap = styled.div`
       
       .nav-link {
         font-size: 14px;
-        color: #666;
+        color: #4D4D4D;
         text-decoration: none;
-        padding: 4px 8px;  /* 링크 주변 여백 증가 */
+        padding: 8px;  /* 링크 주변 여백 증가 */
         
         &:hover {
           color: #333;
@@ -229,7 +260,7 @@ export const IntroHeaderWrap = styled.div`
 
   .menu-wrap {
       position: relative;
-      padding: 4px 8px;
+      padding: 8px;
 
       &:hover .sub-menu {
         display: block;
@@ -264,7 +295,7 @@ export const IntroHeaderWrap = styled.div`
       li {
         padding: 8px 16px;
         font-size: 14px;
-        color: #666;
+        color: #4D4D4D;
         cursor: pointer;
 
         &:hover {
@@ -295,7 +326,7 @@ export const IntroHeaderWrap = styled.div`
     }
 
     .btn-signup {
-      color: #666;
+      color: #4D4D4D;
       border: 1px solid #e5e5e5;
       
       &:hover {
@@ -304,7 +335,7 @@ export const IntroHeaderWrap = styled.div`
     }
 
     .btn-login {
-      background: #00A2B9;
+      background: #038C8C;
       color: white;
       
       &:hover {
@@ -350,7 +381,7 @@ export const Logo = styled.div`
   justify-content: center;
 
   svg {
-    width: 40px;
+    width: 152px;
     height: 40px;
     fill: #038c8c;
 
