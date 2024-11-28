@@ -29,25 +29,25 @@ const App: React.FC = () => {
       {/* <ActiveSprint /> */}
       <Router>
         <Routes>
-          <Route path="/" element={<Layout/>}>
-            <Route index element={<Intro/>}/>
-            <Route path="/login" element={<Login/>}/>
-            <Route path="/join" element={<Join/>}/>
-            <Route path="/rate" element={<RatePlan/>}/>
-            <Route path="/space" element={<SpaceAll/>}/>
-            <Route path="/projectlist" element={<ProjectList/>}/>
-            <Route path="/oauth" element={<OAuthCallback/>}/>
-            <Route path="/team" element={<TeamMa/>}/>
-            <Route path="/activesprint" element={<ActiveSprint/>}/>
-            <Route path="/dashboard" element={<Dashboard/>}/>
-            <Route path="/backlog" element={<Backlog/>}/>
-            <Route path="/issuelist" element={<IssueList/>}/>
-            <Route path="/chat" element={<Chat/>}/>
-            <Route path="/payment" element={<Payment/>}/>
-            <Route path="/spacemanagement" element={<SpaceManagement/>}/>
-            <Route path="/profile" element={<Profile/>}/>
-            <Route path="/issue/:id" element={<IssueDetail/>}/>
-            <Route path="/plan" element={<Plan/>}/>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Intro />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/join" element={<Join />} />
+            <Route path="/rate" element={<RatePlan />} />
+            <Route path="/space" element={<SpaceAll />} />
+            <Route path="/projectlist" element={<ProjectList />} />
+            <Route path="/oauth" element={<OAuthCallback />} />
+            <Route path="/team" element={<TeamMa />} />
+            <Route path="/activesprint" element={<ActiveSprint />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/backlog" element={<Backlog />} />
+            <Route path="/issuelist" element={<IssueList />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/spacemanagement" element={<SpaceManagement />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/issue/:id" element={<IssueDetail />} />
+            <Route path="/plan" element={<Plan />} />
           </Route>
         </Routes>
       </Router>

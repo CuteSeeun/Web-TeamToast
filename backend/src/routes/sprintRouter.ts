@@ -1,11 +1,9 @@
 import express, { Router } from 'express';
-import { getSprint } from '../controller/sprintController';
+import { getSprint, updateSprintStatus } from '../controller/sprintController';
 
 const router: Router = express.Router();
 
-router.get('/:projectid', (req, res, next) => {
-    console.log('Request received at /sprint/:projectid');
-    next();
-}, getSprint);
+router.get('/:projectid', getSprint);
+router.put('/:spid/status', updateSprintStatus); // 상태 변경 라우트 추가
 
 export default router;
