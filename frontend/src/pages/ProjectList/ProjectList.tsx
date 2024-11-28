@@ -1,3 +1,6 @@
+// 2024-11-25 한채경 수정, 11-28 마지막 수정
+// ProjectList.tsx
+
 import React, { useEffect, useState } from 'react';
 import { ProjectListWrap } from './ProjectStyle';
 import { GoPlus } from "react-icons/go";
@@ -10,6 +13,7 @@ import { Project } from '../../types/projectTypes';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { currentProjectState } from '../../recoil/atoms/projectAtoms';
 import { Issue, issueListState } from '../../recoil/atoms/issueAtoms';
+import { ReactComponent as ProjectAlert } from '../../assets/images/proejctAlert.svg';
 
 interface ModalState {
     isOpen: boolean;
@@ -37,6 +41,54 @@ const ProjectList = () => {
           setProjects(data);
         };
       } catch (err) {
+        // DB 서버 다운으로 인한 임시 더미데이터 코드
+        // if (axios.isAxiosError(err)) {
+        //   const dummyData = [
+        //     {
+        //       pid: 1,
+        //       pname: 'Smart Home Integration',
+        //       description: 'A project to integrate smart home devices for seamless automation.',
+        //       space_id: 1,
+        //     },
+        //     {
+        //       pid: 2,
+        //       pname: 'AI-Powered Shopping Assistant',
+        //       description: 'Developing a virtual assistant to enhance shopping experiences using AI.',
+        //       space_id: 1,
+        //     },
+        //     {
+        //       pid: 3,
+        //       pname: 'Gaming Console Upgrade',
+        //       description: 'Enhancing hardware and software for next-gen gaming performance.',
+        //       space_id: 1,
+        //     },
+        //     {
+        //       pid: 4,
+        //       pname: 'E-commerce Analytics Dashboard',
+        //       description: 'Creating an advanced dashboard for real-time analytics and sales tracking.',
+        //       space_id: 1,
+        //     },
+        //     {
+        //       pid: 5,
+        //       pname: 'Wearable Health Monitoring',
+        //       description: 'A project to design wearable devices for continuous health tracking.',
+        //       space_id: 1,
+        //     },
+        //     {
+        //       pid: 6,
+        //       pname: 'Cloud Storage Optimization',
+        //       description: 'Improving cloud storage performance and reliability for enterprise users.',
+        //       space_id: 1,
+        //     },
+        //     {
+        //       pid: 7,
+        //       pname: 'IoT Security Enhancement',
+        //       description: 'Developing security solutions for IoT ecosystems.',
+        //       space_id: 1,
+        //     }
+        //   ]
+        //   setProjects(dummyData);
+        // };
         console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
       } finally {
         setIsLoading(false); // 로딩 종료
@@ -144,7 +196,7 @@ const ProjectList = () => {
             // 삭제 API 호출
             console.log('삭제:', modal.projectId);
           try {
-            await axios.delete(`http://localhost:3001/projects/delete/${modal.projectId}`);
+            await axios.delete(`http://localhost:3001/projects/delete/1/${modal.projectId}`); // sid 임시로 1로 지정, 수정 필요
 
             // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외
             const newProjects = projects.filter(project => project.pid !== modal.projectId);
@@ -214,66 +266,82 @@ const ProjectList = () => {
           <h2>프로젝트</h2>
         </div>
 
-        <div className="table-container">
+        { projects.length !== 0 && <div className="table-container">
           {isAdmin && (   
             <button className="create-btn" onClick={() => openModal('create')}>
               <GoPlus /> 새 프로젝트 생성
             </button>
           )}
-        </div>
+        </div> }
             
-
-        <table className="project-table">
-          <thead>
-            <tr>
-              <th>이름</th>
-              <th>설명</th>
-                {isAdmin && <th>작업</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((project) => (
-              <tr key={project.pid}>
-                <td>
-                  <Link to='/activesprint' onClick={(e) => {
-                    saveProjectData(project.pid);
-                    saveIssuesData(project.pid);
-                    }}>
-                    <div className="project-info">
-                      {projImage(project)}
-                      {project.pname}
-                    </div>
-                  </Link>
-                </td>
-                <td>{project.description}</td>
-                  {isAdmin && (
+        { projects.length !== 0 ? (
+          <>
+            <table className="project-table">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>설명</th>
+                    {isAdmin && <th>작업</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {currentItems.map((project) => (
+                  <tr key={project.pid}>
                     <td>
-                      <div className="action-buttons">
-                        <button onClick={() => openModal('edit', project.pid)}><FiEdit2 /></button>
-                        <button onClick={() => openModal('delete', project.pid)}><FiTrash2 /></button>
-                      </div>
+                      <Link to='/activesprint' onClick={(e) => {
+                        saveProjectData(project.pid);
+                        saveIssuesData(project.pid);
+                        }}>
+                        <div className="project-info">
+                          {projImage(project)}
+                          {project.pname}
+                        </div>
+                      </Link>
                     </td>
-                  )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    <td>{project.description}</td>
+                      {isAdmin && (
+                        <td>
+                          <div className="action-buttons">
+                            <button onClick={() => openModal('edit', project.pid)}><FiEdit2 /></button>
+                            <button onClick={() => openModal('delete', project.pid)}><FiTrash2 /></button>
+                          </div>
+                        </td>
+                      )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
 
-        <div className="pagination">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            이전
-          </button>
-          {renderPaginationButtons()}
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            다음
-          </button>
-        </div>
+            <div className="pagination">
+              <button 
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                이전
+              </button>
+              {renderPaginationButtons()}
+              <button 
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                다음
+              </button>
+            </div>
+          </>) : (
+          <>
+          <div className='project-alert-container'>
+            <div className='project-alert-wrap'>
+              <ProjectAlert className='alert-svg' />
+              {isAdmin ? <p>현재 생성된 프로젝트가 없습니다. <br /> 새 프로젝트를 생성해 주세요.</p> : <p>현재 생성된 프로젝트가 없습니다. <br /> 관리자에게 문의해 주세요.</p>}
+              <button className="create-btn" onClick={() => openModal('create')}>
+                <GoPlus /> 새 프로젝트 생성
+              </button>
+            </div>
+          </div>
+          </>
+          )
+        }
+        
 
         <ProjectModal
           type={modal.type || 'create'}
