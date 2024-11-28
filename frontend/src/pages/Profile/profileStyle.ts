@@ -1,126 +1,84 @@
 import styled from "styled-components";
 
 export const ProfileWrap = styled.div`
-  max-width: 800px;
-  height: 570px;
-  margin:0 auto;
-  /* padding: 40px; */
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f0f0f0;
+   max-width: 800px;
+ height: 570px;
+ margin: 0 auto;
+ background: white;
+ border-radius: 8px;
+ border: 1px solid #f0f0f0;
 
+ h1 {
+   font-size: 20px;
+   text-align: center;
+   margin: 60px 0 60px 0;
+ }
 
-  h1 {
-    font-size: 20px;
-    text-align: center;
-    margin: 60px 0 60px 0;
-  }
+ .profile-container {
+   display: block;
+   padding: 0 40px;
+ }
 
-  .profile-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 100px;
-    padding:0 40px 0 40px;
-  }
+ .info-section {
+   h2 {
+     font-size: 16px;
+     font-weight: 500;
+     margin-bottom: 24px;
+     color: #333;
+   }
+ }
 
-  .info-section {
-    h2 {
-      font-size: 16px;
-      font-weight: 500;
-      margin-bottom: 24px;
-      color: #333;
-    }
-  }
+ .form-row {
+   margin-bottom: 24px;
+   position: relative;
 
-  .form-row {
-    margin-bottom: 24px;
-    position: relative;
+   label {
+     display: block;
+     font-size: 14px;
+     color: #666;
+     margin-bottom: 8px;
+   }
 
-    label {
-      display: block;
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 8px;
-    }
+   input {
+     width: 100%;
+     height: 40px;
+     border: 1px solid #e0e0e0;
+     border-radius: 4px;
+     padding: 0 12px;
+     font-size: 14px;
+   }
+ }
 
-    input {
-      width: 100%;
-      height: 40px;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      padding: 0 12px;
-      font-size: 14px;
-    }
-  }
+ .password-group {
+   position: relative;
+   margin-bottom: 40px;
+   
+   .change-pwd-btn {
+     width: 50%;
+     height: 40px;
+     border-radius: 4px;
+     font-size: 14px;
+     cursor: pointer;
+     background: #038c8c;
+     border: none;
+     color: white;
+     &:hover{background: #017276;}
+   }
 
-  .password-group {
-    position: relative;
-    margin-bottom: 40px;
-    
-    .change-pwd-btn {
-      width: 50%;
-      height: 40px;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      background: #038c8c;
-      border: none;
-      color: white;
-    }
-
-    .save-btn {
-      position: absolute;
-      right: 0;
-      bottom: -40px;
-      padding: 8px 20px;
-      height: 40px;
-      background: #038c8c;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-    }
-  }
-
-  button {
-    &.plan-btn, &.card-btn {
-      padding: 8px 20px;
-      height: 40px;
-      background: #038c8c;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-    }
-  }
-
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-
-    .label {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .value {
-      font-size: 14px;
-      color: #333;
-    }
-  }
-
-  .plan-info, .card-info {
-    margin-bottom: 32px;
-  }
-
-  .plan-btn, .card-btn {
-    margin-top: 16px;
-  }
+   .save-btn {
+     position: absolute;
+     right: 0;
+     bottom: -40px;
+     padding: 8px 20px;
+     height: 40px;
+     background: #038c8c;
+     border: none;
+     border-radius: 4px;
+     color: white;
+     font-size: 14px;
+     cursor: pointer;
+   }
+ }
 `
 
 export const PlanWrap = styled.div`
@@ -260,7 +218,7 @@ max-width: 800px;
 `
 
 export const PasswordModalWrap = styled.div`
-position: fixed;
+   position: fixed;
    top: 0;
    left: 0;
    right: 0;
@@ -287,6 +245,7 @@ position: fixed;
 
        .input-box {
            margin-bottom: 16px;
+           position: relative;
 
            label {
                display: block;
@@ -296,7 +255,7 @@ position: fixed;
            }
 
            input {
-               width: 330px;
+               width: 90%;
                padding: 10px 12px;
                border: 1px solid #e5e7eb;
                border-radius: 4px;
@@ -310,6 +269,22 @@ position: fixed;
                &::placeholder {
                    color: #9ca3af;
                }
+           }
+
+           .valid-feedback,
+           .invalid-feedback {
+               display: block;
+               font-size: 12px;
+               margin-top: 4px;
+               padding-left: 2px;
+           }
+
+           .valid-feedback {
+               color: #059669;
+           }
+
+           .invalid-feedback {
+               color: #dc2626;
            }
        }
 
@@ -342,6 +317,15 @@ position: fixed;
 
                    &:hover {
                        background: #017276;
+                   }
+
+                   &:disabled {
+                       background: #9ca3af;
+                       cursor: not-allowed;
+
+                       &:hover {
+                           background: #9ca3af;
+                       }
                    }
                }
            }
