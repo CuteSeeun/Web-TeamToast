@@ -124,7 +124,6 @@ const SBoard: React.FC = () => {
   const moveTask = (fromColumn: ColumnKey, toColumn: ColumnKey,
                     fromIndex: number, toIndex: number
   ) => {
-
     // // 유효성 검증 추가
     // //fromColumn과 toColumn이 columns 객체의 유효한 키인지 확인
     // if (!columns[fromColumn] || !columns[toColumn]) {
@@ -154,8 +153,6 @@ const SBoard: React.FC = () => {
     //     [toColumn]: toTasks, // 대상 컬럼 업데이트
     //   });
     // }
-
-
     setColumns((prevColumns) => {
       const updatedColumns = { ...prevColumns };
   
@@ -167,8 +164,6 @@ const SBoard: React.FC = () => {
   
       return updatedColumns;
     });
-
-
   };
 
 
@@ -191,7 +186,7 @@ const SBoard: React.FC = () => {
 
         <DndProvider backend={HTML5Backend}>
           <BoardMain>
-            <Column title="백로그" tasks={columns.backlog} columnId="backlog" onMoveTask={moveTask} />
+            <Column title="백로그" tasks={columns.backlog} columnId="backlog" onMoveTask={moveTask}/>
             <Column title="진행 중" tasks={columns.inProgress} columnId="inProgress" onMoveTask={moveTask} />
             <Column title="개발 완료" tasks={columns.done} columnId="done" onMoveTask={moveTask} />
             <Column title="QA 완료" tasks={columns.qa} columnId="qa" onMoveTask={moveTask} />

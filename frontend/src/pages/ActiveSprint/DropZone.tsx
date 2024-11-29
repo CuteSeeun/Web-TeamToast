@@ -12,30 +12,21 @@ const DropZone = styled.div<{ isOver: boolean }>`
 type DropZoneProps = {
     index: number;
     columnId: string;
+    // type: 'task' | 'bug',
     //   onMoveTask: (dragIndex: number, hoverIndex: number) => void;
     // onHoverTask: (dragIndex: number, hoverIndex: number) => void;
-    onDropTask: (dragIndex: number, hoverIndex: number, fromColumn: string) => void;
+    onDropTask: (dragIndex: number, hoverIndex: number | null, fromColumn: string, 
+                toColumn: string, isDropZone: boolean ,type: 'task' | 'bug',  ) => void;
 };
 
 const DropZoneComponent: React.FC<DropZoneProps> = ({
-    index, columnId, onDropTask,
+    index, columnId, onDropTask, 
 }) => {
     const [{ isOver }, dropRef] = useDrop({
         accept: "TASK",
-        // hover: (item: { index: number; fromColumn: string }) => {
-        //     //   if (item.fromColumn === columnId && item.index === index) return;
-        //     //   onMoveTask(item.index, index); // 드롭 영역 기준으로 태스크 이동
-        //     //   item.index = index; // 드래그 상태 업데이트
-        //     // 같은 위치에 드래그 중이면 아무 작업도 하지 않음
-        //     if (item.index === index && item.fromColumn === columnId) return;
-
-        //     // 태스크 중간 삽입 처리
-        //     onHoverTask(item.index, index);
-        //     // item.index = index; // 드래그 상태 업데이트
-        // },
-        drop: (item: { index: number; fromColumn: string }) => {
-            // 중간 삽입 최종 처리
-            onDropTask(item.index, index, item.fromColumn);
+        drop: (item: { index: number; fromColumn: string, title: string; type: 'task' | 'bug',  }) => {
+            onDropTask(item.index, index, item.fromColumn, columnId, true, item.type );
+            
           },
         collect: (monitor) => ({
             isOver: monitor.isOver(),

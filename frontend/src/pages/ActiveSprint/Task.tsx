@@ -38,6 +38,7 @@ const IconContainer = styled.div`
   }
 `;
 
+
 const Task: React.FC<{
   id: string;
   title: string;
@@ -45,11 +46,26 @@ const Task: React.FC<{
   columnId: ColumnKey
   type?: 'task' | 'bug'; // 아이콘 타입을 추가
   style?: React.CSSProperties; // style 속성을 선택적으로 추가
+  // // TaskProps;
+  // onSendData: (data: 'task' | 'bug') => void;
+  // onSendData?: (data: 'task' | 'bug') => void;
 }> = ({ id, title, index, columnId, type }) => {
+  
   const [, dragRef] = useDrag({
     type: "TASK",
-    item: { fromColumn: columnId, index }, // 드래그 중 전달할 데이터
+    item: { id, title, index, fromColumn: columnId, type }, // 드래그 중 전달할 데이터
     //여기서 fromColumn 값이 ColumnKey 타입으로 정확히 전달
+    collect: (monitor) => {
+      if (monitor.isDragging()) {
+        console.log(`Dragging Task: ${title}`); // 드래그 시작 시 title 출력
+      }
+    },
+    // end: (item, monitor) => {
+    //   if (monitor.didDrop()) {
+    //     // 부모로 데이터 전송
+    //     onSendData(type ?? 'task'); // 드래그된 데이터 타입을 전달
+    //   }
+    // },
 
   });
 

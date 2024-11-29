@@ -1,6 +1,6 @@
 //각 컬럼 : 백로그, 진행중, 개발 완료, QA완료
 
-import React from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import Task from './Task';
 import DropZoneComponent from './DropZone';
@@ -31,89 +31,82 @@ const ColumnTitle = styled.h2`
   margin-bottom: 20px;
 `;
 
-//hover와 drop 이벤트에서 Task 데이터와 상태를 동기화. hover에서 task위치가 실시간으로 변경되도록 수정한다. 
 const Column: React.FC<{
-  //컴포넌트 선언
-  title: string; tasks: Task[]; columnId: ColumnKey; // string 타입 대신 ColumnKey 타입을 사용
-  onMoveTask: (fromColumn: ColumnKey, toColumn: ColumnKey,
-               fromIndex: number, toIndex: number
+  title: string; 
+  tasks: Task[]; 
+  columnId: ColumnKey;
+  onMoveTask: (fromColumn: ColumnKey, toColumn: ColumnKey, fromIndex: number, toIndex: number
   ) => void;
-}> = ({ title, tasks, columnId, onMoveTask }) => {
-
-
-  // const [hoverIndex, setHoverIndex] = useState<number | null>(null); // hoverIndex를 상태로 관리
-
-  // const [{ isOver }, dropRef] = useDrop({
-  //   //타입 정의
-  //   accept: "TASK", // 드래그 가능한 타입
-
-  //   //드롭 영역의 상태를 추적한다
-  //   collect: (monitor) => ({
-  //     isOver: monitor.isOver(),
-  //   }),
-
-  //   //드래그 중에 드롭 영역 위에서 아이템이 호버링할 때 호출 
-  //   hover: (item: { fromColumn: ColumnKey; index: number; hoverIndex?: number }, monitor) => {
-
-
-  //   },
-
-  //   //아이템이 드롭되었을 때 호출된다. 
-  //   drop: (item: { fromColumn: ColumnKey; index: number; hoverIndex?: number }) => {
-  //     const dragIndex = item.index;//드래그 시작 위치의 인덱스
-  //     const dropIndex = tasks.length; // 드롭된 위치를 배열의 마지막으로 설정
-  //     // const dropIndex = item.hoverIndex ?? tasks.length; // hoverIndex가 없으면 마지막 위치로 이동
-  //     onMoveTask(item.fromColumn, columnId, dragIndex, dropIndex);//상태 업데이트
-  //     // onMoveTask(item.fromColumn, columnId, item.index, dropIndex);
-  //   },
-  // });
-
-  // // `isOver` 상태를 기반으로 테두리 색상 변경
-  // const borderColor = isOver ? "green" : "transparent";
+}> = ({ title, tasks, columnId, onMoveTask}) => {
 
   const [{ isOver }, dropRef] = useDrop({
     accept: "TASK",
-    drop: (item: { fromColumn: ColumnKey; index: number }) => {
-      // 다른 컬럼 간 이동 처리
-      if (item.fromColumn !== columnId) {
-        onMoveTask(item.fromColumn, columnId, item.index, tasks.length);
-      }
+    drop: (item: { fromColumn: ColumnKey; index: number; type: 'task' | 'bug' }) => {
+      handleDropTask(item.index, null, item.fromColumn, columnId, false, item.type); // 드랍존이 아님
+      // typeCallback(Task.type);
     },
-
-    //드롭 영역의 상태를 추적한다
     collect: (monitor) => ({
       isOver: monitor.isOver(),
     }),
   });
 
-  // const handleHoverTask = (dragIndex: number, hoverIndex: number) => {
-  //   // 같은 컬럼 내 태스크 중간 삽입 처리
-  //   // onMoveTask(columnId, columnId, dragIndex, hoverIndex);
-  // };
-  const handleDropTask = (dragIndex: number, hoverIndex: number, fromColumn: string
-  ) => {// 드롭 시 상태 최종 업데이트
-    // onMoveTask(fromColumn as ColumnKey, columnId, dragIndex, hoverIndex);
-    if (fromColumn === columnId) {
-      // 같은 컬럼 내에서 태스크 이동 처리
-      if (dragIndex !== hoverIndex) {
-        onMoveTask(columnId, columnId, dragIndex, hoverIndex);
+
+  //어느 곳에 드랍되었는지를 판별하는 함수
+  const handleDropTask = (dragIndex: number, 
+                          hoverIndex: number | null, 
+                          fromColumn: string, 
+                          toColumn: string, 
+                          isDropZone: boolean,
+                          type: 'task' | 'bug'
+  ) => {
+    setTimeout(() => {
+    if (fromColumn === toColumn) {
+      // if (dragIndex !== hoverIndex) {
+      //   onMoveTask(fromColumn as ColumnKey, toColumn as ColumnKey, dragIndex, hoverIndex);
+      // }
+      // 같은 컬럼 내에서 Task의 위치를 변경
+      if (isDropZone) {
+        if (dragIndex !== hoverIndex && hoverIndex !== null) {
+          onMoveTask(fromColumn as ColumnKey, toColumn as ColumnKey, dragIndex, hoverIndex);
+        }
+      } else {
+        onMoveTask(fromColumn as ColumnKey, toColumn as ColumnKey, dragIndex, tasks.length);
       }
     } else {
-      // 다른 컬럼에서 태스크 이동 처리
-      onMoveTask(fromColumn as ColumnKey, columnId, dragIndex, hoverIndex);
+      // onMoveTask(fromColumn as ColumnKey, toColumn as ColumnKey, dragIndex, hoverIndex);
+      if (isDropZone) {
+        if (hoverIndex !== null) {
+          onMoveTask(fromColumn as ColumnKey, toColumn as ColumnKey, dragIndex, hoverIndex);
+        }
+      } else {
+        // 드랍존이 아닌 곳에 드랍 -> 컬럼 변경, 마지막으로 이동
+        onMoveTask(fromColumn as ColumnKey, toColumn as ColumnKey, dragIndex, tasks.length);
+      }
     }
+  }, 0); // 상태 변경을 0ms 뒤로 지연
   };
 
-  // `isOver` 상태를 기반으로 테두리 색상 변경
+
+  // const [dataFromChild, setDataFromChild] = useState<'task' | 'bug'>('task');
+
+  // // 자식이 호출할 콜백 함수
+  // const typeCallback = (data: 'task' | 'bug') => {
+  //   console.log('Received from child - type :', data);
+  //   setDataFromChild(data); // 부모의 state를 업데이트
+  // };
+
+
+  // `isOver` 상태를 기반으로 ColumnContainer(컬럼) 테두리 색상 변경
   const borderColor = isOver ? "green" : "transparent";
 
+  // type Task = { id: string; title: string; type: 'task' | 'bug' };
   return (
-    // style={{ border: `2px solid ${borderColor}` }}
     <ColumnContainer ref={dropRef} style={{ border: `2px solid ${borderColor}` }}>
       <ColumnTitle>
         {title} ({tasks.length})
       </ColumnTitle>
       {tasks.map((task, index) => (
+        
         //   <Task key={index} id={`task-${index}`} title={task}
         //     index={index} columnId={columnId}
         //      /> 
@@ -127,12 +120,14 @@ const Column: React.FC<{
         //   <DropZoneComponent index={tasks.length} columnId={columnId} onMoveTask={handleMoveTask} />
 
         <React.Fragment key={index}>
-          <DropZoneComponent index={index} columnId={columnId} onDropTask={handleDropTask}/>
+          <DropZoneComponent index={index} columnId={columnId}  onDropTask={handleDropTask} />
           <Task id={`task-${index}`} title={task.title}
-                index={index} columnId={columnId} type={task.type} />
+            index={index} columnId={columnId} type={task.type} />
+
+          {/* <DropZoneComponent index={tasks.length} columnId={columnId} onDropTask={handleDropTask}/> */}
         </React.Fragment>
       ))}
-      <DropZoneComponent index={tasks.length} columnId={columnId} onDropTask={handleDropTask}/>
+      {/* <DropZoneComponent index={tasks.length} columnId={columnId}  onDropTask={handleDropTask} /> */}
     </ColumnContainer>
   );
 };
