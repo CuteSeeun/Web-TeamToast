@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { getIssue } from '../controller/issueController';
+import { getIssue } from '../controller/BissueController';
 
 const router: Router = express.Router();
 

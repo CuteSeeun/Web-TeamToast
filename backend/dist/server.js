@@ -5,25 +5,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const morgan_1 = __importDefault(require("morgan"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
+// 2024-11-28 조하영
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
-const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
-const singleIssueRouter_1 = __importDefault(require("./routes/singleIssueRouter"));
-const userRouter_1 = __importDefault(require("./routes/userRouter")); // userRouter 임포트
-const app = (0, express_1.default)();
+const SissueRouter_1 = __importDefault(require("./routes/SissueRouter"));
+const BIssueRouter_1 = __importDefault(require("./routes/BIssueRouter"));
+const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
 // 미들웨어 설정
+const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-app.use((0, morgan_1.default)('dev'));
 // 정적 파일 제공
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 // 라우터 설정
 app.use('/sprint', sprintRouter_1.default);
-app.use('/issue', issueRouter_1.default);
-app.use('/issue', singleIssueRouter_1.default);
-app.use('/user', userRouter_1.default); // userRouter 추가
+app.use('/issue', SissueRouter_1.default);
+app.use('/issue', BIssueRouter_1.default);
+app.use('/user', BuserRouter_1.default);
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

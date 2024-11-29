@@ -1,10 +1,9 @@
-// sprintAtoms.tsx
 import { atom, selector } from 'recoil';
 
 // 스프린트 상태 ENUM 타입 정의
-type SprintStatus = 'disabled' | 'enabled' | 'end';
+export type SprintStatus = 'disabled' | 'enabled' | 'end';
 
-interface Sprint {
+export interface Sprint {
     spid: number;
     spname: string;
     status: SprintStatus;

@@ -1,24 +1,15 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
-
-interface Issue {
-    id: number;
-    isid: number; 
-    title: string;
-    type: string;
-    priority: string;
-    manager: string;
-    status: string;
-}
+import { Issue } from '../../recoil/atoms/issueAtoms'; // 올바른 Issue 인터페이스를 가져옵니다.
 
 interface DragItemProps {
-    issue: Issue;
+  issue: Issue;
 }
 
 const DragItem: React.FC<DragItemProps> = ({ issue }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'ITEM',
-    item: issue, 
+    item: issue, // 이슈 객체 전체를 설정합니다.
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),

@@ -1,28 +1,26 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import morgan from 'morgan';
 import path from 'path';
 import pool from './config/dbpool';
-import sprintRouter from './routes/sprintRouter';
-import issueRouter from './routes/issueRouter';
-import singleIssueRouter from './routes/singleIssueRouter';
-import userRouter from './routes/userRouter'; // userRouter 임포트
-
-const app: Application = express();
+// 2024-11-28 조하영
+import BsprintRouter from './routes/sprintRouter';
+import SissueRouter from './routes/SissueRouter';
+import singleIssueRouter from './routes/BIssueRouter';
+import BuserRouter from './routes/BuserRouter';
 
 // 미들웨어 설정
+const app: Application = express();
 app.use(express.json());
 app.use(cors());
-app.use(morgan('dev'));
 
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 라우터 설정
-app.use('/sprint', sprintRouter);
-app.use('/issue', issueRouter);
+app.use('/sprint', BsprintRouter);
+app.use('/issue', SissueRouter);
 app.use('/issue', singleIssueRouter);
-app.use('/user', userRouter); // userRouter 추가
+app.use('/user', BuserRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

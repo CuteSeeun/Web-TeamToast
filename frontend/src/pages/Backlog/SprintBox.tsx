@@ -1,51 +1,23 @@
-// SprintBox.tsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { BsThreeDots } from "react-icons/bs";
 import { AddIssueLink, IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox } from "./backlogstyle";
-import { sprintState, sortedSprintsState, filterState } from '../../recoil/atoms/sprintAtoms';
+import { sprintState, sortedSprintsState, filterState, Sprint, SprintStatus } from '../../recoil/atoms/sprintAtoms';
+import { issueListState, Issue } from '../../recoil/atoms/issueAtoms';
 import DragItem from './DragItem';
 import { useDrop } from 'react-dnd';
 
-interface Issue {
-    id: number;
-    isid: number;
-    title: string;
-    type: string;
-    priority: string;
-    manager: string;
-    status: string;
-    sprint_id?: number | null;
-    project_id?: number;
-    created_by?: string;
-    detail?: string;
-    file?: string;
-}
-
-
 interface SprintProps {
     sprint: Sprint;
-    onDrop: (issue: Issue, newSprintId: number | null) => void; // newSprintId 타입으로 수정
-}
-
-type SprintStatus = 'disabled' | 'enabled' | 'end';
-
-interface Sprint {
-    spid: number;
-    spname: string;
-    status: SprintStatus;
-    goal: string;
-    enddate: string;
-    startdate: string;
-    project_id: number;
+    onDrop: (issue: Issue, newSprintId: number | null) => void;
 }
 
 const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
     const setSprints = useSetRecoilState(sprintState);
+    const [issues, setIssues] = useRecoilState(issueListState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
     const filter = useRecoilValue(filterState);
-    const [issues, setIssues] = useState<Issue[]>([]);
     const [activeSprint, setActiveSprint] = useState<Sprint | null>(null);
 
     useEffect(() => {
@@ -53,13 +25,17 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
             try {
                 const projectId = sprint.project_id;
                 const response = await axios.get<Issue[]>(`/issue/${projectId}/${sprint.spid}`);
-                setIssues(response.data);
+                console.log('Fetched issues for sprint:', response.data);
+                setIssues(prevIssues => ({
+                    ...prevIssues,
+                    [sprint.spid]: response.data
+                }));
             } catch (error) {
                 console.error('Error fetching issues:', error);
             }
         };
         fetchIssues();
-    }, [sprint]);
+    }, [sprint, setIssues]);
 
     useEffect(() => {
         const active = sortedSprints.find(s => s.status === 'enabled');
@@ -92,16 +68,16 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
 
     const shouldHideButton = activeSprint !== null && activeSprint.spid !== sprint.spid;
 
-    const filteredIssues = issues.filter(issue =>
+    const filteredIssues = (issues[sprint.spid] || []).filter(issue =>
         (!filter.manager || issue.manager === filter.manager) &&
         (!filter.status || issue.status === filter.status) &&
         (!filter.priority || issue.priority === filter.priority)
     );
-
+    console.log('Filtered issues for sprint:', filteredIssues);
 
     const [{ isOver }, drop] = useDrop({
         accept: 'ITEM',
-        drop: (item: Issue) => onDrop(item, sprint.spid), // 스프린트의 ID를 전달합니다.
+        drop: (item: Issue) => onDrop(item, sprint.spid),
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
         }),
@@ -141,7 +117,7 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                         </tr>
                     ) : (
                         filteredIssues.map(issue => (
-                            <DragItem key={issue.id} issue={issue} />
+                            <DragItem key={issue.isid} issue={issue} />
                         ))
                     )}
                 </tbody>
@@ -150,7 +126,5 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
         </StyledSprintBox>
     );
 };
-
-
 
 export default SprintBox;
