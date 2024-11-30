@@ -2,7 +2,7 @@
 // projectRouter.ts
 
 import express from 'express';
-import { getAllProjects, getProjects, getProject, newProject, modifyProject, deleteProject } from '../controller/projectController.js';
+import { getAllProjects, getProjects, getProject, newProject, modifyProject, deleteProject } from '../controller/projectController';
 import { validateSid, validatePid } from '../middlewares/idMiddleware.js';
 import { validateProjectFields } from '../middlewares/checkProjectInputs.js';
 // 임시 사용자 정보
