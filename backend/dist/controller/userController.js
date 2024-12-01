@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkEmail = exports.getInfo = exports.login = exports.join = void 0;
+
+exports.checkEmail = exports.getInfo = exports.logout = exports.login = exports.join = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dbpool_1 = __importDefault(require("../config/dbpool")); // 기존 db 연결 모듈 사용
@@ -40,9 +41,14 @@ const join = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.join = join;
 // 로그인 함수
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+
+    console.log('Login request received:', req.body);
     const { useremail, userpw } = req.body;
     try {
+        console.log('Querying user:', useremail);
         const [rows] = yield dbpool_1.default.query('SELECT * FROM User WHERE email = ?', [useremail]);
+        console.log('Query result:', rows);
+
         if (rows.length === 0) {
             res.status(401).json({ message: '사용자 없음' });
             return;
@@ -50,20 +56,33 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const user = rows[0];
         console.log('DB에서 가져온 사용자:', user);
         const isPw = yield bcrypt_1.default.compare(userpw, user.passwd);
+
+        console.log('Password check:', isPw);
+
+
         if (!isPw) {
             res.status(401).json({ message: '비밀번호 틀림' });
             return;
         }
-        const token = jsonwebtoken_1.default.sign({ uid: user.uid, uname: user.uname }, 'secretKey', { expiresIn: '1h' });
-        // 리프레시 토큰 사용하려면 두번째 토큰 생성 (추후 예정)
-        // const token2 = jwt.sign(
-        //   { uid: user.uid, uname: user.uname },
-        //   'secretKey',
-        //   { expiresIn: '1h' }
-        // );
+
+        // 더미용 나중에 삭제 ----------------------------------------------------
+        // 더미데이터용 직접 비교
+        // const isPw = userpw === user.passwd;
+        // console.log('Password check:', isPw);
+        // if (!isPw) {
+        //   res.status(401).json({ message: '비밀번호 틀림' });
+        //   return;
+        // }
+        // ----------------------------------------------------------------------------
+        const accessToken = jsonwebtoken_1.default.sign({ uid: user.uid, uname: user.uname, email: user.email }, 'accessSecretKey', { expiresIn: '15m' });
+        // 기존 리프레시 토큰 삭제
+        yield dbpool_1.default.query('DELETE FROM RefreshTokens WHERE user_id = ?', [user.uid]);
+        const refreshToken = jsonwebtoken_1.default.sign({}, 'refreshSecretKey', { expiresIn: '15d' });
+        yield dbpool_1.default.query(`INSERT INTO RefreshTokens (user_id, refresh_token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 15 DAY))`, [user.uid, refreshToken]);
         res.json({
             message: '로그인 성공',
-            token,
+            accessToken,
+            refreshToken,
             user: {
                 uid: user.uid,
                 uname: user.uname,
@@ -78,6 +97,25 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.login = login;
 //----------------------------------------------------------------------------------------
+
+//로그아웃 함수
+const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.uid;
+        if (userId) {
+            yield dbpool_1.default.query('delete from RefreshTokens where user_id = ?', [userId]);
+        }
+        res.status(200).json({ message: '로그아웃 성공' });
+    }
+    catch (error) {
+        console.error('로그아웃 처리 중 에러:', error);
+        res.status(500).json({ message: '로그아웃 처리 중 에러가 발생했습니다.' });
+    }
+});
+exports.logout = logout;
+//--------------------------------------------------------------------------------
+
 // 사용자 정보 조회 (토큰 검증) 함수 // 새로고침
 const getInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -87,7 +125,9 @@ const getInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return;
     }
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, 'secretKey');
+
+        const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
+
         const [rows] = yield dbpool_1.default.query('SELECT uid, uname, email FROM User WHERE uid = ?', [decoded.uid]);
         if (rows.length === 0) {
             res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });

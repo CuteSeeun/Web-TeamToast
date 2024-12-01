@@ -7,96 +7,88 @@ export const SpaceAllWrap = styled.div`
   min-height: 500px;
   padding: 40px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
-    .spaceTop{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end; 
-    position: relative;    
-    }
+  .spaceTop {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    position: relative;
+  }
 
   h2 {
-    position: absolute; 
-        width: 100%;      
-        text-align: center;
-        font-size: 32px;
-        font-weight: 400;
-        margin-bottom: 40px;
-        left: 0;     
-    
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 40px;
+    left: 0;
   }
 
   .create-btn {
-    margin-top: 50px;  
-        display: flex;
-        align-items: center; 
-        width: 162px;
-        height: 50px;
-        gap: 8px;
-        padding: 8px 16px;
-        border: 1px solid #e5e5e5;
-        border-radius: 10px;
-        background: white;
-        color: #666;
-        cursor: pointer;
-    
+    margin-top: 50px;
+    display: flex;
+    align-items: center;
+    width: 162px;
+    height: 50px;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    background: white;
+    color: #666;
+    cursor: pointer;
+
     &:hover {
       background: #f5f5f5;
-    }
-
-    svg {
-      font-size: 18px;
     }
   }
 
   .space-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
+    margin-top: 60px;
 
-  .space-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    /* width: 500px;
-    height: 100px; */
-
-    &:hover {
-      background: #f5f5f5;
+    .centered-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 250px; /* 메시지를 중앙에 위치시키기 위해 충분한 높이 설정 */
+      text-align: center;
+      font-size: 25px;
+      color: #999;
+      font-weight: 900;
     }
 
-    .color-box {
-      width: 40px;
-      height: 40px;
-      border-radius: 4px;
-    }
+    .space-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      text-decoration: none;
+      color: inherit;
 
-    .space-info {
-      h3 {
-        font-size: 16px;
-        font-weight: 500;
-        color: #333;
-        margin-bottom: 4px;
+      .color-box {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        margin-right: 16px;
       }
 
-      p {
-        font-size: 14px;
-        color: #666;
+      .space-info {
+        h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+        }
+      }
+
+      &:hover {
+        background: #f9f9f9;
       }
     }
   }
-
-  .color-1 { background: #ff8787; }
-  .color-2 { background: #ffd43b; }
-  .color-3 { background: #a9e34b; }
-  .color-4 { background: #66d9e8; }
-  .color-5 { background: #748ffc; }
 `
 
 export const SpaceModalWrap = styled.div`
@@ -188,7 +180,6 @@ export const SpaceEditWrap = styled.div`
  padding: 40px;
  background: white;
  border-radius: 8px;
- box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
  border: 1px solid #f0f0f0;
  position: relative;
 
@@ -217,7 +208,6 @@ export const SpaceEditWrap = styled.div`
         &.active {
             color: #00A3BF;
             font-weight: 600;
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.05);
             border-color: #00A3BF;
             padding-left: 28px;  // 활성화됐을 때 살짝 더 튀어나오게
         }

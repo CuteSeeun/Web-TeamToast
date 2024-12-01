@@ -15,30 +15,24 @@ const sendPhoneVerification = async (
    const connection: PoolConnection = await pool.getConnection();
    try {
        await connection.beginTransaction();
-
        const { phoneNumber } = req.body;
        const verificationCode = generateVerificationCode();
-
        // 기존 인증번호 삭제
        await connection.query(
            'DELETE FROM verification WHERE tel = ?',
            [phoneNumber]
        );
-       
        // 새 인증번호 저장
        await connection.query(
            `INSERT INTO verification (tel, code)
            VALUES (?, ?)`,
            [phoneNumber, verificationCode]
        );
-
        // SMS 발송
        await sendSMS(phoneNumber, `인증번호는 [${verificationCode}] 입니다.`);
-
        // db 저장
        await connection.commit();
        res.json({ success: true, message: '인증번호가 발송되었습니다.' });
-
    } catch (error) {
        // db 삭제
        await connection.rollback();
@@ -55,10 +49,8 @@ const verifyPhoneCode = async (
    res: Response
 ): Promise<void> => {
    const connection: PoolConnection = await pool.getConnection();
-
    try {
        await connection.beginTransaction();
-
        const { phoneNumber, code } = req.body;
        console.log('받은 데이터:', { phoneNumber, code }); 
 
@@ -68,7 +60,6 @@ const verifyPhoneCode = async (
            WHERE tel = ? AND code = ? LIMIT 1`,
            [phoneNumber, code]
        );
-
        if (rows.length === 0) {
            res.status(400).json({
                success: false,
@@ -81,7 +72,6 @@ const verifyPhoneCode = async (
            'DELETE FROM verification WHERE tel = ?',
            [phoneNumber]
        );
-
        await connection.commit();
        res.json({ success: true, message: '인증이 완료되었습니다.' });
 

@@ -45,7 +45,6 @@ export const LoginWrap = styled.div`
     background: #ffffff;
     padding: 30px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 400px;
     width: 100%;
     text-align: center;
@@ -199,7 +198,6 @@ export const JoinWrap = styled.div`
     background: #ffffff;
     padding: 30px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     max-width: 400px;
     width: 100%;
     text-align: center;
