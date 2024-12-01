@@ -18,6 +18,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.4",
     "solapi": "^5.3.1"
@@ -27,9 +28,10 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^22.9.0",
+    "@types/node": "^22.10.1",
     "concurrently": "^9.1.0",
     "nodemon": "^3.1.7",
-    "typescript": "^5.6.3"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }
