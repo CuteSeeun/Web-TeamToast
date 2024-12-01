@@ -25,7 +25,7 @@ const OAuthCallback = () => {
             )
             .then(response => {
                 const {token,user} = response.data;
-                sessionStorage.setItem('token',token);
+                localStorage.setItem('accessToken',token);
                 setUser(user)
 
                 navi('/');

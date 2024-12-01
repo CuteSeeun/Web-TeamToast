@@ -193,7 +193,6 @@ export const ProjectModalWrap = styled.div`
    border-radius: 8px;
    width: 100%;
    max-width: 400px;
-   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
    h3 {
      margin: 0 0 20px 0;
@@ -229,7 +228,6 @@ export const ProjectModalWrap = styled.div`
        &:focus {
          outline: none;
          border-color: #038C8C;
-         box-shadow: 0 0 0 2px rgba(0, 163, 191, 0.1);
        }
 
        &::placeholder {

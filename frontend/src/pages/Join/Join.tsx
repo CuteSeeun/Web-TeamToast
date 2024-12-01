@@ -37,17 +37,14 @@ const Join: React.FC = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-      
         setData(prevData => {
             const newData = {
                 ...prevData ,
                 [name]:value
             };
-
             if(name === 'email'){
                 setIsEmailCheck(false);
             }
-
             if(name === 'userpw' || name === 'userpwConfirm'){
                 setPassOk(
                     name === 'userpw' ? value === newData.userpwConfirm : 
@@ -56,8 +53,6 @@ const Join: React.FC = () => {
             }
             return newData;
         })
-        
-
     };
     
     //핸드폰 번호 형식 검증
@@ -93,7 +88,6 @@ const Join: React.FC = () => {
         }finally {
             setPloading(false);
         }
-
     }
 
     //핸드폰 인증번호 발송 요청

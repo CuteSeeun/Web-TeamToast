@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'; // Express에서 Request, Response 타입 가져오기
-import { RowDataPacket } from 'mysql2/promise'; // mysql2의 Pool 타입 정의
+import { RowDataPacket, PoolConnection } from 'mysql2/promise'; // mysql2의 Pool 타입 정의
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import pool from '../config/dbpool'; // 기존 db 연결 모듈 사용
@@ -16,6 +16,7 @@ interface UserRow extends RowDataPacket {
 interface JwtPayload {
   uid: number;
   uname: string;
+  email:string; // 스페이스 때문에 email 추가
 }
 
 // 회원가입 함수
@@ -27,14 +28,10 @@ export const join = async (req: Request, res: Response): Promise<void> => {
     tel: string;
   };
 
-  const connection = await pool.getConnection();
-
+  const connection:PoolConnection = await pool.getConnection();
   try {
-
     await connection.beginTransaction();
-
     const hashPw = await bcrypt.hash(userpw, 10);
-
     // 사용자 정보 저장
     const [userResult]:any = await connection.query(
       'INSERT INTO User(uname, email, passwd, tel) VALUES (?, ?, ?, ?)',
@@ -55,13 +52,20 @@ export const join = async (req: Request, res: Response): Promise<void> => {
 // 로그인 함수
 export const login = async (req: Request, res: Response): Promise<void> => {
   
+  console.log('Login request received:', req.body); 
+
   const { useremail, userpw } = req.body;
 
   try {
+
+    console.log('Querying user:', useremail); 
+
     const [rows] = await pool.query<UserRow[]>(
       'SELECT * FROM User WHERE email = ?',
       [useremail]
     );
+
+    console.log('Query result:', rows);  
 
     if (rows.length === 0) {
       res.status(401).json({ message: '사용자 없음' });
@@ -72,26 +76,51 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     console.log('DB에서 가져온 사용자:', user);
 
     const isPw = await bcrypt.compare(userpw, user.passwd);
+    console.log('Password check:', isPw);
+
     if (!isPw) {
       res.status(401).json({ message: '비밀번호 틀림' });
       return;
     }
 
-    const token = jwt.sign(
-      { uid: user.uid, uname: user.uname },
-      'secretKey',
-      { expiresIn: '1h' }
-    );
-    // 리프레시 토큰 사용하려면 두번째 토큰 생성 (추후 예정)
-    // const token2 = jwt.sign(
-    //   { uid: user.uid, uname: user.uname },
-    //   'secretKey',
-    //   { expiresIn: '1h' }
-    // );
+    // 더미용 나중에 삭제 ----------------------------------------------------
+    // 더미데이터용 직접 비교
+    // const isPw = userpw === user.passwd;
+    // console.log('Password check:', isPw);
 
+    // if (!isPw) {
+    //   res.status(401).json({ message: '비밀번호 틀림' });
+    //   return;
+    // }
+    // ----------------------------------------------------------------------------
+
+    const accessToken = jwt.sign(
+      { uid: user.uid, uname: user.uname , email:user.email },
+      'accessSecretKey',
+      { expiresIn: '15m' }
+    );
+
+     // 기존 리프레시 토큰 삭제
+     await pool.query(
+      'DELETE FROM RefreshTokens WHERE user_id = ?',
+      [user.uid]
+    );
+
+    const refreshToken = jwt.sign(
+      {},
+      'refreshSecretKey',
+      { expiresIn: '15d' }
+  );
+
+    await pool.query(
+      `INSERT INTO RefreshTokens (user_id, refresh_token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 15 DAY))`,
+      [user.uid, refreshToken]
+  );
+  
     res.json({
       message: '로그인 성공',
-      token,
+      accessToken,
+      refreshToken,
       user: {
         uid: user.uid,
         uname: user.uname,
@@ -106,6 +135,22 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 //----------------------------------------------------------------------------------------
 
+//로그아웃 함수
+export const logout = async (req:Request , res:Response):Promise<void> =>{
+  try {
+    const userId = req.user?.uid;
+    
+    if(userId){
+      await pool.query('delete from RefreshTokens where user_id = ?',[userId]);
+    }
+    res.status(200).json({message:'로그아웃 성공'});
+  } catch (error) {
+    console.error('로그아웃 처리 중 에러:', error);
+    res.status(500).json({ message: '로그아웃 처리 중 에러가 발생했습니다.' });
+  }
+}
+
+//--------------------------------------------------------------------------------
 // 사용자 정보 조회 (토큰 검증) 함수 // 새로고침
 export const getInfo = async (req: Request, res: Response): Promise<void> => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -116,7 +161,7 @@ export const getInfo = async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const decoded = jwt.verify(token, 'secretKey') as JwtPayload;
+    const decoded = jwt.verify(token, 'accessSecretKey') as JwtPayload;
 
     const [rows] = await pool.query<UserRow[]>(
       'SELECT uid, uname, email FROM User WHERE uid = ?',

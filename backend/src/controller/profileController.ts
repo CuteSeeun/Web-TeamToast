@@ -11,16 +11,17 @@ interface ProfileRequest extends Request {
 }
 
 // 프로필 업데이트 함수
-export const updateProfile = async(req: ProfileRequest, res: Response) =>{
+export const updateProfile = async(req: ProfileRequest, res: Response):Promise<void> =>{
     //jwt 토큰 추출
     const token = req.headers.authorization?.split(' ')[1];
 
     // 토큰이 없는 경우 인증 오류 반환
     if(!token){
-        return res.status(401).json({
+        res.status(401).json({
             success:false,
             message:'인증 필요'
         });
+        return;
     }
     try {
         // 토큰 검증 및 사용자 정보 추출

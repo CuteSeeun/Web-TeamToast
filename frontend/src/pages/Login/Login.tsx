@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LoginWrap } from '../../components/NavStyle'; 
 import { RiKakaoTalkFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AccessToken from './AccessToken';
 
 const Login:React.FC = () => {
     const [useremail , setUseremail] = useState<string>('');
     const [userpw , setUserpw] = useState<string>('');
+    const [isLoading,setIsLoading] = useState<boolean>(false);
     const navi = useNavigate();
 
     //로그인 정보 확인
@@ -15,6 +17,11 @@ const Login:React.FC = () => {
     // 로그인 성공 시 토큰 저장
     const infoCheck = async(e:React.FormEvent)=>{
         e.preventDefault();
+
+        console.log('Sending login data:', { useremail, userpw });
+
+        if (isLoading) return;
+
         if(useremail === '' && userpw === ''){
             alert('아이디와 비밀번호를 입력해주세요');
             return;
@@ -27,21 +34,24 @@ const Login:React.FC = () => {
         }
         
         try {
+            console.log('Attempting login with:', { useremail, userpw });
             const response= await axios.post('http://localhost:3001/editUser/loginUser',{
                 useremail,
                 userpw
             });
 
-            const {user,token} = response.data;
+            console.log('Login response:', response.data); 
 
-            if (!user || !token) {
+            const { accessToken, refreshToken, user } = response.data;
+
+            if (!user || !accessToken || !refreshToken) {
                 throw new Error('로그인 응답 데이터가 올바르지 않습니다.');
             }
 
-            sessionStorage.setItem('token',token);
+            localStorage.setItem('accessToken',accessToken);
           
-            navi('/')
-            window.location.reload();
+            await navi('/');
+            setTimeout(() => window.location.reload(), 100);
 
         } catch (error:any) {
             if (error.response && error.response.status === 403) {
@@ -74,6 +84,7 @@ const Login:React.FC = () => {
             <div className="inner">
                 <h2>로그인</h2>
                 <p>TeamToast에 오신 것을 환영합니다.</p>
+                <form onSubmit={infoCheck}> 
                 <div className="inputBox">
                     <input type="text" value={useremail} onChange={e=> setUseremail(e.target.value)} placeholder='이메일를 입력해주세요' />
                 </div>
@@ -81,8 +92,9 @@ const Login:React.FC = () => {
                     <input type="password" value={userpw} onChange={e=> setUserpw(e.target.value)} placeholder='비밀번호를 입력해주세요' />
                 </div>
                 <div>
-                    <button type='submit' className='loginBtn' onClick={infoCheck}>로그인</button>
+                    <button type='submit' className='loginBtn'>로그인</button>
                 </div>
+                </form>
                 <div className="social-section">
                     <div className="line-wrapper">
                         <div className="line"></div>

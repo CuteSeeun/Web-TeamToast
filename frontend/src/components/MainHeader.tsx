@@ -13,7 +13,7 @@ const Header = () => {
     // 인트로헤더 요금 로그인 회원가입 있는헤더
     const showIntro = ['/','/price', '/rate'].includes(pathname);
     // 로고만 있는 헤더
-    const showLogo = ['/login','/join','/space'].includes(pathname);
+    const showLogo = ['/login','/join','/space','/profile'].includes(pathname);
 
 
     return (
