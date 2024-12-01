@@ -1,14 +1,77 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProfileWrap } from './profileStyle';
-import { Link } from 'react-router-dom';
 import PasswordModal from './PasswordModal';
+import {useRecoilValue, useSetRecoilState } from 'recoil';
+import { userState } from '../../recoil/atoms/userAtoms';
+import axios from 'axios';
 
-// interface ProfileProps {
-//     isAdmin?: boolean;
-// }
+interface FormData {
+    uname : string;
+    email : string;
+}
 
-const Profile = () => {
-    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+const Profile:React.FC = () => {
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState<boolean>(false);
+    const user = useRecoilValue(userState);
+    const setUser = useSetRecoilState(userState);
+    const [formData , setFormData] = useState<FormData>({
+        uname: '',
+        email: ''        
+    });
+    
+
+    // user 정보가 업데이트 될때마다 input에 값 입력
+    useEffect(()=>{
+            if(user){
+                setFormData({
+                    uname: user?.uname || '',
+                    email: user?.email || ''
+                });
+            }
+    },[user]);
+    
+    // 값 변경 후 state에 저장
+    const valueChange = (e:React.ChangeEvent<HTMLInputElement>) =>{
+        const {name , value} = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]:value
+        }))
+    }
+
+    //프로필 정보 변경
+    const editInfo = async()=>{
+        const token = sessionStorage.getItem('token');
+
+        try {
+            const response = await axios.post("http://localhost:3001/editUser/user/profile",{
+                uname:formData.uname,
+                email:formData.email
+            },{
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            });
+            if(response.data && response.data.success){
+                //recoil 상태 업데이트
+                setUser({
+                    uid: response.data.user.uid,  
+                    uname: response.data.user.uname,
+                    email: response.data.user.email,
+                    isLoggedIn: true,  
+                    token: token || '',  
+                    role: user?.role || 'member'  
+                });
+
+                alert('수정 완료');
+            }
+            window.location.reload();
+
+        } catch (error) {
+            console.log('에러 발생',error);
+            alert('수정 실패');
+        }
+    }
 
     return (
         <ProfileWrap>
@@ -20,12 +83,12 @@ const Profile = () => {
                     
                     <div className="form-row">
                         <label>이름</label>
-                        <input type="text" value="사용자1"  />
+                        <input type="text" name='uname' value={formData.uname} onChange={valueChange}  />
                     </div>
 
                     <div className="form-row">
                         <label>이메일</label>
-                        <input type="email" value="user1@example.com"  />
+                        <input type="email" name='email' value={formData.email} onChange={valueChange}  />
                     </div>
 
                     <div className="form-row">
@@ -33,41 +96,13 @@ const Profile = () => {
                         <div className="password-group">
                             <button className="change-pwd-btn" 
                              onClick={() => setIsPasswordModalOpen(true)}>비밀번호 변경하기</button>
-                            <button className="save-btn">수정</button>
+                            <button className="save-btn" onClick={editInfo}>수정</button>
                         </div>
                     </div>
                 </div>
-
-                 <div className="info-section">
-                    <h2>플랜 정보</h2>
-                    <div className="plan-info">
-                        <div className="info-row">
-                            <span className="label">내 요금제</span>
-                            <span className="value">팀 요금제</span>
-                        </div>
-                        <div className="info-row">
-                            <span className="label">추가 인원</span>
-                            <span className="value">8명</span>
-                        </div>
-                        <div className="info-row">
-                            <span className="label">월별 결제 요금</span>
-                            <span className="value">24,000 원</span>
-                        </div>
-                        <Link to='/plan'>
-                        <button className="plan-btn">플랜 관리</button>
-                        </Link>
-                    </div>
-
-                    <h2>카드 정보</h2>
-                    <div className="card-info">
-                        <div className="info-row">
-                            <span className="label">카드번호</span>
-                            <span className="value">**** **** **** 4242</span>
-                        </div>
-                        <button className="card-btn">카드 변경하기</button>
-                    </div>
+                    
                 </div>
-            </div>
+
 
             <PasswordModal 
                 isOpen={isPasswordModalOpen}

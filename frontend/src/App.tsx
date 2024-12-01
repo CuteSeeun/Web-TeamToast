@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
 import ActiveSprint from './pages/ActiveSprint/ActiveSprint';
@@ -20,9 +20,54 @@ import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
+import { userState } from './recoil/atoms/userAtoms';
+import { useSetRecoilState } from 'recoil';
+import axios from 'axios';
 
 
 const App: React.FC = () => {
+
+  const setUser = useSetRecoilState(userState);
+
+// 로그인정보 새로고침해도 유지
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = sessionStorage.getItem('token');
+
+      if (token) {
+        try {
+          const response = await axios.get('http://localhost:3001/editUser/me', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          //서버에서 유저정보 보낸게 있으면 리코일에 유저정보 저장
+          if (response.data && response.data.user) {
+            setUser({
+              uid: response.data.user.uid,
+              uname: response.data.user.uname,
+              email: response.data.user.email,
+              isLoggedIn: true,
+              token: token,
+              role: 'member'
+            });
+          } else {
+            // 없으면 리코일 null
+            setUser(null);
+          }
+        } catch (error) {
+          console.error('에러 발생', error);
+          sessionStorage.removeItem('token');
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+    };
+
+    fetchUserData();
+  }, [setUser]);
+
   return (
     <>
       <GlobalStyles />

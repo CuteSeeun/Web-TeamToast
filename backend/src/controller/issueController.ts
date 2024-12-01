@@ -1,7 +1,7 @@
 // 2024-11-25 한채경, 11-26 마지막 수정
 // issueController.ts
-import { RequestHandler } from 'express';
-
+// import { RequestHandler } from 'express';
+import { Request, Response, NextFunction } from 'express';
 // 모델
 import { getIssuesQuery, newIssueQuery } from '../models/issueModel';
 
@@ -22,7 +22,7 @@ import { Type } from '../types/issueTypes';
 
 
 // pid에 해당하는 이슈 전체 받아오기
-export const getIssues: RequestHandler = async (req, res) => {
+export const getIssues = async (req: Request & { userRole: { user: string; role: string; space_id: number } }, res: Response, next: NextFunction) => {
   try {
     const pid: number = parseInt(req.params.pid);
     const issues: Issue[] = await getIssuesQuery(pid);
@@ -39,12 +39,12 @@ export const getIssues: RequestHandler = async (req, res) => {
 };
 
 // 새 이슈 생성하기
-export const newIssue: RequestHandler = async (req, res) => {
+export const newIssue = async (req: Request & { userRole: { user: string; role: string; space_id: number } }, res: Response, next: NextFunction) => {
   if (!req.userRole) {
     res.status(400).json({ error: '로그인하지 않은 사용자입니다.' });
     return;
   };
-
+  
   const pid = parseInt(req.params.pid, 10); // 현재 속한 프로젝트의 pid
   const URSid = req.userRole.space_id; // UserRole에 저장된 space_id (임시 / 로직 보고 변경 필요)
   if (!req.body.title || !pid) {
