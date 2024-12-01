@@ -305,7 +305,7 @@ const CBoard: React.FC = () => {
   return (
     <BoardContainer>
 
-      {/* 사이드 메뉴 */}
+      {/* 채팅 사이드 메뉴 */}
       <Sidebar>
         <SidebarTitle>채팅</SidebarTitle>
         {/* 채팅 채널 */}
@@ -315,8 +315,9 @@ const CBoard: React.FC = () => {
             <ChannelItem active>채팅방 이름 1</ChannelItem>
             <ChannelItem>채팅방 이름 2 <ChannelBadge>4</ChannelBadge> </ChannelItem>
             <ChannelItem>채팅방 이름 3 <ChannelBadge>4</ChannelBadge> </ChannelItem>
-            <AddButton><AiOutlinePlus /> 채널 생성하기</AddButton>
+            {/* <AddButton><AiOutlinePlus /> 채널 생성하기</AddButton> */}
           </ChannelList>
+          <AddButton><AiOutlinePlus /> 채널 생성하기</AddButton>
         </ChannerSection>
 
         {/* 친구 */}
@@ -336,8 +337,9 @@ const CBoard: React.FC = () => {
                 <ProfileImage>3</ProfileImage> <UserName>김현진{" "}</UserName>
                 {/* <NotificationBadge>2</NotificationBadge> */}
               </FriendItem>
-              <AddButton><AiOutlinePlus /> 멤버 추가하기</AddButton>
+              {/* <AddButton><AiOutlinePlus /> 멤버 추가하기</AddButton> */}
             </FriendList>
+            <AddButton><AiOutlinePlus /> 멤버 추가하기</AddButton>
           </FriendListContainer>
         </FriendSection>
       </Sidebar>
