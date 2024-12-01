@@ -20,6 +20,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         );
     
         res.json(roomData);
+        console.log('채팅 채널 목록 가져오기 성공');
       } catch (err) {
         console.error(err);
         res.status(500).json({ error: '서버 오류 발생.' });

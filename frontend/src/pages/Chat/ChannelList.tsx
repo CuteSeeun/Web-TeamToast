@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useRecoilValue } from 'recoil'; // Recoil 훅 가져오기
+import { useRecoilState, useRecoilValue } from 'recoil'; // Recoil 훅 가져오기
 import { userState } from '../../recoil/atoms/userAtoms'; // Recoil atom 가져오기
-
+import { channelAtom } from '../../recoil/atoms/channelAtoms';
+import { selectedChannelAtom } from '../../recoil/atoms/selectedChannelAtoms';
 
 
 const ChannelListWrapper = styled.div<{ isOpen: boolean }>`
@@ -38,24 +39,17 @@ const ChannelItem = styled.div<{ active?: boolean }>`
 `;
 
 
+
 const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
-  const [channels, setChannels] = useState([]);
+  // const [channels, setChannels] = useState([]);
+  const [channels, setChannels] = useRecoilState(channelAtom); // Recoil Atom 상태 읽기 및 업데이트
+  const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom); // 선택된 채널 상태
   const user = useRecoilValue(userState); // Recoil에서 userState 가져오기
 
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        // 유저 이메일 확인
-        // if (!user || !user.email) {
-        //   console.error('userState가 null이거나 user.email이 없습니다.');
-        //   console.log('Recoil userState:', user); // 상태 출력
-        //   // console.log('user: ', user);
-        //   // console.log('user.email: ', user.email);
-
-        //   return;
-        // }
-        // console.log('User email:', user.email); // 유저 이메일 콘솔 출력
-        // 하드코딩된 사용자 정보
+        
         const user = {
           uid: 8,
           uname: '김송내',
@@ -77,14 +71,17 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
     };
 
     fetchChannels();
-  }, [user]); // user가 변경되면 fetchChannels 재실행
+  }, [setChannels, user]); // user가 변경되면 fetchChannels 재실행
 
   return (
     <ChannelListWrapper isOpen={isOpen}>
       <ChannelListContainer>
         {channels.map((channel: { rid: number; rname: string }, index) => (
-          <ChannelItem key={channel.rid} active={index === 0}>
-            {channel.rname}
+          <ChannelItem key={channel.rid}
+          active={selectedChannel?.rid === channel.rid}
+            onClick={() => setSelectedChannel(channel)}>
+                      {/* //  active={index === 0}> */}
+                       {channel.rname}
           </ChannelItem>
         ))}
       </ChannelListContainer>

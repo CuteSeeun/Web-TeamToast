@@ -188,25 +188,16 @@ const TapMenu: React.FC = () => {
     
     return (
         <Sidebar>
+        
             <SidebarTitle>채팅</SidebarTitle>
             <ChannerSection>
                 <ChannerSectionHeader isOpen={isChannelListOpen} onClick={toggleChannelList}>채널<FaChevronDown /></ChannerSectionHeader>
-
-                {/* <ChannelListWrapper isOpen={isChannelListOpen}>
-                    <ChannelList>
-                        <ChannelItem active>채팅방 이름 1</ChannelItem>
-                        <ChannelItem>채팅방 이름 2</ChannelItem>
-                        <ChannelItem>채팅방 이름 3</ChannelItem>
-                    </ChannelList>
-                </ChannelListWrapper> */}
                 <ChannelList isOpen={isChannelListOpen} />
-
                 <AddButton><AiOutlinePlus /> 채널 생성하기</AddButton>
             </ChannerSection>
 
             <FriendSection>
                 <FriendSectionHeader isOpen={isFriendListOpen} onClick={toggleFriendList}>친구<FaChevronDown /></FriendSectionHeader>
-                {/* {isFriendListOpen && (  */}
                 <FriendListWrapper isOpen={isFriendListOpen}>
                     <FriendList>
                         <FriendItem><ProfileImage>1</ProfileImage> <UserName>김정연</UserName></FriendItem>
@@ -217,7 +208,8 @@ const TapMenu: React.FC = () => {
                 {/* )} */}
                 <AddButton><AiOutlinePlus /> 멤버 추가하기</AddButton>
             </FriendSection>
-        </Sidebar>
+            
+         </Sidebar>
     );
 };
 export default TapMenu;
