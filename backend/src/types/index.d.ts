@@ -11,6 +11,12 @@ declare global {
         role: string;
         space_id: number;
       };
+      // jwt 토큰 정보용 (김현진)
+      user?:{
+        uid:number;
+        uname:string;
+        email : string;
+      }
     };
   };
 };

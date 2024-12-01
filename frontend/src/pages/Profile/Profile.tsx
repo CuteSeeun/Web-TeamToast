@@ -4,6 +4,7 @@ import PasswordModal from './PasswordModal';
 import {useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
 import axios from 'axios';
+import AccessToken from '../Login/AccessToken';
 
 interface FormData {
     uname : string;
@@ -41,10 +42,10 @@ const Profile:React.FC = () => {
 
     //프로필 정보 변경
     const editInfo = async()=>{
-        const token = sessionStorage.getItem('token');
+        const token = localStorage.getItem('token');
 
         try {
-            const response = await axios.post("http://localhost:3001/editUser/user/profile",{
+            const response = await AccessToken.post("http://localhost:3001/editUser/user/profile",{
                 uname:formData.uname,
                 email:formData.email
             },{

@@ -25,60 +25,46 @@ interface ModalState {
 const ProjectList = () => {
       //현진
       const currentSpaceId = useRecoilValue(spaceIdState);
-      const setCurrentSpaceId = useSetRecoilState(spaceIdState); // Recoil 상태 업데이트용
-
       //
     const [isAdmin] = useState<boolean>(true); // 로그인 여부 스테이트, 실제로는 로그인 상태에서 가져와야 함
     const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지 번호 스테이트
     const itemsPerPage = 10; // 한 페이지에 들어갈 아이템 개수
     const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null }); // 모달창 상태 관련 스테이트
     const [projects, setProjects] = useState<Project[]>([]); // 현재 스페이스 안에 있는 프로젝트 리스트를 저장하는 스테이트
+    const [isLoading, setIsLoading] = useState<boolean>(false); // 로딩 상태 스테이트
     const setCurrentProject = useSetRecoilState(currentProjectState);
     const setIssueList = useSetRecoilState(issueListState);
 
 
-
-    // Space ID 초기화: localStorage에서 가져오기
-    useEffect(() => {
-      const storedSpaceId = localStorage.getItem('currentSpaceId');
-      if (storedSpaceId && !currentSpaceId) {
-          setCurrentSpaceId(Number(storedSpaceId)); // Recoil 상태 업데이트
-      }
-  }, [currentSpaceId, setCurrentSpaceId]);
-
   // 프로젝트 데이터 가져오기
   useEffect(() => {
-    
     const getProjList = async () => {
+
+      // 스페이스 ID 체크 추가
       if (!currentSpaceId) {
-        console.error("Space ID가 유효하지 않습니다.");
         return;
-      }
+    }
+
       try {
-        const response  = await axios.get(`http://localhost:3001/projects/all/${currentSpaceId}`,{
+        setIsLoading(true); // 로딩 시작
+        const { data } = await axios.get(`http://localhost:3001/projects/all/${currentSpaceId}`,{
           
           headers:{
             Authorization:`Bearer ${localStorage.getItem('accessToken')}`
           }
-        }); 
-        setProjects(response.data);
+        }); // 실제 sid를 받아오도록 수정 필요
+        if (data.length !== 0) {
+          setProjects(data);
+        };
       } catch (err) {
         console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
         
-      }
+      } finally {
+        setIsLoading(false); // 로딩 종료
+      };
     };
-    // getProjList();
-
-    if (currentSpaceId) {
-      getProjList();
-    }
-
-  }, [currentSpaceId]); 
-   
-  // 렌더링 이전에 스페이스 아이디 검증
-   if (!currentSpaceId) {
-    return <p>Space ID가 유효하지 않습니다. 다시 선택해주세요.</p>;;
-  }
+    getProjList();
+  }, [currentSpaceId]); // 빈 의존성 배열로 마운트 시 한 번만 실행
 
 
     // 프로젝트 이미지 자동 생성 함수 (입력한 데이터에 따라 자동 생성되며, 같은 값을 입력한다면 이미지가 바뀌지 않음)
@@ -140,6 +126,7 @@ const ProjectList = () => {
     // 생성 / 수정 모달
     const handleSubmit = async ( name: string, description: string ) => {
       try {
+        setIsLoading(true); // 로딩 시작
         if (modal.type === 'create') {
             // 생성 API 호출
             const { data } = await axios.post(`http://localhost:3001/projects/new/${currentSpaceId}`, {
@@ -166,6 +153,7 @@ const ProjectList = () => {
       } catch (err) {
         console.error(`API 호출 중 오류 발생: ${err}`);
       } finally {
+         setIsLoading(false); // 로딩 종료
         closeModal(); // 모달 닫기
       }
     };
@@ -185,11 +173,6 @@ const ProjectList = () => {
             // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외
             const newProjects = projects.filter(project => project.pid !== modal.projectId);
             setProjects(newProjects);
-
-            // 현재 페이지가 범위를 벗어나지 않도록 수정 [현진]
-            if (newProjects.length <= (currentPage - 1) * itemsPerPage) {
-            setCurrentPage((prev) => Math.max(1, prev - 1));
-            }
 
           } catch (err) {
             console.error(`프로젝트를 삭제하는 중 에러 발생: ${err}`);

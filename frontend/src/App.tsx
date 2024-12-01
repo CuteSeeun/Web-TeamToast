@@ -20,53 +20,13 @@ import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
-import { userState } from './recoil/atoms/userAtoms';
-import { useSetRecoilState } from 'recoil';
-import axios from 'axios';
+import { useAuth } from './hooks/useAuth';
+import { useCurrentSpace } from './hooks/spaceId';
 
 
 const App: React.FC = () => {
-
-  const setUser = useSetRecoilState(userState);
-
-// 로그인정보 새로고침해도 유지
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = sessionStorage.getItem('token');
-
-      if (token) {
-        try {
-          const response = await axios.get('http://localhost:3001/editUser/me', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
-          //서버에서 유저정보 보낸게 있으면 리코일에 유저정보 저장
-          if (response.data && response.data.user) {
-            setUser({
-              uid: response.data.user.uid,
-              uname: response.data.user.uname,
-              email: response.data.user.email,
-              isLoggedIn: true,
-              token: token,
-              role: 'member'
-            });
-          } else {
-            // 없으면 리코일 null
-            setUser(null);
-          }
-        } catch (error) {
-          console.error('에러 발생', error);
-          sessionStorage.removeItem('token');
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    };
-
-    fetchUserData();
-  }, [setUser]);
+  useAuth(); // 로그인 상태 관리 
+  useCurrentSpace();  // 현재 스페이스 ID 관리 (JSX 바깥에서 호출)
 
   return (
     <>
@@ -80,7 +40,7 @@ const App: React.FC = () => {
             <Route path="/join" element={<Join/>}/>
             <Route path="/rate" element={<RatePlan/>}/>
             <Route path="/space" element={<SpaceAll/>}/>
-            <Route path="/projectlist" element={<ProjectList/>}/>
+            <Route path="/projectlist/:spaceId" element={<ProjectList/>}/>
             <Route path="/oauth" element={<OAuthCallback/>}/>
             <Route path="/team" element={<TeamMa/>}/>
             <Route path="/activesprint" element={<ActiveSprint/>}/>
