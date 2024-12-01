@@ -93,6 +93,7 @@ const checkCurrentPw = (req, res) => __awaiter(void 0, void 0, void 0, function*
             res.status(400).json({ valid: false, message: '비밀번호 정보가 없습니다.' });
             return;
         }
+
         // // 비밀번호 비교
         const isValid = yield bcrypt_1.default.compare(currentPw, rows[0].passwd);
         res.json({ valid: isValid });
@@ -131,24 +132,11 @@ const changePw = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         // 새 비밀번호 해시화 
         const hashNewPasswd = yield bcrypt_1.default.hash(newpw, 10);
-        // 비밀번호 업데이트
+
+        //비밀번호 업데이트
         yield dbpool_1.default.query('update User set passwd = ? where uid = ?', [hashNewPasswd, decoded.uid]);
         res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
-        //------------------------------------------------
-        // 나중에 삭제
-        // 더미데이터이므로 직접 비교
-        //   const isValid = currentPw === user[0].passwd;
-        //   if(!isValid){
-        //       res.status(400).json({message:'현재 비밀번호가 일치하지 않습니다.'});
-        //       return;
-        //   }
-        //   // 새 비밀번호 저장 (해시화 없이)
-        //   await pool.query(
-        //       'update User set passwd = ? where uid = ?',
-        //       [newpw, decoded.uid]  // newpw를 그대로 저장
-        //   );
-        //   res.status(200).json({message:'비밀번호가 성공적으로 변경되었습니다.'});
-        // --------------------------------------------------
+
     }
     catch (error) {
         console.error('비밀번호 변경 중 오류 :', error);

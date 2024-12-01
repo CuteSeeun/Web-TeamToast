@@ -18,6 +18,7 @@ const dbHelpers_1 = require("../utils/dbHelpers");
 const issueTypes_1 = require("../types/issueTypes");
 const issueTypes_2 = require("../types/issueTypes");
 const issueTypes_3 = require("../types/issueTypes");
+// import { CustomRequest } from '../types/index';
 // pid에 해당하는 이슈 전체 받아오기
 const getIssues = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

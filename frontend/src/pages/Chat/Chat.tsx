@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import Sidebar from '../../components/Sidebar';
 import CBoard from './CBoard';
-import Layout from '../../components/Layout';
 import Header from '../../components/Header';
 
 const PageContainer = styled.div`
