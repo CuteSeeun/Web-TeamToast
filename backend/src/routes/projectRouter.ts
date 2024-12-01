@@ -9,10 +9,12 @@ import { validateProjectFields } from '../middlewares/checkProjectInputs.js';
 import { setTemporaryUser } from '../middlewares/temporaryAuthMiddleware.js';
 // 사용자 권한 확인 (임시)
 import { checkUserRole } from '../middlewares/checkUserRole.js';
+import { setTemporaryUser2 } from '../middlewares/setTemporaryUser.js';
 
 const router = express.Router();
 
-router.use(setTemporaryUser); // 임시 사용자 정보
+router.use(setTemporaryUser); // 임시 사용자 role 정보
+router.use(setTemporaryUser2); // 임시 사용자 정보
 
 router.get('/all', getAllProjects); // 모든 프로젝트 정보(admin)
 router.get('/all/:sid', validateSid, getProjects); // sid에 해당하는 모든 프로젝트 정보

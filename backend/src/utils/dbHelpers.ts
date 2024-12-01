@@ -19,7 +19,7 @@ export const checkUserInSpace = async (user: string | undefined, sid: number): P
   });
 };
 
-// 이슈를 생성하는 user가 space와 project에 소속되어 있는지 검증
+// 이슈를 생성하는 user가 space에, project가 space에 소속되어 있는지 검증
 export const checkUserInProjectAndSpace = async (
   user: string | undefined,
   pid: number

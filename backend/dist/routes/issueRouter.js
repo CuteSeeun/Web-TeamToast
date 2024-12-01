@@ -10,10 +10,8 @@ const issueController_1 = require("../controller/issueController");
 const idMiddleware_1 = require("../middlewares/idMiddleware");
 // 임시 사용자 정보
 const temporaryAuthMiddleware_js_1 = require("../middlewares/temporaryAuthMiddleware.js");
-// 사용자 권한 확인 (임시)
-const checkUserRole_js_1 = require("../middlewares/checkUserRole.js");
 const router = express_1.default.Router();
 router.use(temporaryAuthMiddleware_js_1.setTemporaryUser); // 임시 사용자 정보
 router.get('/all/:pid', idMiddleware_1.validatePid, issueController_1.getIssues);
-router.post('/new/:pid', idMiddleware_1.validatePid, checkUserRole_js_1.checkUserRole, issueController_1.newIssue);
+router.post('/new/:pid', idMiddleware_1.validatePid, issueController_1.newIssue);
 exports.default = router;

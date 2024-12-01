@@ -13,8 +13,10 @@ const checkProjectInputs_js_1 = require("../middlewares/checkProjectInputs.js");
 const temporaryAuthMiddleware_js_1 = require("../middlewares/temporaryAuthMiddleware.js");
 // 사용자 권한 확인 (임시)
 const checkUserRole_js_1 = require("../middlewares/checkUserRole.js");
+const setTemporaryUser_js_1 = require("../middlewares/setTemporaryUser.js");
 const router = express_1.default.Router();
-router.use(temporaryAuthMiddleware_js_1.setTemporaryUser); // 임시 사용자 정보
+router.use(temporaryAuthMiddleware_js_1.setTemporaryUser); // 임시 사용자 role 정보
+router.use(setTemporaryUser_js_1.setTemporaryUser2); // 임시 사용자 정보
 router.get('/all', projectController_js_1.getAllProjects); // 모든 프로젝트 정보(admin)
 router.get('/all/:sid', idMiddleware_js_1.validateSid, projectController_js_1.getProjects); // sid에 해당하는 모든 프로젝트 정보
 router.get('/:sid/:pid', idMiddleware_js_1.validatePid, projectController_js_1.getProject); // pid에 해당하는 프로젝트 정보

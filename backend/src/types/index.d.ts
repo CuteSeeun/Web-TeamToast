@@ -11,6 +11,11 @@ declare global {
         role: string;
         space_id: number;
       };
+      user: {
+        uid: number;
+        uname: string;
+        email: string;
+      }
     };
   };
 };

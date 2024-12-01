@@ -9,7 +9,7 @@ export const checkUserRole = (req: Request, res: Response, next: NextFunction) =
       res.status(401).json({ error: '로그인이 필요합니다.' });
       return;
     }
-
+    
     // 임시 사용자 데이터인 temporaryAuthMiddleware.ts 안의 req.userRole에서 role 확인
     const { role } = req.userRole;
 

@@ -1,4 +1,4 @@
-// 2024-11-25 한채경 수정, 11-28 마지막 수정
+// 2024-11-25 한채경 수정, 11-29 마지막 수정
 // ProjectList.tsx
 
 import React, { useEffect, useState } from 'react';
@@ -12,7 +12,7 @@ import axios from "axios";
 import { Project } from '../../types/projectTypes';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { currentProjectState } from '../../recoil/atoms/projectAtoms';
-import { Issue, issueListState } from '../../recoil/atoms/issueAtoms';
+import { issueListState } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as ProjectAlert } from '../../assets/images/proejctAlert.svg';
 
 interface ModalState {
@@ -41,54 +41,6 @@ const ProjectList = () => {
           setProjects(data);
         };
       } catch (err) {
-        // DB 서버 다운으로 인한 임시 더미데이터 코드
-        // if (axios.isAxiosError(err)) {
-        //   const dummyData = [
-        //     {
-        //       pid: 1,
-        //       pname: 'Smart Home Integration',
-        //       description: 'A project to integrate smart home devices for seamless automation.',
-        //       space_id: 1,
-        //     },
-        //     {
-        //       pid: 2,
-        //       pname: 'AI-Powered Shopping Assistant',
-        //       description: 'Developing a virtual assistant to enhance shopping experiences using AI.',
-        //       space_id: 1,
-        //     },
-        //     {
-        //       pid: 3,
-        //       pname: 'Gaming Console Upgrade',
-        //       description: 'Enhancing hardware and software for next-gen gaming performance.',
-        //       space_id: 1,
-        //     },
-        //     {
-        //       pid: 4,
-        //       pname: 'E-commerce Analytics Dashboard',
-        //       description: 'Creating an advanced dashboard for real-time analytics and sales tracking.',
-        //       space_id: 1,
-        //     },
-        //     {
-        //       pid: 5,
-        //       pname: 'Wearable Health Monitoring',
-        //       description: 'A project to design wearable devices for continuous health tracking.',
-        //       space_id: 1,
-        //     },
-        //     {
-        //       pid: 6,
-        //       pname: 'Cloud Storage Optimization',
-        //       description: 'Improving cloud storage performance and reliability for enterprise users.',
-        //       space_id: 1,
-        //     },
-        //     {
-        //       pid: 7,
-        //       pname: 'IoT Security Enhancement',
-        //       description: 'Developing security solutions for IoT ecosystems.',
-        //       space_id: 1,
-        //     }
-        //   ]
-        //   setProjects(dummyData);
-        // };
         console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
       } finally {
         setIsLoading(false); // 로딩 종료
@@ -103,12 +55,10 @@ const ProjectList = () => {
     const projImage = (project: Project) => {
       // 다른 스페이스에 같은 이름의 프로젝트가 있을 경우 이미지가 겹치는 것을 방지
       const svgString = toSvg(( project.pname + project.pid ), 32);
-      return (
-        <div
-          dangerouslySetInnerHTML={{ __html: svgString }}
-          style={{ width: 32, height: 32, overflow: "hidden", borderRadius: "3px" }}
-        ></div>
-      )
+      return React.createElement('div', {
+        dangerouslySetInnerHTML: { __html: svgString },
+        style: { width: 32, height: 32, overflow: "hidden", borderRadius: "3px" },
+      });
     };
     
 

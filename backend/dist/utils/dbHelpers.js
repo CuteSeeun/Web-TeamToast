@@ -28,7 +28,7 @@ const checkUserInSpace = (user, sid) => __awaiter(void 0, void 0, void 0, functi
     }));
 });
 exports.checkUserInSpace = checkUserInSpace;
-// 이슈를 생성하는 user가 space와 project에 소속되어 있는지 검증
+// 이슈를 생성하는 user가 space에, project가 space에 소속되어 있는지 검증
 const checkUserInProjectAndSpace = (user, pid) => __awaiter(void 0, void 0, void 0, function* () {
     if (!user)
         return false;
