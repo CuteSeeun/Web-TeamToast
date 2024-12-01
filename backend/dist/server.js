@@ -11,8 +11,6 @@ const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
 const ChatTapMenuRouter_1 = __importDefault(require("./routes/ChatTapMenuRouter"));
 const spaceRouter_1 = __importDefault(require("./routes/spaceRouter"));
-
-
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const app = (0, express_1.default)();
@@ -26,7 +24,6 @@ app.use('/issues', issueRouter_1.default);
 app.use('/editUser', userRouter_1.default); // 로그인 회원가입 
 app.use('/channel', ChatTapMenuRouter_1.default);
 app.use('/space', spaceRouter_1.default);
-
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);

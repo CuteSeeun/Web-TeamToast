@@ -5,9 +5,10 @@ import express, { Router } from 'express';
 
 const router = Router(); // Router 객체 생성
 
-router.get('/channel', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response): Promise<void> => {
+    console.log('채팅 채널 목록 가져오는 서버 들어옴');
     const userEmail = req.query.email; // 클라이언트에서 이메일 전달
-    console.log('받은 이메일:', userEmail); // 로그 추가
+    console.log('클라이언트에서 받은 이메일:', userEmail); // 로그 추가
   
     try {
         const [roomData] = await pool.query<RowDataPacket[]>(

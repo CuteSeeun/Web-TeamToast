@@ -70,8 +70,9 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
         });
 
         setChannels(response.data); // API로 가져온 데이터를 상태에 저장
+        console.log('채팅 채널 이름 가져와 상태에 저장 성공');
       } catch (err) {
-        console.error('Failed to fetch channels:', err);
+        console.error('채팅 채널 이름 가져오기 개실패', err);
       }
     };
 
