@@ -18,9 +18,8 @@ const dbHelpers_1 = require("../utils/dbHelpers");
 const issueTypes_1 = require("../types/issueTypes");
 const issueTypes_2 = require("../types/issueTypes");
 const issueTypes_3 = require("../types/issueTypes");
-// import { CustomRequest } from '../types/index';
 // pid에 해당하는 이슈 전체 받아오기
-const getIssues = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getIssues = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const pid = parseInt(req.params.pid);
         const issues = yield (0, issueModel_1.getIssuesQuery)(pid);
@@ -39,7 +38,7 @@ const getIssues = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getIssues = getIssues;
 // 새 이슈 생성하기
-const newIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const newIssue = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     if (!req.userRole) {
         res.status(400).json({ error: '로그인하지 않은 사용자입니다.' });

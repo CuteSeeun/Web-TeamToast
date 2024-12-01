@@ -5,6 +5,7 @@ import sprintRouter from './routes/sprintRouter';
 import projectRouter from './routes/projectRouter';
 import issueRouter from './routes/issueRouter';
 import userRouter from './routes/userRouter';
+import ChatTapMenuRouter from './routes/ChatTapMenuRouter';
 
 import path from 'path';
 import pool from './config/dbpool';
@@ -20,6 +21,7 @@ app.use('/sprint', sprintRouter); // 라우터 등록
 app.use('/projects', projectRouter);
 app.use('/issues', issueRouter);
 app.use('/editUser',userRouter); // 로그인 회원가입 
+app.use('/channel', ChatTapMenuRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

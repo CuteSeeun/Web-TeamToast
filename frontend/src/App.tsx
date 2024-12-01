@@ -23,13 +23,13 @@ import Plan from './pages/Plan/Plan';
 import { userState } from './recoil/atoms/userAtoms';
 import { useSetRecoilState } from 'recoil';
 import axios from 'axios';
-
+import { RecoilRoot } from 'recoil'; // RecoilRoot 추가
 
 const App: React.FC = () => {
 
   const setUser = useSetRecoilState(userState);
 
-// 로그인정보 새로고침해도 유지
+  // 로그인정보 새로고침해도 유지
   useEffect(() => {
     const fetchUserData = async () => {
       const token = sessionStorage.getItem('token');
@@ -70,36 +70,38 @@ const App: React.FC = () => {
 
   return (
     <>
-      <GlobalStyles />
-      {/* <ActiveSprint /> */}
-      <Router>
-        <Routes>
-          <Route path="/" element={<Layout/>}>
-            {/* <Route index element={<Intro/>}/> */}
+      <RecoilRoot>
+        <GlobalStyles />
+        {/* <ActiveSprint /> */}
+        <Router>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Intro />} />
 
-            <Route index element={<ActiveSprint/>}/>
-            
+              {/* <Route index element={<ActiveSprint/>}/> */}
 
-            <Route path="/login" element={<Login/>}/>
-            <Route path="/join" element={<Join/>}/>
-            <Route path="/rate" element={<RatePlan/>}/>
-            <Route path="/space" element={<SpaceAll/>}/>
-            <Route path="/projectlist" element={<ProjectList/>}/>
-            <Route path="/oauth" element={<OAuthCallback/>}/>
-            <Route path="/team" element={<TeamMa/>}/>
-            <Route path="/activesprint" element={<ActiveSprint/>}/>
-            <Route path="/dashboard" element={<Dashboard/>}/>
-            <Route path="/backlog" element={<Backlog/>}/>
-            <Route path="/issuelist" element={<IssueList/>}/>
-            <Route path="/chat" element={<Chat/>}/>
-            <Route path="/payment" element={<Payment/>}/>
-            <Route path="/spacemanagement" element={<SpaceManagement/>}/>
-            <Route path="/profile" element={<Profile/>}/>
-            <Route path="/issue/:id" element={<IssueDetail/>}/>
-            <Route path="/plan" element={<Plan/>}/>
-          </Route>
-        </Routes>
-      </Router>
+
+              <Route path="/login" element={<Login />} />
+              <Route path="/join" element={<Join />} />
+              <Route path="/rate" element={<RatePlan />} />
+              <Route path="/space" element={<SpaceAll />} />
+              <Route path="/projectlist" element={<ProjectList />} />
+              <Route path="/oauth" element={<OAuthCallback />} />
+              <Route path="/team" element={<TeamMa />} />
+              <Route path="/activesprint" element={<ActiveSprint />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/backlog" element={<Backlog />} />
+              <Route path="/issuelist" element={<IssueList />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/spacemanagement" element={<SpaceManagement />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/issue/:id" element={<IssueDetail />} />
+              <Route path="/plan" element={<Plan />} />
+            </Route>
+          </Routes>
+        </Router>
+      </RecoilRoot>
     </>
   );
 };

@@ -9,6 +9,7 @@ const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
 const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
+const ChatTapMenuRouter_1 = __importDefault(require("./routes/ChatTapMenuRouter"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const app = (0, express_1.default)();
@@ -20,6 +21,7 @@ app.use('/sprint', sprintRouter_1.default); // 라우터 등록
 app.use('/projects', projectRouter_1.default);
 app.use('/issues', issueRouter_1.default);
 app.use('/editUser', userRouter_1.default); // 로그인 회원가입 
+app.use('/channel', ChatTapMenuRouter_1.default);
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
