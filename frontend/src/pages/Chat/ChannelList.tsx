@@ -46,6 +46,29 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom); // 선택된 채널 상태
   const user = useRecoilValue(userState); // Recoil에서 userState 가져오기
 
+  // 채널 클릭 핸들러
+  const handleChannelClick = async (channel: { rid: number; rname: string }) => {
+    try {
+      // 선택된 채널의 메시지 가져오기
+      const response = await axios.get('http://localhost:3001/messages', {
+        params: { rid: channel.rid },
+      });
+
+      const messages = response.data; // 메시지 리스트 가져오기
+
+      // selectedChannelAtom 업데이트
+      setSelectedChannel({
+        rid: channel.rid,
+        rname: channel.rname,
+        messages,
+      });
+      console.log('클릭한 채널 및 메시지 저장 성공:', channel.rname);
+       console.log(response.data);
+    } catch (err) {
+      console.error('메시지 가져오기 실패:', err);
+    }
+  };
+
   useEffect(() => {
     const fetchChannels = async () => {
       try {
@@ -56,12 +79,18 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
           email: 'kh32100@naver.com',
         };
 
+        // const space = {
+        //   Id : 1,
+        // };
+
         console.log('유저이메일:', user.email); // 이메일 출력
         console.log('Request params:', { email: user.email });
+        // console.log('해당 스페이스:', space.Id);
 
         const response = await axios.get('http://localhost:3001/channel', {
-          params: { email: user.email }, // 이메일을 쿼리로 전달
+          params: { email: user.email, space_id:1 }, // 이메일을 쿼리로 전달
         });
+        
 
         setChannels(response.data); // API로 가져온 데이터를 상태에 저장
         console.log('채팅 채널 이름 가져와 상태에 저장 성공');
@@ -77,11 +106,13 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
     <ChannelListWrapper isOpen={isOpen}>
       <ChannelListContainer>
         {channels.map((channel: { rid: number; rname: string }, index) => (
-          <ChannelItem key={channel.rid}
-          active={selectedChannel?.rid === channel.rid}
-            onClick={() => setSelectedChannel(channel)}>
+          <ChannelItem 
+            key={channel.rid}
+            active={selectedChannel?.rid === channel.rid}
+            onClick={() => handleChannelClick(channel)}
+            >
                       {/* //  active={index === 0}> */}
-                       {channel.rname}
+            {channel.rname}
           </ChannelItem>
         ))}
       </ChannelListContainer>

@@ -1,5 +1,5 @@
 "use strict";
-//채널 목록 가져오는  "채널 목록 조회 API"
+//해당 채팅방의 메시지를 가져오는, 메시지 조회 API
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -17,28 +17,21 @@ const dbpool_1 = __importDefault(require("../config/dbpool")); // 디폴트 익�
 const express_1 = require("express");
 const router = (0, express_1.Router)(); // Router 객체 생성
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('채팅 채널 목록 가져오는 서버 들어옴');
-    const userEmail = req.query.email; // 클라이언트에서 이메일 전달
-    const spaceId = req.query.space_id; // 클라이언트에서 space_id 전달
-    console.log('클라이언트에서 받은 이메일과 스페이스id:', userEmail, spaceId); // 로그 추가
+    const rid = req.query.rid; // 클라이언트에서 채널 ID 전달
+    console.log('클라이언트에서 받은 rid:', rid);
     try {
-        const [roomData] = yield dbpool_1.default.query(
-        // `SELECT Room.rid, Room.rname 
-        //  FROM RoomMembers 
-        //  JOIN Room ON RoomMembers.room_id = Room.rid 
-        //  WHERE RoomMembers.user_email = ?`,
-        // [userEmail]
-        `SELECT Room.rid, Room.rname
-       FROM RoomMembers
-       JOIN Room ON RoomMembers.room_id = Room.rid
-       WHERE RoomMembers.user_email = ? AND RoomMembers.space_id = ?`, [userEmail, spaceId]);
-        res.json(roomData);
-        console.log('채팅 채널 목록 가져오기 성공');
+        const [messages] = yield dbpool_1.default.query(`SELECT mid, content, timestamp, email as user_email, uname as user
+         FROM Message m
+         JOIN User u ON user_email = email
+         WHERE room_id = ?
+         ORDER BY timestamp ASC;`, [rid]);
+        console.log('쿼리 결과:', messages);
+        res.json(messages);
+        console.log('해당 채팅 방의 메시지 리스트 가져오기 성공');
     }
     catch (err) {
         console.error(err);
         res.status(500).json({ error: '서버 오류 발생.' });
     }
 }));
-//   module.exports = router;
 exports.default = router;
