@@ -12,10 +12,12 @@ import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 
 import { IoSettingsOutline ,IoChevronDownOutline } from "react-icons/io5";
 import { GoBell } from "react-icons/go";
 import ProjectInvite from './InviteModal';
+import { spaceIdState } from '../recoil/atoms/spaceAtoms';
 
 const ProjectHeader = () => {
 
     const user = useRecoilValue(userState);
+    const space = useRecoilValue(spaceIdState); // 프로젝트 눌렀을때 해당 스페이스의 아이디에 있는 프로젝트출력
     const setUser = useSetRecoilState(userState);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const navigate = useNavigate();
@@ -24,7 +26,7 @@ const ProjectHeader = () => {
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
         if(confirmed){
             setUser(null);
-            sessionStorage.removeItem('token');
+            localStorage.removeItem('token');
             navigate('/');
             window.location.reload();
         }
@@ -37,6 +39,17 @@ const ProjectHeader = () => {
          e.preventDefault();
          alert('스페이스 관리는 관리자만 접근할 수 있습니다.');
      };
+
+     const projectGo = () => {
+        if(space){
+            navigate(`/projectlist/${space}`)
+        }else{
+            //스페이스 id가 없는경우
+            // 알림창을 띄우고 스페이스 목록으로 이동시킴
+            alert('스페이스를 선택하세요');
+            navigate('/space')
+        }
+     }
     
     
     return (
@@ -46,9 +59,7 @@ const ProjectHeader = () => {
                    <Link to='/space'><Logo><LogoIcon /></Logo></Link> 
                     <nav>
                         <div className="menu-wrap">
-                            <Link to='/projectlist'>
-                            <span className="menu-text">프로젝트</span>
-                            </Link>
+                            <span className="menu-text" onClick={projectGo}>프로젝트</span>
                         </div>
                         <div className="menu-wrap">
                             <span className="menu-text"><span className='text-with-rigth-icon'>팀</span><IoChevronDownOutline /></span>
@@ -95,7 +106,7 @@ const ProjectHeader = () => {
                     <div className="menu-wrap">
                         {/* <span className="menu-text">{user.name} </span> */}
                         <div className="user-circle">
-                            {user?.name?.charAt(0)} 
+                            {user?.uname?.charAt(0)} 
                         </div>
                         <ul className="sub-menu">
                             <Link to='/profile'><li>프로필</li></Link>

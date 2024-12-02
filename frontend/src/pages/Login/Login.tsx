@@ -4,14 +4,24 @@ import { RiKakaoTalkFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AccessToken from './AccessToken';
 
 const Login:React.FC = () => {
     const [useremail , setUseremail] = useState<string>('');
     const [userpw , setUserpw] = useState<string>('');
+    const [isLoading,setIsLoading] = useState<boolean>(false);
     const navi = useNavigate();
 
+    //로그인 정보 확인
+    // 입력값 유효성 확인하고 서버에 로그인 요청함
+    // 로그인 성공 시 토큰 저장
     const infoCheck = async(e:React.FormEvent)=>{
         e.preventDefault();
+
+        console.log('Sending login data:', { useremail, userpw });
+
+        if (isLoading) return;
+
         if(useremail === '' && userpw === ''){
             alert('아이디와 비밀번호를 입력해주세요');
             return;
@@ -24,20 +34,24 @@ const Login:React.FC = () => {
         }
         
         try {
-            const response= await axios.post('http://localhost:3333/editUser/loginUser',{
+            console.log('Attempting login with:', { useremail, userpw });
+            const response= await axios.post('http://localhost:3001/editUser/loginUser',{
                 useremail,
                 userpw
             });
 
-            const {user,token} = response.data;
+            console.log('Login response:', response.data); 
 
-            if (!user || !token) {
+            const { accessToken, refreshToken, user } = response.data;
+
+            if (!user || !accessToken || !refreshToken) {
                 throw new Error('로그인 응답 데이터가 올바르지 않습니다.');
             }
 
-            sessionStorage.setItem('token',token);
-            navi('/')
-            window.location.reload();
+            localStorage.setItem('accessToken',accessToken);
+          
+            await navi('/');
+            setTimeout(() => window.location.reload(), 100);
 
         } catch (error:any) {
             if (error.response && error.response.status === 403) {
@@ -51,9 +65,12 @@ const Login:React.FC = () => {
         }
     };
 
+    // 카카오 소셜 로그인 처리
+    // 서버로부터 카카오 로그인 url 받아와서 리다이렉트
     const getKakao = async() =>{
         try {
-            const response = await axios.get('http://localhost:3333/editUser/kakao-login');
+            // const response = await axios.get('http://localhost:3001/editUser/kakao-login');
+            const response = await axios.get('/editUser/kakao-login');
             const {redirectUrl} = response.data;
             window.location.href = redirectUrl;
         } catch (error) {
@@ -67,6 +84,7 @@ const Login:React.FC = () => {
             <div className="inner">
                 <h2>로그인</h2>
                 <p>TeamToast에 오신 것을 환영합니다.</p>
+                <form onSubmit={infoCheck}> 
                 <div className="inputBox">
                     <input type="text" value={useremail} onChange={e=> setUseremail(e.target.value)} placeholder='이메일를 입력해주세요' />
                 </div>
@@ -74,8 +92,9 @@ const Login:React.FC = () => {
                     <input type="password" value={userpw} onChange={e=> setUserpw(e.target.value)} placeholder='비밀번호를 입력해주세요' />
                 </div>
                 <div>
-                    <button type='submit' className='loginBtn' onClick={infoCheck}>로그인</button>
+                    <button type='submit' className='loginBtn'>로그인</button>
                 </div>
+                </form>
                 <div className="social-section">
                     <div className="line-wrapper">
                         <div className="line"></div>
@@ -91,6 +110,12 @@ const Login:React.FC = () => {
                         <i><FcGoogle /></i><span>구글 로그인/회원가입</span>
                     </button>
                 </div>
+
+                <div className='join-pass'>
+                    <span onClick={() => navi('/join')}>회원가입</span>
+                    <span onClick={() => navi('/pass')}>비밀번호 찾기</span>
+                </div>
+
             </div>
         </LoginWrap>
     );
