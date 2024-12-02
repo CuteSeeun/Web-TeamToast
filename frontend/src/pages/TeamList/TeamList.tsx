@@ -1,123 +1,152 @@
-import React, { useState } from 'react';
-import { TeamMaWrap } from './teamStyle';
-import { FiTrash2, FiChevronDown } from "react-icons/fi";
-import { GoPlus } from "react-icons/go";
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { TeamMaWrap } from "./teamStyle"; // teamStyle.css로 연결
+import { FiTrash2 } from "react-icons/fi";
 
 interface Member {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    image: string;
+  id: number;
+  name: string;
+  email: string;
+  role: string;
 }
 
-const members: Member[] = [
-    { id: 1, name: '사용자 1', email: 'useremail1@example.com', role: '관리자', image: '/api/placeholder/40/40' },
-    { id: 2, name: '사용자 2', email: 'useremail2@example.com', role: '관리자', image: '/api/placeholder/40/40' },
-    { id: 3, name: '사용자 3', email: 'useremail3@example.com', role: '관리자', image: '/api/placeholder/40/40' },
-    { id: 4, name: '사용자 4', email: 'useremail4@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-    { id: 5, name: '사용자 5', email: 'useremail5@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-    { id: 6, name: '사용자 6', email: 'useremail6@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-    { id: 7, name: '사용자 7', email: 'useremail7@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-    { id: 8, name: '사용자 8', email: 'useremail8@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-    { id: 9, name: '사용자 9', email: 'useremail9@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-    { id: 10, name: '사용자 10', email: 'useremail10@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-    { id: 11, name: '사용자 11', email: 'useremail11@example.com', role: '팀원', image: '/api/placeholder/40/40' },
-];
+const TeamList: React.FC = () => {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isAdmin] = useState<boolean>(true); // 관리자 여부
+  const [message, setMessage] = useState<string | null>(null); // 알림 메시지
+  const itemsPerPage = 10;
+  const spaceId = 1; // 더미 spaceId
 
-const TeamMa = () => {
-    const [currentPage, setCurrentPage] = useState<number>(1);
-    const [isAdmin] = useState<boolean>(true);
-    const itemsPerPage = 10;
+  // 팀원 목록 가져오기
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/team/members", {
+        params: { spaceId },
+      });
+      setMembers(response.data);
+    } catch (error) {
+      console.error("Failed to fetch team members:", error);
+      setMessage("팀원 목록을 가져오는 데 실패했습니다.");
+    }
+  };
 
-    // 페이지네이션 계산
-    const totalPages = Math.ceil(members.length / itemsPerPage);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentMembers = members.slice(indexOfFirstItem, indexOfLastItem);
+  // 권한 변경
+  const handleRoleChange = async (email: string, newRole: string) => {
+    try {
+      await axios.put("http://localhost:3001/team/update-role", {
+        spaceId,
+        email,
+        role: newRole,
+      });
+      setMessage("권한이 성공적으로 변경되었습니다.");
+      fetchTeamMembers();
+    } catch (error) {
+      console.error("Failed to update role:", error);
+      setMessage("권한 변경에 실패했습니다.");
+    }
+  };
 
-    // 페이지 변경 핸들러
-    const handlePageChange = (pageNumber: number) => {
-        setCurrentPage(pageNumber);
-    };
+  // 팀원 삭제
+  const handleRemoveMember = async (email: string) => {
+    try {
+      await axios.post("http://localhost:3001/team/remove", {
+        spaceId,
+        email,
+      });
+      setMessage("팀원이 성공적으로 삭제되었습니다.");
+      fetchTeamMembers();
+    } catch (error) {
+      console.error("Failed to remove team member:", error);
+      setMessage("팀원 삭제에 실패했습니다.");
+    }
+  };
 
-    // 페이지네이션 버튼 생성
-    const renderPaginationButtons = () => {
-        const buttons = [];
-        for (let i = 1; i <= totalPages; i++) {
-            buttons.push(
-                <button
-                    key={i}
-                    onClick={() => handlePageChange(i)}
-                    className={currentPage === i ? 'active' : ''}
+  // 페이지네이션 계산
+  const totalPages = Math.ceil(members.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentMembers = members.slice(indexOfFirstItem, indexOfLastItem);
+
+  // 페이지 변경 핸들러
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, []);
+
+  return (
+    <TeamMaWrap>
+      <div className="header-area">
+        <div className="title-area">
+          <h2>팀원 목록</h2>
+        </div>
+      </div>
+
+      <div className="member-list">
+        {message && <p className="message">{message}</p>}
+        {currentMembers.map((member) => (
+          <div key={member.id} className="member-item">
+            <div className="info">
+              <span className="name">{member.name}</span>
+              <span className="email">{member.email}</span>
+            </div>
+            <div className="action-buttons">
+              <div className="role-wrapper">
+                <select
+                  value={member.role}
+                  onChange={(e) =>
+                    handleRoleChange(member.email, e.target.value)
+                  }
+                  disabled={!isAdmin}
                 >
-                    {i}
+                  <option value="normal">팀원</option>
+                  <option value="manager">관리자</option>
+                  <option value="top_manager">최고 관리자</option>
+                </select>
+              </div>
+              {isAdmin && (
+                <button
+                  className="delete-button"
+                  onClick={() => handleRemoveMember(member.email)}
+                >
+                  <FiTrash2 />
                 </button>
-            );
-        }
-        return buttons;
-    };
-
-    return (
-        <TeamMaWrap>
-            <div className="header-area">
-                <div className="title-area">
-                    <h2>팀원 목록</h2>
-                    {isAdmin && (
-                        <button className="add-member-btn">
-                            <GoPlus /> 사용자 초대
-                        </button>
-                    )}
-                </div>
+              )}
             </div>
-            
-            <div className="member-list">
-                {currentMembers.map(member => (
-                    <div key={member.id} className="member-item">
-                        <img src={member.image} alt={member.name} />
-                        <div className="info">
-                            <span className="name">{member.name}</span>
-                            <span className="email">{member.email}</span>
-                        </div>
-                        <div className="action-buttons">
-                            <div className="role-wrapper">
-                                <span>{member.role}</span>
-                                {isAdmin && (
-                                    <button className="auth-button">
-                                        <FiChevronDown />
-                                    </button>
-                                )}
-                            </div>
-                            {isAdmin && (
-                                <button className="delete-button">
-                                    <FiTrash2 />
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
+          </div>
+        ))}
+      </div>
 
-            {totalPages > 1 && (
-                <div className="pagination">
-                    <button 
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
-                        이전
-                    </button>
-                    {renderPaginationButtons()}
-                    <button 
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
-                        다음
-                    </button>
-                </div>
-            )}
-        </TeamMaWrap>
-    );
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            이전
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={currentPage === page ? "active" : ""}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            다음
+          </button>
+        </div>
+      )}
+    </TeamMaWrap>
+  );
 };
 
-export default TeamMa;
+export default TeamList;

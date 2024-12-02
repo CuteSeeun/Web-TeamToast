@@ -9,14 +9,13 @@ export const PageContainer = styled.div`
 `;
 
 export const BoardContainer = styled.div`
-  position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
+  position: relative;
   display: flex;
   flex-direction: column;
   padding-left: 25px; 
   padding-right: 70px;
   width: 1600px;
-  overflow: hidden; 
-  /* background: yellow; */
+  overflow: hidden;
 `;
 
 export const BoardHeader = styled.div`
@@ -36,35 +35,46 @@ export const BoardTitle = styled.h1`
 export const Breadcrumb = styled.div`
   font-size: 14px;
   color: #6c757d;
-  margin-top: 8px; /* 제목과의 간격 */
+  margin-top: 8px;
 `;
 
 export const Filters = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 50px; /* 네비게이션 텍스트와의 간격 */
-  margin-bottom: 0px; /* BoardMain과 간격을 줄이려면 이 값을 줄이세요 근데 여기서 더 간격을 줄이고 싶다면 BoradMain의 마진 탑을 줄이면 된다.*/
+  margin-top: 50px;
+  margin-bottom: 0px;
 
   & > label {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     margin-right: 20px;
     font-size: 14px;
     cursor: pointer;
 
     svg {
-      margin-left: 5px; /* 텍스트와 아이콘 간격 */
+      margin-left: 5px;
+    }
+
+    select {
+      margin-top: 5px;
+      padding: 5px;
+      border: none; 
+      outline: none;       
+      box-shadow: none; 
+      font-size: 14px;
     }
   }
 `;
 
-export const SprintBox = styled.div`
+
+export const StyledSprintBox = styled.div`
   background-color: #f2f2f2;
   margin-top: 20px;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  width: 100%; /* 양쪽 30px 간격 */
+  width: 100%;
   max-width: 1300px; 
 `;
 
@@ -105,7 +115,7 @@ export const SprintControls = styled.div`
     }
 
     &:active {
-      transform: translateY(2px); /* 클릭 시 약간 눌리는 효과 */
+      transform: translateY(2px);
     }
   }
 
@@ -152,7 +162,7 @@ export const AddIssueLink = styled.div`
   cursor: pointer;
 
   &:active {
-    transform: translateY(2px); /* 클릭 시 약간 눌리는 효과 */
+    transform: translateY(2px);
   }
 `;
 
@@ -178,13 +188,14 @@ margin-right: 10px;
 
 export const BacklogSection = styled.div`
     margin-top: 20px;
-    /* padding: 20px; */
 `;
 
 export const Div = styled.div`
 display:flex;
-justify-content: center;
+justify-content: flex-end;
+padding-right:10px;
 align-items:center;
 flex-direction: column;
 position:relative;
+margin-top: 20px;
 `;

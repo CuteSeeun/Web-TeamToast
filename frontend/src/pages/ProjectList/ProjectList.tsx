@@ -68,7 +68,6 @@ const ProjectList = () => {
     };
   }, [spaceId, setSpaceId]);
 
-
   // 프로젝트 데이터 가져오기
   useEffect(() => {
     const getProjList = async () => {
