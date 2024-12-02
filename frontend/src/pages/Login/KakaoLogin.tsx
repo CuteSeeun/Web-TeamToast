@@ -10,13 +10,22 @@ const OAuthCallback = () => {
     const setUser = useSetRecoilState(userState);
 
 
+
+    //카카오 소셜 로그인
     useEffect(()=>{
+        //url 에서 인증코드 가져옴
         const code = new URLSearchParams(location.search).get('code');
         if(code){
-            axios.post('http://localhost:3333/editUser/kakao-token',{code})
+            // 서버에 인증 코드 전송해서 토큰 발급
+            // axios.post('http://localhost:3001/editUser/kakao-token',{code},
+            axios.post('/editUser/kakao-token',{code},
+                {
+                     baseURL: 'http://localhost:8080'
+                }
+            )
             .then(response => {
                 const {token,user} = response.data;
-                sessionStorage.setItem('token',token);
+                localStorage.setItem('accessToken',token);
                 setUser(user)
 
                 navi('/');

@@ -1,4 +1,6 @@
-// global.ts
+// 2024-11-25 한채경
+// GlobalStyles.ts
+
 import { createGlobalStyle } from "styled-components";
 
 // 스타일 초기화
@@ -33,7 +35,7 @@ const GlobalStyles = createGlobalStyle`
         display: block;
     }
     body {
-        line-height: 1;
+        line-height: 1.5;
     }
     ol, ul {
         list-style: none;
@@ -52,6 +54,7 @@ const GlobalStyles = createGlobalStyle`
     }
     a{
         text-decoration:none;
+        color: #4D4D4D;
     }
 `;
 

@@ -99,7 +99,6 @@ const SBoard: React.FC = () => {
           <Filters>
             <label>담당자 <FaChevronDown /></label>
             <label>유형 <FaChevronDown /></label>
-            <label>우선순위 <FaChevronDown /></label>
           </Filters>
           <SprintCompleteButton>스프린트 완료</SprintCompleteButton>
       </BoardHeader>
