@@ -5,22 +5,6 @@ import { useRecoilValue } from 'recoil';
 import { selectedChannelAtom } from '../../recoil/atoms/selectedChannelAtoms'; // selectedChannelAtom 가져오기
 import { userState } from '../../recoil/atoms/userAtoms';
 
-// 채팅 메시지 타입 정의
-// interface ChatMessage {
-//   id: number;
-//   sender: string;
-//   text: string;
-//   time: string;
-// }
-
-// // 더미 데이터
-// const messages: ChatMessage[] = [
-//   { id: 1, sender: '김정연', text: '여러분 저 다음주에 못 와요ㅠ', time: '16:56' },
-//   { id: 2, sender: '김현진', text: '그건 좀 아니라고 생각합니다', time: '16:56' },
-//   { id: 3, sender: '김현진', text: '팀플이 장난입니까?', time: '16:57' },
-//   { id: 4, sender: '조하영', text: '쿨쿨', time: '16:58' },
-// ];
-
 const ProfileImage = styled.div`
    width: 30px;
    height: 30px;
@@ -141,34 +125,22 @@ const CompassIcon = styled(ImCompass)`
 const ChatContainerComponent: React.FC = () => {
   const selectedChannel = useRecoilValue(selectedChannelAtom); // 선택된 채널 구독
   const loggedInUser = useRecoilValue(userState);//로그인한 유저 이메일은 userState에서 가져온다
+  
 
   return (
     <ChatContainer>
       <ChatHeader>{selectedChannel?.rname || '대화를 시작해보세요!'}</ChatHeader>
 
       <MessageList>
-        {/* {messages.map((msg) => (
-          <MessageItem key={msg.id} isMine={msg.sender === '사용자'}>
-            <ProfileImage>{msg.sender.slice(-1)}</ProfileImage>
-            <div>
-              <MessageBubble isMine={msg.sender === '사용자'}>
-                {msg.text}
-              </MessageBubble>
-              <MessageTime>{msg.time}</MessageTime>
-            </div>
-          </MessageItem> */}
         {selectedChannel?.messages.map((msg) => (
-
-          // <MessageItem key={msg.mid} isMine={msg.user_email === loggedInUser.email}>
-          <MessageItem key={msg.mid} isMine={msg.user_email === "kh32100@naver.com"}>
+          loggedInUser ? (
+          // </MessageItem><MessageItem key={msg.mid} isMine={msg.user_email === "kh32100@naver.com"}>
+          <MessageItem key={msg.mid} isMine={msg.user_email === loggedInUser.email}>
+          
 
             <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
             <div>
-              {/* <MessageBubble isMine={msg.user === '사용자'}>
-                {msg.content}
-              </MessageBubble>
-              <MessageTime>{msg.timestamp}</MessageTime> */}
-              {msg.user_email === "kh32100@naver.com" ? (
+              {msg.user_email === loggedInUser.email ? (
                 // 내 메시지 표시: content와 timestamp만 표시
                 <>
                   <MessageBubble isMine={true}>{msg.content}</MessageBubble>
@@ -183,6 +155,7 @@ const ChatContainerComponent: React.FC = () => {
               )}
             </div>
           </MessageItem>
+          ) : null
         ))}
       </MessageList>
 

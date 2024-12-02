@@ -22,13 +22,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const spaceId = req.query.space_id; // 클라이언트에서 space_id 전달
     console.log('클라이언트에서 받은 이메일과 스페이스id:', userEmail, spaceId); // 로그 추가
     try {
-        const [roomData] = yield dbpool_1.default.query(
-        // `SELECT Room.rid, Room.rname 
-        //  FROM RoomMembers 
-        //  JOIN Room ON RoomMembers.room_id = Room.rid 
-        //  WHERE RoomMembers.user_email = ?`,
-        // [userEmail]
-        `SELECT Room.rid, Room.rname
+        const [roomData] = yield dbpool_1.default.query(`SELECT Room.rid, Room.rname
        FROM RoomMembers
        JOIN Room ON RoomMembers.room_id = Room.rid
        WHERE RoomMembers.user_email = ? AND RoomMembers.space_id = ?`, [userEmail, spaceId]);

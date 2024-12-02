@@ -1,11 +1,6 @@
 // recoil/atoms/selectedChannelAtoms.ts
 import { atom } from 'recoil';
 
-// interface Channel {
-//     rid: number;
-//     rname: string;
-//   }
-
   interface SelectedChannel {
     rid: number;
     rname: string;

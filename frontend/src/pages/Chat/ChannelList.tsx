@@ -72,16 +72,11 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   useEffect(() => {
     const fetchChannels = async () => {
       try {
-        
-        const user = {
-          uid: 8,
-          uname: '김송내',
-          email: 'kh32100@naver.com',
-        };
-
-        // const space = {
-        //   Id : 1,
-        // };
+        //userState에서 가져온 유저 이메일 있는지 확인
+        if (!user || !user.email) {
+          console.error('user 혹은 user.email이 없습니다.');
+          return;
+        }
 
         console.log('유저이메일:', user.email); // 이메일 출력
         console.log('Request params:', { email: user.email });
@@ -105,7 +100,7 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   return (
     <ChannelListWrapper isOpen={isOpen}>
       <ChannelListContainer>
-        {channels.map((channel: { rid: number; rname: string }, index) => (
+        {channels.map((channel: { rid: number; rname: string }) => (
           <ChannelItem 
             key={channel.rid}
             active={selectedChannel?.rid === channel.rid}

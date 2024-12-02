@@ -15,11 +15,6 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
 
   try {
     const [roomData] = await pool.query<RowDataPacket[]>(
-      // `SELECT Room.rid, Room.rname 
-      //  FROM RoomMembers 
-      //  JOIN Room ON RoomMembers.room_id = Room.rid 
-      //  WHERE RoomMembers.user_email = ?`,
-      // [userEmail]
       `SELECT Room.rid, Room.rname
        FROM RoomMembers
        JOIN Room ON RoomMembers.room_id = Room.rid
