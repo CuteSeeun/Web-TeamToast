@@ -6,15 +6,11 @@ import { PoolConnection } from 'mysql2/promise';
 declare global {
   namespace Express {
     interface Request {
-      userRole: { // 임시 사용자 속성
-        user: string;
-        role: string;
-        space_id: number;
-      };
-      user: {
-        uid: number;
-        uname: string;
-        email: string;
+      // jwt 토큰 정보용 (김현진)
+      user?:{
+        uid:number;
+        uname:string;
+        email : string;
       }
     };
   };

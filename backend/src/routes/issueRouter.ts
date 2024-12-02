@@ -4,14 +4,15 @@
 import express from 'express';
 import { getIssues, newIssue } from '../controller/issueController';
 import { validatePid } from '../middlewares/idMiddleware';
-// 임시 사용자 정보
-import { setTemporaryUser } from '../middlewares/temporaryAuthMiddleware.js';
+import { setTemporaryUser } from '../middlewares/temporaryAuthMiddleware';
+import { checkToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.use(setTemporaryUser); // 임시 사용자 정보
+router.use(setTemporaryUser);
+// router.use(checkToken);
 
-router.get('/all/:pid', validatePid, getIssues);
-router.post('/new/:pid', validatePid, newIssue);
+router.get('/all/:sid/:pid', validatePid, getIssues);
+router.post('/new/:sid/:pid', validatePid, newIssue);
 
 export default router;
