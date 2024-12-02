@@ -9,7 +9,8 @@ import { CreateIssueModal } from './CreateIssueModal';
 import { Issue } from '../types/issueTypes';
 import axios from 'axios';
 import { useRecoilValue } from 'recoil';
-import { currentProjectState } from '../recoil/atoms/projectAtoms';
+import { projectIdState } from '../recoil/atoms/projectAtoms';
+import { spaceIdState } from '../recoil/atoms/spaceAtoms';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -89,43 +90,63 @@ const MenuItem = styled(Link)<{ active?: boolean }>`
 
 const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
-  const currentProject = useRecoilValue(currentProjectState);
+  const spaceId = useRecoilValue(spaceIdState);
+  const projectId = useRecoilValue(projectIdState);
 
-// 백엔드로 보낼 Issue 인터페이스 형식
-interface IssueForBackend extends Omit<Issue, 'status' | 'type' | 'priority'> {
-  status: string; // 한글
-  type: string; // 한글
-  priority: string; // 한글
-}
+  // 백엔드로 보낼 Issue 인터페이스 형식
+  interface IssueForBackend extends Omit<Issue, 'status' | 'type' | 'priority'> {
+    status: string; // 한글
+    type: string; // 한글
+    priority: string; // 한글
+  }
 
-// status 한글로 변환
-const statusMap: Record<string, string> = {
-  backlog: '백로그',
-  working: '작업중',
-  dev: '개발완료',
-  QA: 'QA완료',
-};
+  // status 한글로 변환
+  const statusMap: Record<string, string> = {
+    backlog: '백로그',
+    working: '작업중',
+    dev: '개발완료',
+    QA: 'QA완료',
+  };
 
-// type 한글로 변환
-const typeMap: Record<string, string> = {
-  process: '작업',
-  bug: '버그',
-};
+  // type 한글로 변환
+  const typeMap: Record<string, string> = {
+    process: '작업',
+    bug: '버그',
+  };
 
-// priority 한글로 변환
-const priorityMap: Record<string, string> = {
-  high: '높음',
-  normal: '보통',
-  low: '낮음',
-};
+  // priority 한글로 변환
+  const priorityMap: Record<string, string> = {
+    high: '높음',
+    normal: '보통',
+    low: '낮음',
+  };
 
-const transformIssueForDatabase = (issue: Issue): IssueForBackend => ({
-  ...issue,
-  status: statusMap[issue.status] as '백로그' | '작업중' | '개발완료' | 'QA완료',
-  type: typeMap[issue.type] as '작업' | '버그',
-  priority: priorityMap[issue.priority] as '높음' | '보통' | '낮음',
-});
+  const transformIssueForDatabase = (issue: Issue): IssueForBackend => ({
+    ...issue,
+    status: statusMap[issue.status] as '백로그' | '작업중' | '개발완료' | 'QA완료',
+    type: typeMap[issue.type] as '작업' | '버그',
+    priority: priorityMap[issue.priority] as '높음' | '보통' | '낮음',
+  });
 
+  
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    console.error('Access Token이 없습니다.');
+  } else {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])); // JWT의 payload 디코드
+      const now = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
+      if (payload.exp && payload.exp < now) {
+        console.error('Access Token이 만료되었습니다.');
+      };
+    } catch (err) {
+      console.error('Access Token 디코드 오류:', err);
+    };
+  };
+
+  const headers = {
+    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  };
   
   const openModal = () => {
     setIsOpen(true);
@@ -134,18 +155,20 @@ const transformIssueForDatabase = (issue: Issue): IssueForBackend => ({
     setIsOpen(false);
   };
 
-  
   // 자식 컴포넌트에서 props를 받아 서버에 데이터 전송
   const handleSubmit = async (issue: Issue) => {
-    try {   
+    try {
       console.log(`모달에서 데이터 받음: ${issue.title}`);   
-      const pid = currentProject.pid || 1; // 프로젝트 id 임시 지정
-      if(currentProject.pid === 0) {
+      const sid = spaceId || 1; // 임시로 sid 지정
+      if(!spaceId) {
+        console.log('sid 받아오는 도중 오류');
+      }
+      if(projectId === 0) {
         console.log('프로젝트 정보를 알 수 없습니다.');
         return;
       };
       const issueForBackend = transformIssueForDatabase(issue);
-      const { data } = await axios.post(`http://localhost:3001/issues/new/${pid}`, issueForBackend);
+      const { data } = await axios.post(`http://localhost:3001/issues/new/${sid}/${projectId}`, issueForBackend, {headers});
       console.log(`생성 완료: 제목: ${data.title}, 유형: ${data.type}, 상태: ${data.status}, 우선순위: ${data.priority}`);
     } catch (err ) {
       if (axios.isAxiosError(err)) {
@@ -157,6 +180,8 @@ const transformIssueForDatabase = (issue: Issue): IssueForBackend => ({
       } else {
         console.error('알 수 없는 오류:', err);
       };
+    } finally {
+      closeModal();
     };
   };
 

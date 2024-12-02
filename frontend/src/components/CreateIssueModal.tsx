@@ -1,10 +1,13 @@
 import { CreateIssueModalWrap } from "../styles/CreateIssueModal";
-import { currentProjectState } from "../recoil/atoms/projectAtoms";
 import { useRecoilValue } from "recoil";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Issue } from "../types/issueTypes";
-import { sprintState } from "../recoil/atoms/sprintAtoms";
 import { IoChevronDownOutline } from "react-icons/io5";
+
+import { spaceIdState } from "../recoil/atoms/spaceAtoms";
+import { projectIdState } from "../recoil/atoms/projectAtoms";
+import { sprintState } from "../recoil/atoms/sprintAtoms";
+import axios from "axios";
 
 interface IssueModalProps {
   isOpen: boolean;
@@ -13,9 +16,60 @@ interface IssueModalProps {
 };
 
 export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   => {
-  const currentProject = useRecoilValue(currentProjectState);
+  const projectId = useRecoilValue(projectIdState);
   const sprints = useRecoilValue(sprintState);
-  
+  const spaceId = useRecoilValue(spaceIdState);
+  const [projectName, setProjectName] = useState<string>('');
+    
+  // const token = localStorage.getItem('accessToken');
+  // if (!token) {
+  //   console.error('Access Token이 없습니다.');
+  // } else {
+  //   try {
+  //     const payload = JSON.parse(atob(token.split('.')[1])); // JWT의 payload 디코드
+  //     const now = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
+  //     if (payload.exp && payload.exp < now) {
+  //       console.error('Access Token이 만료되었습니다.');
+  //     };
+  //   } catch (err) {
+  //     console.error('Access Token 디코드 오류:', err);
+  //   };
+  // };
+
+  const headers = {
+    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  };
+
+  useEffect(() => {
+    const fetchProjectName = async () => {
+      if(!spaceId){
+        console.log(`spaceId가 없습니다. spaceId:${spaceId}`);
+        return;
+      };
+      if (projectId === 0) {
+        setProjectName('프로젝트가 선택되지 않았습니다.');
+        return;
+      };
+
+      try {
+        const { data } = await axios.get(`http://localhost:3001/projects/${spaceId}/${projectId}`, {headers});
+
+        if (data && data.length > 0) {
+          setProjectName(data[0].pname); // pname 가져오기
+        } else {
+          setProjectName('프로젝트 이름을 가져오지 못했습니다.');
+        };
+
+      } catch (error) {
+        console.error('프로젝트 데이터를 가져오는 중 에러 발생:', error);
+        setProjectName('프로젝트 이름을 가져오지 못했습니다.');
+      };
+    };
+    // `spaceId`가 존재할 때만 호출
+    if (spaceId) {
+      fetchProjectName();
+    }
+  }, [spaceId, projectId]);
 
   // 객체 기반 issue 스테이트 작성 (임시)
   const [issue, setIssue] = useState<Issue>({
@@ -25,13 +79,12 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     type: 'process',
     status: 'backlog',
     sprint_id: null,
-    project_id: currentProject.pid,
+    project_id: projectId,
     manager: null,
     created_by: null,
     file: null,
     priority: 'normal',
   });
-
 
   // 공통 핸들러
   const handleValueChange = (key: keyof Issue, value: any) => {
@@ -49,7 +102,7 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
       type: 'process',
       status: 'backlog',
       sprint_id: null,
-      project_id: currentProject.pid,
+      project_id: projectId,
       manager: null,
       created_by: null,
       file: null,
@@ -68,7 +121,7 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
             <label>프로젝트 이름</label>
             <input
               type="text"
-              defaultValue={currentProject.pname}
+              defaultValue={projectName}
               className="disabled"
             />
           </div>
