@@ -1,53 +1,62 @@
+// 2024-11-25 한채경 수정, 11-28 마지막 수정
+// ProjectStyle.ts
+
 import styled from "styled-components";
 
+// 프로젝트 페이지 스타일
 export const ProjectListWrap = styled.div`
-   max-width: 800px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 
+  // 헤더 스타일
   .project-header {
     text-align: center;
 
     h2 {
-      font-size: 20px;
+      font-size: 32px;
       font-weight: 600;
-      color: #333;
+      color: #1A1A1A;
       margin: 0;
       margin-bottom: 50px;
     }
   }
- 
+  // ============
 
-  .table-container {
-    position: relative;
-    margin-bottom: 80px;
-
-    .create-btn {
-      position: absolute;
-      right: 0;
-      top: -40px; // 테이블 헤더와 h2 사이에 위치
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 8px 16px;
-      background: #00A3BF;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
+  // 생성 버튼 스타일
+  .create-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: #038C8C;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
 
       
-      &:hover {
-        background: #009CAB;
-      }
+    &:hover {
+      background: #017276;
+    }
 
-      svg {
-        font-size: 16px;
-      }
+    svg {
+      font-size: 16px;
     }
   }
 
+  // 버튼 컨테이너 스타일
+  .table-container {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: flex-end;
+
+
+  }
+  // ============
+
+  // 테이블 스타일
   .project-table {
     width: 100%;
     border-collapse: collapse;
@@ -61,12 +70,12 @@ export const ProjectListWrap = styled.div`
 
     th {
       font-weight: 500;
-      color: #666;
+      color: #1A1A1A;
       padding: 12px;
     }
 
     td {
-      color: #333;
+      color: #4D4D4D;
     }
 
     .project-info {
@@ -90,21 +99,23 @@ export const ProjectListWrap = styled.div`
         background: none;
         border: none;
         cursor: pointer;
-        color: #666;
-        padding: 0;
+        color: #4D4D4D;
+        padding: 4px;
         
         &:hover {
-          color: #009CA8;
+          color: #038C8C;
         }
 
         svg {
-          width: 16px;
-          height: 16px;
+          width: 20px;
+          height: 20px;
         }
       }
     }
   }
+  // ============
 
+  // 페이지네이션 스타일
   .pagination {
     display: flex;
     justify-content: center;
@@ -113,31 +124,57 @@ export const ProjectListWrap = styled.div`
 
     button {
       padding: 6px 10px;
-      border: 1px solid #e5e7eb;
+      border: none;
       border-radius: 4px;
       background: white;
       cursor: pointer;
       font-size: 14px;
-      color: #666;
+      color: #4D4D4D;
 
       &.active {
-        background: #f5f5f5;
-        border-color: #e5e7eb;
-        color: #333;
+        background: #E6E6E6;
+        color: #4D4D4D;
       }
 
       &:hover:not(.active):not(:disabled) {
-        background: #f5f5f5;
+        background: #E6E6E680;
       }
 
       &:disabled {
         cursor: not-allowed;
-        opacity: 0.5;
+        color: #B3B3B3;
       }
+    }
+  }
+  // ============
+
+  // 프로젝트 없을 시 띄우는 알림 스타일
+  .project-alert-container {
+    margin: 0 auto;
+    text-align: center;
+
+    .project-alert-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .alert-svg {
+      width: 256px;
+      height: 256px;
+      padding: 80px 40px 40px;
+    }
+
+    p {
+      font-size: 20px;
+      color: #4D4D4D;
+      padding-bottom: 40px;
     }
   }
 `
 
+// 프로젝트 모달 스타일
 export const ProjectModalWrap = styled.div`
  position: fixed;
  top: 0;
@@ -156,17 +193,16 @@ export const ProjectModalWrap = styled.div`
    border-radius: 8px;
    width: 100%;
    max-width: 400px;
-   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
    h3 {
      margin: 0 0 20px 0;
      font-size: 18px;
      font-weight: 600;
-     color: #333;
+     color: #4D4D4D;
    }
 
    p {
-     color: #666;
+     color: #4D4D4D;
      font-size: 14px;
      line-height: 1.5;
      margin-bottom: 20px;
@@ -179,7 +215,7 @@ export const ProjectModalWrap = styled.div`
        display: block;
        margin-bottom: 8px;
        font-size: 14px;
-       color: #666;
+       color: #4D4D4D;
      }
 
      input {
@@ -191,8 +227,7 @@ export const ProjectModalWrap = styled.div`
 
        &:focus {
          outline: none;
-         border-color: #00A3BF;
-         box-shadow: 0 0 0 2px rgba(0, 163, 191, 0.1);
+         border-color: #038C8C;
        }
 
        &::placeholder {
@@ -218,7 +253,7 @@ export const ProjectModalWrap = styled.div`
        &:first-child {
          background: white;
          border: 1px solid #e5e7eb;
-         color: #666;
+         color: #4D4D4D;
 
          &:hover {
            background: #f9fafb;
@@ -226,12 +261,12 @@ export const ProjectModalWrap = styled.div`
        }
 
        &:last-child {
-         background: #00A3BF;
+         background: #038C8C;
          border: none;
          color: white;
 
          &:hover {
-           background: #009CAB;
+           background: #038C8C;
          }
 
          &.delete {

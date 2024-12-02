@@ -19,7 +19,7 @@ const RatePlan = () => {
     // 실제로는 전역 상태 관리(Redux, Context 등)나 API를 통해 받아올 유저 정보
     const user: User = {
         isLoggedIn: !!userRecoil, // 로그인 상태
-        role: userRecoil?.role // 유저 권한
+        role: userRecoil?.role || null // 유저 권한
     };
 
     const handleUpgradeClick = () => {

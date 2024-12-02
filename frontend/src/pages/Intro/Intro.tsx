@@ -16,7 +16,7 @@ const Intro = () => {
             {user ? (
                 <>
                 <Link to='/space'>
-                <button>{user.name}님 반갑습니다 !  스페이스로 이동</button>
+                <button>{user.uname}님 반갑습니다 !  스페이스로 이동</button>
                 </Link>
                 </>
             ):(

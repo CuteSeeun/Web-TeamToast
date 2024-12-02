@@ -1,4 +1,85 @@
-import styled from "styled-components";
+
+import styled from 'styled-components';
+
+// export const RatePlanWrap = styled.div`
+//  background-color: #f9f9f9;
+//    display: flex;
+//    flex-direction: column;
+//    align-items: center;
+//    padding: 20px;
+//    margin-top: 100px;
+
+//    .maincontainer {
+//        display: flex;
+//        gap: 40px;
+//        justify-content: center;
+//        width: 100%;
+//        max-width: 1200px;
+//    }
+
+// `
+export const PriceCard = styled.div`
+border: 1px solid #ccc;
+   border-radius: 12px;
+   width: 350px;
+   height: 500px;
+   margin-top: 50px;
+   background-color: #fff;
+   padding: 20px;
+   text-align: center;
+
+   h2 {
+       font-size: 28px;
+       margin-bottom: 15px;
+       font-weight: bold;
+   }
+
+   button {
+       height: 45px;
+       width: 80%;
+       margin-top: 15px;
+       border-radius: 8px;
+       border: none;
+       cursor: pointer;
+       font-size: 18px;
+       font-weight: bold;
+       color: #fff;
+       margin-bottom: 40px;
+       background-color: #007bff;
+   }
+
+   .freebtn {
+       background-color: #00597d;
+       cursor: default;
+   }
+
+   .teambtn {
+       background-color: #05a6a6;
+
+       &:hover {
+           background-color: #038c8c;
+       }
+   }
+
+   p {
+       margin-top: 15px;
+       font-size: 16px;
+       color: #333;
+       text-align: left;
+       padding-left: 30px;
+
+       span {
+           font-weight: 600;
+       }
+   }
+
+   .description {
+       margin-top: 20px;
+       font-size: 15px;
+       color: #555;
+   }
+
+`
 
 export const PaymentWrap = styled.div`
   padding: 20px;
