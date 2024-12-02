@@ -2,6 +2,17 @@
 // issueAtoms.tsx
 import { atom } from "recoil";
 
+// 이슈 상태를 객체로 관리
+export const issueListState = atom<{ [key: number]: Issue[] }>({
+  key: 'issueListState',
+  default: {},
+});
+
+export const backlogState = atom<Issue[]>({
+  key: 'backlogState',
+  default: [],
+});
+
 export interface Issue {
   title: string;
   detail?: string | null;
@@ -40,3 +51,4 @@ export const issueListState = atom<Issue[]> ({
   key: 'issueListState',
   default: []
 });
+

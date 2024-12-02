@@ -5,6 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const userController_1 = require("../controller/userController");
+
+const router = express_1.default.Router();
+router.get('/project/:projectid/managers', userController_1.getProjectManagers);
+
 const kakaoController_1 = require("../controller/kakaoController");
 const phoneController_1 = require("../controller/phoneController");
 const passwdController_1 = require("../controller/passwdController");
@@ -41,5 +45,6 @@ router.post('/user/profile', authMiddleware_1.checkToken, profileController_1.up
 //비밀번호 변경 라우트(프로필 쪽)
 router.post('/check-password', authMiddleware_1.checkToken, passwdController_1.checkCurrentPw);
 router.post('/change-password', authMiddleware_1.checkToken, passwdController_1.changePw);
+
 
 exports.default = router;

@@ -13,6 +13,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 
+exports.getProjectManagers = void 0;
+const dbpool_1 = __importDefault(require("../config/dbpool"));
+const getProjectManagers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const projectId = parseInt(req.params.projectid, 10);
+    if (isNaN(projectId)) {
+        res.status(400).json({ error: 'Invalid project ID' });
+        return;
+    }
+    try {
+        const query = `
+            SELECT DISTINCT User.uname AS manager
+            FROM User
+            JOIN Issue ON User.email = Issue.manager
+            WHERE Issue.project_id = ?;
+        `;
+        const [rows] = yield dbpool_1.default.query(query, [projectId]);
+        res.json(rows);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Error fetching project managers' });
+    }
+});
+exports.getProjectManagers = getProjectManagers;
+
+
 exports.checkEmail = exports.getInfo = exports.logout = exports.login = exports.join = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -154,3 +179,4 @@ const checkEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.checkEmail = checkEmail;
+
