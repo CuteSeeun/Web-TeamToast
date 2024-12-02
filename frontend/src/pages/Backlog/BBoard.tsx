@@ -21,10 +21,10 @@ const BBoard: React.FC = () => {
             try {
                 const projectId = 1;
 
-                const sprintResponse = await axios.get(`http://localhost:3001/sprint/${projectId}`);
+                const sprintResponse = await axios.get(`/sprint/${projectId}`);
                 setSprints(sprintResponse.data);
 
-                const issueResponse = await axios.get(`http://localhost:3001/issue/backlog/${projectId}`);
+                const issueResponse = await axios.get(`/issue/backlog/${projectId}`);
                 const issuesData = issueResponse.data.map((issue: any) => {
                     const manager = typeof issue.manager === 'object' && issue.manager !== null ? issue.manager.manager : (issue.manager || '담당자 없음');
                     return {
@@ -50,7 +50,7 @@ const BBoard: React.FC = () => {
                 setIssues(issuesBySprint);
                 setBacklog(backlogData);
 
-                const managerResponse = await axios.get(`http://localhost:3001/user/project/${projectId}/managers`);
+                const managerResponse = await axios.get(`/user/project/${projectId}/managers`);
                 const managersData = managerResponse.data.map((manager: any) => {
                     const managerStr = typeof manager === 'object' && manager !== null ? manager.manager : manager;
                     return managerStr;
@@ -160,9 +160,9 @@ const BBoard: React.FC = () => {
             ))}
 
             <Div>
-                <div style={{ marginTop: '20px', marginLeft: '1150px' }}>
+                {/* <div style={{ marginTop: '20px', marginLeft: '1150px' }}> */}
                     <AddSprint>스프린트 생성</AddSprint>
-                </div>
+                {/* </div> */}
             </Div>
             <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
                 <SprintHeader>
@@ -170,7 +170,7 @@ const BBoard: React.FC = () => {
                         <SprintName>백로그</SprintName>
                     </div>
                 </SprintHeader>
-                <IssueTable>
+                <IssueTable>                                      
                     <thead>
                         <tr>
                             <th>이슈</th>

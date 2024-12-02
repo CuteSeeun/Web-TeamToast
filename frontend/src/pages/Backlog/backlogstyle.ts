@@ -192,8 +192,10 @@ export const BacklogSection = styled.div`
 
 export const Div = styled.div`
 display:flex;
-justify-content: center;
+justify-content: flex-end;
+padding-right:10px;
 align-items:center;
 flex-direction: column;
 position:relative;
+margin-top: 20px;
 `;
