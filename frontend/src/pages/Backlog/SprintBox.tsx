@@ -25,7 +25,6 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
             try {
                 const projectId = sprint.project_id;
                 const response = await axios.get<Issue[]>(`/issue/${projectId}/${sprint.spid}`);
-                console.log('Fetched issues for sprint:', response.data);
                 setIssues(prevIssues => ({
                     ...prevIssues,
                     [sprint.spid]: response.data
@@ -73,7 +72,6 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
         (!filter.status || issue.status === filter.status) &&
         (!filter.priority || issue.priority === filter.priority)
     );
-    console.log('Filtered issues for sprint:', filteredIssues);
 
     const [{ isOver }, drop] = useDrop({
         accept: 'ITEM',

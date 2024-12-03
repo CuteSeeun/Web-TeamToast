@@ -1,3 +1,4 @@
+// sprintController.ts
 import { Request, Response } from 'express';
 import pool from '../config/dbpool';
 
@@ -45,5 +46,26 @@ export const updateSprintStatus = async (req: Request, res: Response): Promise<v
         } else {
             res.status(500).json({ error: '스프린트 상태 업데이트 오류', details: '알 수 없는 오류가 발생했습니다.' });
         }
+    }
+};
+
+
+export const InsertSprint = async (req: Request, res: Response): Promise<void> => {
+    const { spname, startDate, endDate, goal, project_id } = req.body;
+
+    if (!spname || !startDate || !endDate || !project_id) {
+        res.status(400).json({ success: false, message: '필수 필드를 입력해 주세요.' });
+        return;
+    }
+
+    try {
+        const query = 'INSERT INTO Sprint (spname, startdate, enddate, goal, project_id) VALUES (?, ?, ?, ?, ?)';
+        const values = [spname, startDate, endDate, goal, project_id];
+        await pool.query(query, values);
+
+        res.status(201).json({ success: true, message: '스프린트가 성공적으로 생성되었습니다.' });
+    } catch (error) {
+        const err = error as Error;
+        res.status(500).json({ success: false, message: '서버 에러로 인해 스프린트를 생성하지 못했습니다.', error: err.message });
     }
 };

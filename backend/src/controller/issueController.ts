@@ -22,7 +22,7 @@ import { Type } from '../types/issueTypes';
 
 
 // pid에 해당하는 이슈 전체 받아오기
-export const getIssues = async (req: Request & { userRole: { user: string; role: string; space_id: number } }, res: Response, next: NextFunction) => {
+export const getIssues = async (req: Request , res: Response, next: NextFunction) => {
   try {
     const pid: number = parseInt(req.params.pid);
     const issues: Issue[] = await getIssuesQuery(pid);

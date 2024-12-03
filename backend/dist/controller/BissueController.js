@@ -13,15 +13,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateIssueSprint = exports.getBacklogIssue = exports.getIssue = void 0;
-const dbpool_1 = __importDefault(require("../config/dbpool")); // 디폴트 익스포트 가져오기
+const dbpool_1 = __importDefault(require("../config/dbpool"));
 const getIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const sprintId = parseInt(req.params.issueid, 10); // parseInt 사용
-    const projectId = parseInt(req.params.projectid, 10); // parseInt 사용
-    const issueId = parseInt(req.params.issueid, 10);
-    // if (isNaN(sprintId) || isNaN(projectId)) { // 유효성 검사
-    //     res.status(400).json({ error: 'Invalid project ID or sprint ID' });
-    //     return;
-    // }
+    const sprintId = parseInt(req.params.issueid, 10);
+    const projectId = parseInt(req.params.projectid, 10);
     try {
         const query = `
             SELECT 

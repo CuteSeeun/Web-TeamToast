@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateSprintStatus = exports.getSprint = void 0;
+exports.InsertSprint = exports.updateSprintStatus = exports.getSprint = void 0;
 const dbpool_1 = __importDefault(require("../config/dbpool"));
 const getSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const projectId = Number(req.params.projectid);
@@ -53,3 +53,21 @@ const updateSprintStatus = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.updateSprintStatus = updateSprintStatus;
+const InsertSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { spname, startDate, endDate, goal, project_id } = req.body;
+    if (!spname || !startDate || !endDate || !project_id) {
+        res.status(400).json({ success: false, message: '필수 필드를 입력해 주세요.' });
+        return;
+    }
+    try {
+        const query = 'INSERT INTO Sprint (spname, startdate, enddate, goal, project_id) VALUES (?, ?, ?, ?, ?)';
+        const values = [spname, startDate, endDate, goal, project_id];
+        yield dbpool_1.default.query(query, values);
+        res.status(201).json({ success: true, message: '스프린트가 성공적으로 생성되었습니다.' });
+    }
+    catch (error) {
+        const err = error;
+        res.status(500).json({ success: false, message: '서버 에러로 인해 스프린트를 생성하지 못했습니다.', error: err.message });
+    }
+});
+exports.InsertSprint = InsertSprint;

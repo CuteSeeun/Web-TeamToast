@@ -12,32 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-
-exports.getProjectManagers = void 0;
-const dbpool_1 = __importDefault(require("../config/dbpool"));
-const getProjectManagers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const projectId = parseInt(req.params.projectid, 10);
-    if (isNaN(projectId)) {
-        res.status(400).json({ error: 'Invalid project ID' });
-        return;
-    }
-    try {
-        const query = `
-            SELECT DISTINCT User.uname AS manager
-            FROM User
-            JOIN Issue ON User.email = Issue.manager
-            WHERE Issue.project_id = ?;
-        `;
-        const [rows] = yield dbpool_1.default.query(query, [projectId]);
-        res.json(rows);
-    }
-    catch (error) {
-        res.status(500).json({ error: 'Error fetching project managers' });
-    }
-});
-exports.getProjectManagers = getProjectManagers;
-
-
 exports.checkEmail = exports.getInfo = exports.logout = exports.login = exports.join = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -66,14 +40,12 @@ const join = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.join = join;
 // 로그인 함수
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-
     console.log('Login request received:', req.body);
     const { useremail, userpw } = req.body;
     try {
         console.log('Querying user:', useremail);
         const [rows] = yield dbpool_1.default.query('SELECT * FROM User WHERE email = ?', [useremail]);
         console.log('Query result:', rows);
-
         if (rows.length === 0) {
             res.status(401).json({ message: '사용자 없음' });
             return;
@@ -81,15 +53,11 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const user = rows[0];
         console.log('DB에서 가져온 사용자:', user);
         const isPw = yield bcrypt_1.default.compare(userpw, user.passwd);
-
         console.log('Password check:', isPw);
-
-
         if (!isPw) {
             res.status(401).json({ message: '비밀번호 틀림' });
             return;
         }
-
         // 더미용 나중에 삭제 ----------------------------------------------------
         // 더미데이터용 직접 비교
         // const isPw = userpw === user.passwd;
@@ -122,7 +90,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.login = login;
 //----------------------------------------------------------------------------------------
-
 //로그아웃 함수
 const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -140,7 +107,6 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.logout = logout;
 //--------------------------------------------------------------------------------
-
 // 사용자 정보 조회 (토큰 검증) 함수 // 새로고침
 const getInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -150,9 +116,7 @@ const getInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return;
     }
     try {
-
         const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
-
         const [rows] = yield dbpool_1.default.query('SELECT uid, uname, email FROM User WHERE uid = ?', [decoded.uid]);
         if (rows.length === 0) {
             res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
@@ -179,4 +143,3 @@ const checkEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.checkEmail = checkEmail;
-

@@ -1,7 +1,7 @@
 // issueController.ts
 import { Request, Response } from 'express';
-import pool from '../config/dbpool'; // 디폴트 익스포트 가져오기
-import { RowDataPacket } from 'mysql2'; // 추가
+import pool from '../config/dbpool'; 
+import { RowDataPacket } from 'mysql2'; 
 
 type IssueStatus = 'Backlog' | 'Working' | 'Dev' | 'QA';
 type IssuePriority = 'high' | 'normal' | 'low';
@@ -21,14 +21,8 @@ interface Issue extends RowDataPacket { // RowDataPacket 확장
 }
 
 export const getIssue = async (req: Request, res: Response): Promise<void> => {
-    const sprintId = parseInt(req.params.issueid, 10); // parseInt 사용
-    const projectId = parseInt(req.params.projectid, 10); // parseInt 사용
-    const issueId = parseInt(req.params.issueid, 10);
-
-    // if (isNaN(sprintId) || isNaN(projectId)) { // 유효성 검사
-    //     res.status(400).json({ error: 'Invalid project ID or sprint ID' });
-    //     return;
-    // }
+    const sprintId = parseInt(req.params.issueid, 10); 
+    const projectId = parseInt(req.params.projectid, 10); 
 
     try {
         const query = `
