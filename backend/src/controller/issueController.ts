@@ -26,6 +26,26 @@ export const getIssues = async (req: Request, res: Response) => {
       res.status(200).json([]); // 빈 배열 반환
       return;
     };
+
+    // issue.file이 json인지 판별 (임시)
+    function isJsonString(str: string): boolean {
+      try {
+        JSON.parse(str);
+        return true;
+      } catch (e) {
+        return false;
+      };
+    };
+    // json데이터로 저장된 file을 배열로 변환
+    issues.forEach(issue => {
+      if (issue.file) {
+        // JSON 문자열인 경우에만 파싱
+        if (typeof issue.file === 'string' && isJsonString(issue.file)) {
+          issue.file = JSON.parse(issue.file);
+        };
+      };
+    });
+
     res.status(200).json(issues);
   } catch (err) {
     console.error(`데이터 조회 오류:${err}`);
@@ -93,9 +113,11 @@ export const newIssue = async (req: Request, res: Response) => {
       project_id: parseInt(req.params.pid, 10),
       manager: req.body.manager || null,
       created_by: req.body.created_by || null,
-      file: req.body.file || null,
+      file: JSON.stringify(req.body.file) || null,
       priority: req.body.priority,
     };
+
+    console.log(issue.file);
 
     const result = await newIssueQuery(issue);
     const insertId = result.insertId;

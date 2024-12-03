@@ -2,7 +2,7 @@
 // issueTypes.ts
 
 export type Issue = {
-  isid: number;
+  isid?: number;
   title: string;
   detail?: string;
   type: 'process' | 'bug';
@@ -11,6 +11,6 @@ export type Issue = {
   project_id: number;
   manager?: string | null;
   created_by?: string | null;
-  file?: string | null;
+  file?: string[] | null;
   priority: 'high' | 'normal' | 'low';
 };

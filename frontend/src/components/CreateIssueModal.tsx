@@ -1,8 +1,8 @@
-import { CreateIssueModalWrap } from "../styles/CreateIssueModal";
-import { useRecoilValue } from "recoil";
-import { useEffect, useState } from "react";
+import { CreateIssueModalWrap, PreviewContainer } from "../styles/CreateIssueModal";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import React, { useEffect, useMemo, useState } from "react";
 import { Issue } from "../types/issueTypes";
-import { IoChevronDownOutline } from "react-icons/io5";
+import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
 
 import { spaceIdState } from "../recoil/atoms/spaceAtoms";
 import { projectIdState } from "../recoil/atoms/projectAtoms";
@@ -12,16 +12,20 @@ import axios from "axios";
 interface IssueModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (issue: Issue) => void;
+  onSubmit: (issue: Issue, files: File[]) => void;
 };
 
 export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   => {
   const projectId = useRecoilValue(projectIdState);
   const sprints = useRecoilValue(sprintState);
+  const setSprints = useSetRecoilState(sprintState);
   const spaceId = useRecoilValue(spaceIdState);
   const [projectName, setProjectName] = useState<string>('');
-    
-  // const token = localStorage.getItem('accessToken');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const token = localStorage.getItem('accessToken');
   // if (!token) {
   //   console.error('Access Token이 없습니다.');
   // } else {
@@ -35,10 +39,33 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
   //     console.error('Access Token 디코드 오류:', err);
   //   };
   // };
+  const headers = useMemo(() => ({
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`
+  }), [token]);
 
-  const headers = {
-    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  // 임시 스프린트 추가
+  const setSprintName = () => {
+    type SprintStatus = 'disabled' | 'enabled' | 'end';
+
+    interface Sprint {
+        spid: number;
+        spname: string;
+        status: SprintStatus;
+        goal: string;
+        enddate: string;
+        startdate: string;
+        project_id: number;
+    };
+
+    const sprint: Sprint[] = [
+      { spid: 12, spname: "스프린트 1", status: "enabled", goal: "첫 번째 스프린트 목표", enddate: "2024-12-10 23:59:59", startdate: "2024-12-01 00:00:00", project_id: 28 },
+      { spid: 13, spname: "스프린트 2", status: "disabled", goal: "두 번째 스프린트 목표", enddate: "2024-12-20 23:59:59", startdate: "2024-12-11 00:00:00", project_id: 28 },
+      { spid: 14, spname: "스프린트 3", status: "disabled", goal: "세 번째 스프린트 목표", enddate: "2024-12-30 23:59:59", startdate: "2024-12-21 00:00:00", project_id: 28 }
+    ];
+    setSprints(sprint);
   };
+
 
   useEffect(() => {
     const fetchProjectName = async () => {
@@ -65,15 +92,16 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
         setProjectName('프로젝트 이름을 가져오지 못했습니다.');
       };
     };
+
     // `spaceId`가 존재할 때만 호출
     if (spaceId) {
       fetchProjectName();
+      setSprintName(); // 임시 스프린트 추가
     }
-  }, [spaceId, projectId]);
+  }, [spaceId, projectId, headers]);
 
   // 객체 기반 issue 스테이트 작성 (임시)
   const [issue, setIssue] = useState<Issue>({
-    isid: 0, // 기본값 설정
     title: '',
     detail: '',
     type: 'process',
@@ -85,6 +113,30 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     file: null,
     priority: 'normal',
   });
+  
+  // 파일 선택 핸들러
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+  
+    const fileArray = Array.from(files);
+    setSelectedFiles((prev) => [...prev, ...fileArray]) // 선택된 파일 저장
+  
+    // 미리보기 URL 생성
+    const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
+    setPreviews((prev) => [...prev, ...newPreviews]); // 미리보기 상태 업데이트
+  };
+
+  // 파일 선택 해제
+  const handleFileDelete = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+
+    // input 초기화
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   // 공통 핸들러
   const handleValueChange = (key: keyof Issue, value: any) => {
@@ -93,10 +145,12 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault();
-    console.log(`모달 submit창에서 데이터 보냄`);
-    props.onSubmit(issue);
+    // 파일 데이터 업로드 준비
+    const formData = new FormData();
+    selectedFiles.forEach((file) => formData.append("files", file));
+    
+    props.onSubmit(issue, selectedFiles);
     setIssue({
-      isid: 0,
       title: '',
       detail: '',
       type: 'process',
@@ -108,7 +162,16 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
       file: null,
       priority: 'normal',
     });
+    setSelectedFiles([]);
+    setPreviews([]); // 미리보기 초기화
   };
+
+  // 메모리 누수 방지
+  useEffect(() => {
+    return () => {
+      previews.forEach((preview) => URL.revokeObjectURL(preview));
+    };
+  }, [previews]);
 
   if (!props.isOpen) return null;
 
@@ -223,7 +286,7 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
                   <option value="" disabled>
                     없음
                   </option>
-                  {/* 팀원 목록을 받아와서 렌더링 */}
+                  {/* 팀원 목록을 받아와서 렌더링 (구현안됨) */}
                 </select>
                 <IoChevronDownOutline className="downIcon" />
               </div>
@@ -245,10 +308,39 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
               </div>
             </div>
           </div>
+          {/* 파일 업로드 입력 */}
           <div className="input-group">
             <label>파일 등록</label>
-            <input type="file" name="filename" multiple />
-            {/* 파일 추가 필요 (multer) */}
+            <PreviewContainer>
+              {/* 커스텀 파일 추가 버튼 */}
+              <label htmlFor="file-input" className="custom-file-button">
+                <IoAddOutline className="file-btn" />
+              </label>
+
+              {/* 숨겨진 파일 입력 */}
+              <input
+                type="file"
+                id="file-input"
+                name="filename"
+                multiple
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                style={{ display: "none" }}
+              />
+
+              {/* 파일 미리보기 영역 */}
+              {previews.map((src, index) => (
+                <div
+                  className="preview-wrap"
+                  key={index}
+                  onClick={() => handleFileDelete(index)}
+                >
+                  <div className="img-wrap"><img src={src} alt={`Preview ${index}`} /></div>
+                  <IoCloseOutline className="file-btn" />
+                  <p className="file-name">{selectedFiles[index]?.name}</p>
+                </div>
+              ))}
+            </PreviewContainer>
           </div>
           <div className="button-group">
             <button type="button" onClick={props.onClose}>취소</button>

@@ -1,7 +1,7 @@
 // 2024-11-25 한채경 수정, 11-29 마지막 수정
 // ProjectList.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ProjectListWrap } from './ProjectStyle';
 import { GoPlus } from "react-icons/go";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
@@ -35,6 +35,7 @@ const ProjectList = () => {
   const setProjectId = useSetRecoilState(projectIdState);
   const setIssueList = useSetRecoilState(issueListState);
 
+
   const token = localStorage.getItem('accessToken');
   if (!token) {
     console.error('Access Token이 없습니다.');
@@ -50,10 +51,10 @@ const ProjectList = () => {
     };
   };
 
-  const headers = {
-    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  };
-
+  const headers = useMemo(() => ({
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`
+  }), [token]);
 
    // Space ID 초기화: localStorage에서 가져오기
   useEffect(() => {
@@ -61,11 +62,12 @@ const ProjectList = () => {
     if (storedSpaceId && !spaceId) {
       setSpaceId(Number(storedSpaceId)); // Recoil 상태 업데이트
     };
+    // =========
     if (!spaceId) {
       setSpaceId(10); // 임시로 추가
       console.log('임시 스페이스 아이디:', 10);
-      
     };
+    // =========
   }, [spaceId, setSpaceId]);
 
   // 프로젝트 데이터 가져오기
@@ -86,7 +88,7 @@ const ProjectList = () => {
     if (spaceId) {
       getProjList();
     };
-  }, [spaceId]); 
+  }, [spaceId, headers]); 
    
   // 렌더링 이전에 스페이스 아이디 검증
    if (!spaceId) {

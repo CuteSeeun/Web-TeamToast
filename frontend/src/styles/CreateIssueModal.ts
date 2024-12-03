@@ -78,6 +78,12 @@ export const CreateIssueModalWrap = styled.div`
       border-radius: 4px;
       border: 1px solid #CCC;
 
+      &:focus {
+        outline: none;
+        border-color: #038C8C;
+        box-shadow: 0 0 0 2px rgba(0, 163, 191, 0.1);
+      }
+
       option {
         padding: 5px;
       }
@@ -91,11 +97,37 @@ export const CreateIssueModalWrap = styled.div`
     .input-group {
       margin-bottom: 16px;
 
+      .flex-box {
+        display: flex;
+        align-items: flex-start;
+      }
+
       label {
         display: block;
         margin-bottom: 8px;
         font-size: 14px;
         color: #4D4D4D;
+      }
+
+      .custom-file-button{
+        width: 100px;
+        height: 100px;
+        background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='%23999999FF' stroke-width='1' stroke-dasharray='9' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+        border-radius: 5px;
+        box-sizing: border-box;
+        position: relative;
+        
+        .file-btn {
+          color: #888888;
+          padding: 24px;
+          font-size: 50px;
+          position: absolute;
+          cursor: pointer;
+          border-radius: 5px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%,-50%);
+        }
       }
 
       input {
@@ -169,3 +201,88 @@ export const CreateIssueModalWrap = styled.div`
     }
   }
 `
+
+// 스타일링 추가
+export const PreviewContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  .custom-file-button {
+    margin: 0 !important;
+    width: 100px;
+    height: 100px;
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='5' ry='5' stroke='%23999999FF' stroke-width='1' stroke-dasharray='9' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+    border-radius: 5px;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    .file-btn {
+      color: #888888;
+      font-size: 50px;
+    }
+
+    &:hover {
+      background-color: #f2f2f2;
+    }
+  }
+
+  .preview-wrap {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    margin: 0;
+    background: #ffffff;
+
+    img-wrap {
+      width: 98px;
+      height: 98px;
+      box-sizing: border-box;
+      overflow: hidden;
+      border-radius: 5px;
+    }
+
+    img {
+      width: 100%;
+      min-height: 98px;
+      object-fit: cover;
+      border-radius: 5px;
+      display:block;
+    }
+
+    .file-btn {
+      display: none;
+      color: #4d4d4d;
+      font-size: 50px;
+      position: absolute;
+      cursor: pointer;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .file-name {
+      margin: 5px 0;
+      font-size: 12px;
+      color: #4d4d4d;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    &:hover {
+      img {
+        filter: opacity(60%);
+      }
+
+      .file-btn {
+        display: block;
+      }
+    }
+  }
+`;

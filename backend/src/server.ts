@@ -14,6 +14,7 @@ import projectRouter from './routes/projectRouter';
 import issueRouter from './routes/issueRouter';
 import userRouter from './routes/userRouter';
 import spaceRouter from './routes/spaceRouter';
+import uploadRouter from './routes/uploadRouter';
 
 // 2024-11-28 조하영
 import BsprintRouter from './routes/sprintRouter';
@@ -50,6 +51,7 @@ app.use('/user', BuserRouter);
 
 app.use('/projects', projectRouter);
 app.use('/issues', issueRouter);
+app.use('/upload', uploadRouter);
 app.use('/editUser',userRouter); // 로그인 회원가입 
 app.use('/space',spaceRouter);
 

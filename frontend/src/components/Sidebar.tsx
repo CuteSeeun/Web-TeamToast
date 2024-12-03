@@ -1,7 +1,7 @@
 //좌측 사이드바
 //세은
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
@@ -11,6 +11,7 @@ import axios from 'axios';
 import { useRecoilValue } from 'recoil';
 import { projectIdState } from '../recoil/atoms/projectAtoms';
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
+import { issueListState } from '../recoil/atoms/issueAtoms';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -92,6 +93,7 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
   const spaceId = useRecoilValue(spaceIdState);
   const projectId = useRecoilValue(projectIdState);
+  const issueList = useRecoilValue(issueListState);
 
   // 백엔드로 보낼 Issue 인터페이스 형식
   interface IssueForBackend extends Omit<Issue, 'status' | 'type' | 'priority'> {
@@ -128,27 +130,10 @@ const Sidebar: React.FC = () => {
     priority: priorityMap[issue.priority] as '높음' | '보통' | '낮음',
   });
 
-  
-  const token = localStorage.getItem('accessToken');
-  if (!token) {
-    console.error('Access Token이 없습니다.');
-  } else {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // JWT의 payload 디코드
-      const now = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
-      if (payload.exp && payload.exp < now) {
-        console.error('Access Token이 만료되었습니다.');
-      };
-    } catch (err) {
-      console.error('Access Token 디코드 오류:', err);
-    };
-  };
 
-  const headers = {
-    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  };
   
   const openModal = () => {
+    console.log(issueList);
     setIsOpen(true);
   };
   const closeModal = () => {
@@ -156,20 +141,58 @@ const Sidebar: React.FC = () => {
   };
 
   // 자식 컴포넌트에서 props를 받아 서버에 데이터 전송
-  const handleSubmit = async (issue: Issue) => {
+  const handleSubmit = async (issue: Issue, files: File[]) => {  
+    // const token = localStorage.getItem('accessToken');
+    // if (!token) {
+    //   console.error('Access Token이 없습니다.');
+    // } else {
+    //   try {
+    //     const payload = JSON.parse(atob(token.split('.')[1])); // JWT의 payload 디코드
+    //     const now = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
+    //     if (payload.exp && payload.exp < now) {
+    //       console.error('Access Token이 만료되었습니다.');
+    //     };
+    //   } catch (err) {
+    //     console.error('Access Token 디코드 오류:', err);
+    //   };
+    // };
+    const headers = {
+      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    };
+
     try {
-      console.log(`모달에서 데이터 받음: ${issue.title}`);   
-      const sid = spaceId || 1; // 임시로 sid 지정
-      if(!spaceId) {
-        console.log('sid 받아오는 도중 오류');
+      // 1. 파일 업로드
+      let uploadedFileNames: string[] = [];
+      if (files.length > 0) {
+        const formData = new FormData();
+        files.forEach((file) => formData.append('files', file));
+  
+        const uploadResponse = await axios.post('http://localhost:3001/upload/upload', formData, {
+          headers: {
+            ...headers,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+  
+        uploadedFileNames = uploadResponse.data.fileUrls.map((url: string) => url.split('/').pop());
+        console.log('파일 업로드 성공:', uploadedFileNames);
       }
-      if(projectId === 0) {
-        console.log('프로젝트 정보를 알 수 없습니다.');
+  
+      // 2. 이슈 데이터 전송
+      const sid = spaceId || 1; // 임시로 sid 지정
+      if (!spaceId || projectId === 0) {
+        console.error('유효하지 않은 Space ID 또는 Project ID');
         return;
-      };
-      const issueForBackend = transformIssueForDatabase(issue);
-      const { data } = await axios.post(`http://localhost:3001/issues/new/${sid}/${projectId}`, issueForBackend, {headers});
-      console.log(`생성 완료: 제목: ${data.title}, 유형: ${data.type}, 상태: ${data.status}, 우선순위: ${data.priority}`);
+      }
+  
+      const issueForBackend = transformIssueForDatabase({ ...issue, file: uploadedFileNames });
+      const issueResponse = await axios.post(
+        `http://localhost:3001/issues/new/${sid}/${projectId}`,
+        issueForBackend,
+        { headers }
+      );
+
+      console.log('이슈 생성 성공:', issueResponse.data);
     } catch (err ) {
       if (axios.isAxiosError(err)) {
         if (err.response) {
