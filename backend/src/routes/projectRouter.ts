@@ -10,10 +10,10 @@ import { setTemporaryUser } from '../middlewares/temporaryAuthMiddleware';
 
 const router = express.Router();
 
+// 임시 유저 정보, 로그인 구현 시 아래 주석 풀고 위 삭제
 router.use(setTemporaryUser);
 // router.use(checkToken);
 
-// 현진
 router.get('/all', getAllProjects);
 router.get('/all/:sid', validateSid, getProjects);
 router.get('/:sid/:pid', validatePid, getProject);

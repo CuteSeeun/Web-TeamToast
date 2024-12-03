@@ -7,6 +7,7 @@ import { setTemporaryUser } from '../middlewares/temporaryAuthMiddleware';
 
 const router = express.Router();
 
+// 임시 유저 정보, 로그인 구현 시 아래 주석 풀고 위 삭제
 router.use(setTemporaryUser);
 // 모든 스페이스 라우트에서 토큰 체크 
 // router.use(checkToken);
