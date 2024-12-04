@@ -7,8 +7,8 @@ const Payment = () => {
   const [cardInfo, setCardInfo] = useState<string | null>(null);
   const [additionalMembers, setAdditionalMembers] = useState(0); // 추가 인원
   const [monthlyFee, setMonthlyFee] = useState(0); // 월별 결제 요금
-  const userEmail = "john.doe@example.com"; // 로그인 후 동적으로 변경
-  const spaceId = 1; // 실제 스페이스 ID로 설정
+  const userEmail = "kh32100@naver.com"; // 로그인 후 동적으로 변경
+  const spaceId = 4; // 실제 스페이스 ID로 설정 (임시 값)
   const unitPrice = 3000; // 인당 금액
 
   // 서버에서 구독 정보 가져오기
@@ -22,7 +22,7 @@ const Payment = () => {
       const { plan, cardNumber, additionalMembers } = response.data;
       console.log("Fetched cardNumber:", cardNumber); // 서버에서 받은 카드 번호 확인
       setSelectedPlan(plan);
-      setCardInfo(cardNumber || null); // null 처리);
+      setCardInfo(cardNumber || null); // null 처리
       setAdditionalMembers(additionalMembers || 0);
       calculateMonthlyFee(additionalMembers || 0); // 추가 인원 기준으로 요금 계산
     } catch (error) {
@@ -40,50 +40,67 @@ const Payment = () => {
     setSelectedPlan(plan);
   };
 
-  // 무료 요금제로 변경
+  // 유료 => 무료로 변경
   const handleFreePlanChange = async () => {
     try {
-      await axios.post("http://localhost:3001/subscription/change-plan", {
-        spaceId,
-        plan: "free",
-      });
-      alert("무료 요금제로 변경되었습니다.");
+      const response = await axios.post(
+        "http://localhost:3001/subscription/change-to-free",
+        {
+          spaceId, // 변경할 space ID
+        }
+      );
+      alert(response.data.message);
+      // 필요한 경우 상태 업데이트
       setSelectedPlan("free");
-    } catch (error) {
-      console.error("Failed to change to free plan:", error);
-      alert("무료 요금제 변경 중 오류가 발생했습니다.");
+      setAdditionalMembers(0);
+      setMonthlyFee(0);
+    } catch (error: any) {
+      console.error(
+        "Failed to change subscription to free plan:",
+        error.response?.data || error.message
+      );
+      alert("무료 요금제로 변경 중 오류가 발생했습니다.");
     }
   };
 
-  // 유료 요금제로 업그레이드 및 결제 요청
+  // 무료 -> 유료 또는 유료 -> 유료 변경 처리
   const handleUpgrade = async () => {
     try {
-      const amount = additionalMembers * unitPrice;
-      const orderName = "Team Subscription Fee";
-      const orderId = `ORDER-${Date.now()}`;
-      const subscriptionId = 1; // 실제 Subscription ID로 대체
-
-      const tossPayments = (window as any).TossPayments(
-        "test_ck_GjLJoQ1aVZ9xkgwmj0o13w6KYe2R"
-      );
-
-      await tossPayments.requestBillingAuth("카드", {
-        customerKey: userEmail,
-        amount,
-        orderId,
-        orderName,
-        successUrl: `http://localhost:3000/success?amount=${amount}&orderName=${encodeURIComponent(
-          orderName
-        )}&orderId=${orderId}&subscriptionId=${subscriptionId}`,
-        failUrl: "http://localhost:3000/fail",
-      });
-    } catch (error: any) {
-      if (error.code === "USER_CANCEL") {
-        console.log("사용자가 결제를 취소했습니다.");
+      if (selectedPlan === "team" && cardInfo) {
+        // 유료 -> 유료 변경 (결제 없이 업데이트만)
+        await axios.post("http://localhost:3001/subscription/updatedLimit", {
+          spaceId,
+          additionalMembers,
+        });
+        alert(
+          `구독 변경이 완료되었습니다. 다음 결제일부터는 ￦${monthlyFee}이 결제될 예정입니다.`
+        );
+        fetchSubscriptionDetails(); // 구독 상태 갱신
       } else {
-        console.error("결제 요청 중 오류 발생:", error);
-        alert("결제 요청 중 문제가 발생했습니다. 다시 시도해주세요.");
+        // 무료 -> 유료 변경 (결제 필요)
+        const amount = additionalMembers * unitPrice;
+        const orderName = "Team Subscription Fee";
+        const orderId = `ORDER-${Date.now()}`;
+        const subscriptionId = 2; // 실제 Subscription ID로 대체
+
+        const tossPayments = (window as any).TossPayments(
+          "test_ck_GjLJoQ1aVZ9xkgwmj0o13w6KYe2R"
+        );
+
+        await tossPayments.requestBillingAuth("카드", {
+          customerKey: userEmail,
+          amount,
+          orderId,
+          orderName,
+          successUrl: `http://localhost:3000/success?amount=${amount}&orderName=${encodeURIComponent(
+            orderName
+          )}&orderId=${orderId}&subscriptionId=${subscriptionId}&spaceId=${spaceId}&additionalMembers=${additionalMembers}`,
+          failUrl: "http://localhost:3000/fail",
+        });
       }
+    } catch (error: any) {
+      console.error("구독 업그레이드 중 오류 발생:", error);
+      alert("구독 업그레이드 중 문제가 발생했습니다. 다시 시도해주세요.");
     }
   };
 
@@ -178,7 +195,7 @@ const Payment = () => {
               <span>추가 인원</span>
               <input
                 type="number"
-                value={additionalMembers || 0} // undefined 방지}
+                value={additionalMembers || 0} // undefined 방지
                 min="0"
                 onChange={(e) => {
                   const value = Math.max(0, Number(e.target.value));

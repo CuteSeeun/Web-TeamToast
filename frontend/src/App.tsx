@@ -1,9 +1,10 @@
-
 import Payment from "./pages/Payment/Payment";
 import Success from "./pages/Payment/Success";
 import Fail from "./pages/Payment/Fail";
 import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
 import CardChangeFail from "./pages/Payment/CardChangeFail";
+
+
 
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -22,7 +23,7 @@ import RatePlan from './pages/Intro/RatePlan';
 import SpaceAll from './pages/SpaceList/Space';
 import ProjectList from './pages/ProjectList/ProjectList';
 import OAuthCallback from './pages/Login/KakaoLogin';
-import TeamMa from './pages/TeamList/TeamList';
+import TeamManagement from "./pages/TeamList/TeamManagement";
 // import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';

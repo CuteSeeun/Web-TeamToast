@@ -1,94 +1,135 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { ProjectInviteWrap } from "../../styles/InviteModal"; // 경로 수정
+import React, { useState, useEffect, useCallback } from "react";
+import * as Styled from "../../styles/InviteModal";
+import { useNavigate } from "react-router-dom";
 
-// Props 인터페이스 정의
-interface InviteUserModalProps {
-  isOpen: boolean; // 모달 오픈 여부
-  spaceId: number; // spaceId는 숫자 타입
-  onClose: () => void; // onClose는 함수 타입
+interface TeamInviteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  spaceId: number;
+  onInvite: (email: string, role: string) => Promise<void>;
+  onInviteSuccess: () => void;
+  errorMessage: string | null; // 부모 컴포넌트에서 전달받는 에러 메시지
 }
 
-const InviteUserModal: React.FC<InviteUserModalProps> = ({
+const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
   isOpen,
-  spaceId,
   onClose,
+  spaceId,
+  onInvite,
+  onInviteSuccess,
+  errorMessage, // props로 에러 메시지 전달
 }) => {
-  const [email, setEmail] = useState<string>(""); // 이메일 입력값
-  const [role, setRole] = useState<string>("관리자"); // 기본 역할: 관리자
-  const [message, setMessage] = useState<string>(""); // 성공 또는 에러 메시지
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("normal");
+  const [remainingInvites, setRemainingInvites] = useState<number | null>(null);
+  const [limit, setLimit] = useState<number | null>(null);
+  const navigate = useNavigate();
 
-  // 초대 처리 함수
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  // 초대 가능 여부 확인
+  const checkInviteLimit = useCallback(async () => {
     try {
-      const response = await axios.post("http://localhost:3001/team/invite", {
-        email,
-        space_id: spaceId, // spaceId 전달
-        role: role === "관리자" ? "manager" : "normal", // 백엔드 역할과 매칭
-      });
-
-      setMessage(response.data.message); // 성공 메시지 설정
-      setEmail(""); // 이메일 입력 필드 초기화
-      setRole("관리자"); // 역할 초기화
-    } catch (error: any) {
-      console.error(error);
-      setMessage(
-        error.response?.data?.message ||
-          "사용자를 초대하는 데 실패했습니다. 다시 시도해주세요."
+      const response = await fetch(
+        `http://localhost:3001/team/invite/limit?space_id=${spaceId}`
       );
+      const data = await response.json();
+      setRemainingInvites(data.remaining);
+      setLimit(data.limit);
+    } catch (error) {
+      console.error("Failed to fetch invite limit:", error);
     }
+  }, [spaceId]);
+
+  const handleInviteClick = async () => {
+    if (!email) {
+      alert("이메일을 입력하세요.");
+      return;
+    }
+    await onInvite(email, role);
   };
 
-  // 모달 닫혀 있으면 렌더링하지 않음
+  useEffect(() => {
+    if (isOpen) {
+      checkInviteLimit(); // 모달 열릴 때 초대 가능 여부 확인
+    }
+  }, [isOpen, checkInviteLimit]);
+
   if (!isOpen) return null;
 
   return (
-    <ProjectInviteWrap>
+    <Styled.ProjectInviteWrap>
       <div className="modal-content">
-        <h3>사용자 초대</h3>
-
-        <form onSubmit={handleInvite}>
-          {/* 이메일 입력 */}
-          <div className="input-group">
-            <label>사용자 이메일</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="이메일을 입력해 주세요."
-              required
-            />
+        <h3>팀 멤버 초대</h3>
+        <div className="input-group">
+          <label htmlFor="email">이메일</label>
+          <input
+            id="email"
+            type="email"
+            placeholder="초대할 멤버의 이메일을 입력하세요"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={remainingInvites === 0}
+            style={{ width: "100%" }}
+          />
+          <p style={{ fontSize: "12px", color: "gray", marginTop: "5px" }}>
+            TeamToast에 회원가입한 유저만 초대 가능하오니, 회원가입 후 초대해
+            주세요.
+          </p>
+        </div>
+        <div className="input-group">
+          <label htmlFor="role">역할</label>
+          <div className="select-wrapper">
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              disabled={remainingInvites === 0}
+            >
+              <option value="top_manager">최고관리자</option>
+              <option value="manager">관리자</option>
+              <option value="normal">팀원</option>
+            </select>
           </div>
-
-          {/* 권한 선택 */}
-          <div className="input-group">
-            <label>권한</label>
-            <div className="select-wrapper">
-              <select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="관리자">관리자</option>
-                <option value="멤버">멤버</option>
-              </select>
+        </div>
+        {errorMessage && (
+          <p
+            className="error-message"
+            style={{ color: "red", marginTop: "10px" }}
+          >
+            {errorMessage}
+          </p>
+        )}
+        {remainingInvites === 0 ? (
+          <>
+            <p style={{ marginTop: "10px", color: "red" }}>
+              현재 초대 가능한 최대 인원은 {limit}명입니다.
+              <br />
+              추가 인원 초대를 원하시면 결제를 진행해 주세요.
+            </p>
+            <div className="button-group">
+              <button
+                className="invite"
+                onClick={() => navigate("/payment")} // 결제 페이지로 이동
+              >
+                결제 페이지로 이동
+              </button>
+              <button className="cancel" onClick={onClose}>
+                취소
+              </button>
             </div>
-          </div>
-
-          {/* 메시지 출력 */}
-          {message && <p className="message">{message}</p>}
-
-          {/* 버튼 그룹 */}
+          </>
+        ) : (
           <div className="button-group">
-            <button type="button" className="cancel" onClick={onClose}>
+            <button className="cancel" onClick={onClose}>
               취소
             </button>
-            <button type="submit" className="invite">
+            <button className="invite" onClick={handleInviteClick}>
               초대
             </button>
           </div>
-        </form>
+        )}
       </div>
-    </ProjectInviteWrap>
+    </Styled.ProjectInviteWrap>
   );
 };
 
-export default InviteUserModal;
+export default TeamInviteModal;

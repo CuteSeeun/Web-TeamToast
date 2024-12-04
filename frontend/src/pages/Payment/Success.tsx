@@ -16,6 +16,8 @@ const Success: React.FC = () => {
   const orderName = searchParams.get("orderName");
   const orderId = searchParams.get("orderId");
   const subscriptionId = searchParams.get("subscriptionId");
+  const spaceId = "4"; // 임시로 설정된 값
+  const additionalMembers = searchParams.get("additionalMembers"); // 추가 인원 정보
 
   useEffect(() => {
     if (
@@ -24,34 +26,47 @@ const Success: React.FC = () => {
       amount &&
       orderName &&
       orderId &&
-      subscriptionId
+      subscriptionId &&
+      additionalMembers
     ) {
-      sendBillingInfo(
+      handleSubscriptionUpdate(
         customerKey,
         authKey,
         amount,
         orderName,
         orderId,
-        subscriptionId
+        subscriptionId,
+        additionalMembers
       );
     } else {
       setErrorMessage("결제 정보가 누락되었습니다.");
     }
-  }, [customerKey, authKey, amount, orderName, orderId, subscriptionId]);
+  }, [
+    customerKey,
+    authKey,
+    amount,
+    orderName,
+    orderId,
+    subscriptionId,
+    additionalMembers,
+  ]);
 
-  // 결제 정보를 서버로 전송
-  const sendBillingInfo = async (
+  // API 호출 함수
+  const handleSubscriptionUpdate = async (
     customerKey: string,
     authKey: string,
     amount: string,
     orderName: string,
     orderId: string,
-    subscriptionId: string
+    subscriptionId: string,
+    additionalMembers: string
   ) => {
     setIsLoading(true);
     setErrorMessage("");
+
     try {
-      const response = await axios.post(
+      // Billing 정보 전송
+      const billingResponse = await axios.post(
         "http://localhost:3001/billing/complete",
         {
           customerKey,
@@ -62,15 +77,34 @@ const Success: React.FC = () => {
           subscriptionId: parseInt(subscriptionId),
         }
       );
-      console.log("결제 정보 서버 전송 성공:", response.data);
-      alert("결제 정보가 성공적으로 처리되었습니다.");
+      console.log("Billing 정보 서버 전송 성공:", billingResponse.data);
+
+      // 유료 요금제로 업그레이드
+      const upgradeResponse = await axios.post(
+        "http://localhost:3001/subscription/change-to-paid",
+        {
+          spaceId: parseInt(spaceId), // 명시적으로 spaceId 전달
+          userEmail: customerKey,
+          additionalMembers: parseInt(additionalMembers),
+        }
+      );
+      console.log("유료 요금제 업그레이드 성공:", upgradeResponse.data);
+
+      // 추가 인원 업데이트
+      const limitResponse = await axios.post(
+        "http://localhost:3001/subscription/updatedLimit",
+        {
+          spaceId: parseInt(spaceId),
+          additionalMembers: parseInt(additionalMembers),
+        }
+      );
+      console.log("추가 인원 업데이트 성공:", limitResponse.data);
+
+      alert("구독 업데이트가 성공적으로 처리되었습니다!");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        console.error(
-          "결제 정보 서버 전송 실패:",
-          error.response?.data || error.message
-        );
-        setErrorMessage("결제 정보를 서버에 전송하는 데 실패했습니다.");
+        console.error("서버 요청 실패:", error.response?.data || error.message);
+        setErrorMessage("서버 요청 중 문제가 발생했습니다.");
       } else {
         console.error("예기치 않은 오류 발생:", error);
         setErrorMessage("알 수 없는 오류가 발생했습니다.");

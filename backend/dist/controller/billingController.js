@@ -179,7 +179,7 @@ const updateCardInfo = (req, res) => __awaiter(void 0, void 0, void 0, function*
       SELECT * 
       FROM Credit 
       INNER JOIN Subscription ON Credit.subId = Subscription.subId
-      WHERE Credit.customerKey = ? AND Subscription.sId = ? AND Credit.status = 'active'
+      WHERE Credit.customerKey = ? AND Subscription.spaceId = ? AND Credit.status = 'active'
       LIMIT 1
       `, [customerKey, spaceId]);
         if (!existingData || existingData.length === 0) {
