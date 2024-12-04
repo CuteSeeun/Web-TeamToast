@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processRecurringPayment = exports.issueBillingKey = void 0;
+exports.updateTossPaymentAmount = exports.processRecurringPayment = exports.issueBillingKey = void 0;
 const axios_1 = __importDefault(require("axios"));
 const TOSS_SECRET_KEY = process.env.TOSS_SECRET_KEY || "test_sk_DpexMgkW36xJQYxKbq0brGbR5ozO";
 const BASE_URL = "https://api.tosspayments.com/v1/billing";
@@ -77,6 +77,33 @@ const processRecurringPayment = (billingKey_1, _a) => __awaiter(void 0, [billing
     }
 });
 exports.processRecurringPayment = processRecurringPayment;
+// Toss Payments 금액 변경 함수
+const updateTossPaymentAmount = (billingKey, amount) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const apiUrl = "https://api.tosspayments.com/v1/billing"; // Toss Payments API 엔드포인트
+    const secretKey = "test_sk_DpexMgkW36xJQYxKbq0brGbR5ozO"; // Toss Payments Secret Key (환경 변수로 관리 권장)
+    try {
+        const response = yield axios_1.default.post(`${apiUrl}/${billingKey}`, { amount }, {
+            headers: {
+                Authorization: `Basic ${Buffer.from(secretKey + ":").toString("base64")}`,
+                "Content-Type": "application/json",
+            },
+        });
+        console.log("Toss Payments amount updated:", response.data);
+    }
+    catch (error) {
+        if (axios_1.default.isAxiosError(error)) {
+            // AxiosError 타입에 접근 가능
+            console.error("Failed to update Toss Payments amount:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
+        }
+        else {
+            // Unknown 에러 처리
+            console.error("Unknown error occurred:", error);
+        }
+        throw new Error("Toss Payments 금액 업데이트 실패");
+    }
+});
+exports.updateTossPaymentAmount = updateTossPaymentAmount;
 // export const getCardDetails = async (
 //   paymentKey: string
 // ): Promise<{ cardNumber: string }> => {
