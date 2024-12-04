@@ -1,74 +1,68 @@
+// BBoard.tsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { AddSprint, BoardContainer, BoardHeader, BoardTitle, Breadcrumb, Filters, Div, StyledSprintBox, SprintHeader, SprintName, IssueTable } from './backlogstyle';
 import SprintBox from './SprintBox';
-import { sprintState, sortedSprintsState, filterState, Sprint } from '../../recoil/atoms/sprintAtoms';
+import { sprintState, sortedSprintsState, filterState } from '../../recoil/atoms/sprintAtoms';
 import { issueListState, backlogState, Issue, Type } from '../../recoil/atoms/issueAtoms';
 import { useDrop } from 'react-dnd';
 import DragItem from './DragItem';
+import SprintCreate from './sprintModal/SprintCreate';
+import { ModalOverlay, ModalContent } from './sprintModal/ModalStyle';
 
 const BBoard: React.FC = () => {
     const [sprints, setSprints] = useRecoilState(sprintState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
-    const [issues, setIssues] = useRecoilState(issueListState);
+    const [, setIssues] = useRecoilState(issueListState);
     const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
     const [managers, setManagers] = useState<string[]>([]);
     const [filter, setFilter] = useRecoilState(filterState);
+    const [modalOpen, setModalOpen] = useState(false);
+
+    const fetchData = async () => {
+        try {
+            const projectId = 1;
+
+            const [sprintResponse, issueResponse, managerResponse] = await Promise.all([
+                axios.get(`/sprint/${projectId}`),
+                axios.get(`/issue/backlog/${projectId}`),
+                axios.get(`/user/project/${projectId}/managers`)
+            ]);
+
+            setSprints(sprintResponse.data);
+
+            const issuesData = issueResponse.data.map((issue: any) => {
+                const manager = typeof issue.manager === 'object' && issue.manager !== null ? issue.manager.manager : (issue.manager || '담당자 없음');
+                return {
+                    ...issue,
+                    type: Type[issue.type as keyof typeof Type] || '작업',
+                    manager: manager
+                };
+            });
+
+            const backlogData: Issue[] = issuesData.filter((issue: Issue) => issue.sprint_id === undefined);
+            setBacklog(backlogData);
+            setIssues(issuesData);
+
+            const managersData = managerResponse.data.map((manager: any) => {
+                const managerStr = typeof manager === 'object' && manager !== null ? manager.manager : manager;
+                return managerStr;
+            });
+            setManagers(managersData);
+        } catch (error) {
+            console.error('데이터 가져오기 오류:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const projectId = 1;
-
-                const sprintResponse = await axios.get(`/sprint/${projectId}`);
-                setSprints(sprintResponse.data);
-
-                const issueResponse = await axios.get(`/issue/backlog/${projectId}`);
-                const issuesData = issueResponse.data.map((issue: any) => {
-                    const manager = typeof issue.manager === 'object' && issue.manager !== null ? issue.manager.manager : (issue.manager || '담당자 없음');
-                    return {
-                        ...issue,
-                        type: Type[issue.type as keyof typeof Type] || '작업',
-                        manager: manager
-                    };
-                });
-
-                const issuesBySprint: { [key: number]: Issue[] } = {};
-                const backlogData: Issue[] = [];
-                issuesData.forEach((issue: Issue) => {
-                    if (issue.sprint_id === null) {
-                        backlogData.push(issue);
-                    } else {
-                        if (!issuesBySprint[issue.sprint_id]) {
-                            issuesBySprint[issue.sprint_id] = [];
-                        }
-                        issuesBySprint[issue.sprint_id].push(issue);
-                    }
-                });
-
-                setIssues(issuesBySprint);
-                setBacklog(backlogData);
-
-                const managerResponse = await axios.get(`/user/project/${projectId}/managers`);
-                const managersData = managerResponse.data.map((manager: any) => {
-                    const managerStr = typeof manager === 'object' && manager !== null ? manager.manager : manager;
-                    return managerStr;
-                });
-                setManagers(managersData);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
         fetchData();
-    }, [setSprints, setIssues, setBacklog, setManagers]);
+    }, [setSprints, setIssues, setBacklog, setManagers]); // 의존성 배열
 
     const onDrop = async (issue: Issue, newSprintId: number | null) => {
         try {
             await axios.put(`/issue/${issue.isid}`, { sprint_id: newSprintId });
 
-            // 기존 스프린트에서 제거
             setIssues(prevIssues => {
                 const updatedIssues = { ...prevIssues };
                 if (issue.sprint_id) {
@@ -77,40 +71,36 @@ const BBoard: React.FC = () => {
                 return updatedIssues;
             });
 
-            // 백로그에서 제거
             setBacklog(prevBacklog => prevBacklog.filter(i => i.isid !== issue.isid));
 
             if (newSprintId === null) {
-                // 백로그로 추가
                 setBacklog(prevBacklog => [...prevBacklog, { ...issue, sprint_id: null }]);
             } else {
-                // 새 스프린트로 추가
                 setIssues(prevIssues => {
                     const updatedIssues = { ...prevIssues };
                     updatedIssues[newSprintId] = [...(updatedIssues[newSprintId] || []), { ...issue, sprint_id: newSprintId }];
                     return updatedIssues;
                 });
             }
-
-            console.log(`Issue ${issue.isid} successfully moved to sprint ${newSprintId}`);
         } catch (error) {
-            console.error(`Error updating issue ${issue.isid} sprint_id:`, error);
+            console.error(`이슈 업데이트 오류: ${issue.isid} sprint_id:`, error);
         }
     };
 
     const [{ isOver }, drop] = useDrop({
         accept: 'ITEM',
-        drop: (item: Issue) => onDrop(item, null), // 백로그로 드롭 시 스프린트 ID를 null로 설정
+        drop: (item: Issue) => onDrop(item, null),
         collect: (monitor) => ({
             isOver: !!monitor.isOver(),
         }),
     });
 
-    const filteredBacklogIssues = backlog.filter((issue: Issue) => 
-        (!filter.manager || issue.manager === filter.manager) &&
-        (!filter.status || issue.status === filter.status) &&
-        (!filter.priority || issue.priority === filter.priority)
-    );
+    const filteredBacklogIssues = backlog.filter((issue: Issue) => {
+        const matchesManager = !filter.manager || issue.manager === filter.manager;
+        const matchesStatus = !filter.status || issue.status === filter.status;
+        const matchesPriority = !filter.priority || issue.priority === filter.priority;
+        return matchesManager && matchesStatus && matchesPriority;
+    });
 
     return (
         <BoardContainer>
@@ -159,18 +149,29 @@ const BBoard: React.FC = () => {
                 <SprintBox key={sprint.spid} sprint={sprint} onDrop={onDrop} />
             ))}
 
+
             <Div>
-                {/* <div style={{ marginTop: '20px', marginLeft: '1150px' }}> */}
-                    <AddSprint>스프린트 생성</AddSprint>
-                {/* </div> */}
+                <AddSprint onClick={() => setModalOpen(true)}>스프린트 생성</AddSprint>
+                {modalOpen && (
+                    <ModalOverlay>
+                        <ModalContent>
+                            <SprintCreate onClose={() => {
+                                setModalOpen(false);
+                                fetchData(); // 모달 닫힐 때 데이터 다시 불러오기
+                            }} />
+                        </ModalContent>
+                    </ModalOverlay>
+                )}
             </Div>
+
+
             <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
                 <SprintHeader>
                     <div>
                         <SprintName>백로그</SprintName>
                     </div>
                 </SprintHeader>
-                <IssueTable>                                      
+                <IssueTable>
                     <thead>
                         <tr>
                             <th>이슈</th>

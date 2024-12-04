@@ -1,6 +1,9 @@
 
-import express, { Application } from "express";
-import cors from "cors";
+// server.ts
+import express, { Application } from 'express';
+import cors from 'cors';
+import sprintRouter from "./routes/sprintRouter";
+
 import path from "path";
 import pool from "./config/dbpool";
 import billingRouter from "./routes/billingRouter"; //빌링키 발급 api 요청
@@ -12,8 +15,7 @@ import issueRouter from './routes/issueRouter';
 import userRouter from './routes/userRouter';
 import spaceRouter from './routes/spaceRouter';
 
-// 2024-11-28 조하영
-import BsprintRouter from './routes/sprintRouter';
+
 import SissueRouter from './routes/SissueRouter';
 import singleIssueRouter from './routes/BIssueRouter';
 import BuserRouter from './routes/BuserRouter';
@@ -47,15 +49,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // 라우터 설정
-app.use('/sprint', BsprintRouter);
+app.use('/sprint', sprintRouter); //스프린트 관련 CRUD
 app.use('/issue', SissueRouter);
-app.use('/issue', singleIssueRouter);
+app.use('/sissue', singleIssueRouter);
 app.use('/user', BuserRouter);
 
 app.use('/projects', projectRouter);
 app.use('/issues', issueRouter);
-app.use('/editUser',userRouter); // 로그인 회원가입 
-app.use('/space',spaceRouter);
+app.use('/editUser', userRouter); // 로그인 회원가입 
+app.use('/space', spaceRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
