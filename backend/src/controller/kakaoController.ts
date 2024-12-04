@@ -129,7 +129,7 @@ const kakaoTokenHandler = async (req: Request, res: Response): Promise<void> => 
         //jwt 토큰 생성
         const token = jwt.sign(
             { id: userData.id, name: userData.name },
-            process.env.JWT_SECRET_KEY || 'secretKey',
+            process.env.JWT_SECRET_KEY || 'accessSecretKey',
             { expiresIn: '1h' }
         );
         

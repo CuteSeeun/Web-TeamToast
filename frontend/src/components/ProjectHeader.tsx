@@ -2,98 +2,17 @@
 // ProjectHeader.tsx
 //프로젝트 들어간 이후부터 쓰는 헤더
 
-import React, { useState } from "react";
-import { ProjectHeaderWrap, Logo } from "../styles/HeaderStyle";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { userState } from "../recoil/atoms/userAtoms";
-import { Link, useNavigate } from "react-router-dom";
+
+
 
 import { ReactComponent as LogoIcon } from "../assets/icons/Logo.svg"; // icons 폴더에서 로고 가져옴
 import { IoSettingsOutline, IoChevronDownOutline } from "react-icons/io5";
 import { GoBell } from "react-icons/go";
-import { spaceIdState } from "../recoil/atoms/spaceAtoms";
-
 const ProjectHeader = () => {
   const user = useRecoilValue(userState);
   const space = useRecoilValue(spaceIdState); // 프로젝트 눌렀을때 해당 스페이스의 아이디에 있는 프로젝트출력
   const setUser = useSetRecoilState(userState);
   const navigate = useNavigate();
-
- 
-
-  const logoutGo = () => {
-    const confirmed = window.confirm("로그아웃 하시겠습니까?");
-    if (confirmed) {
-      setUser(null);
-      localStorage.removeItem("token");
-      navigate("/");
-      window.location.reload();
-    }
-  };
-  // 관리자 권한 체크 함수
-  const isAdmin = user?.role === "admin"; // 또는 user?.role === 'ADMIN' 등 실제 데이터 구조에 맞게
-
-  // 권한 없을 때 처리하는 함수
-  const handleUnauthorizedAccess = (e: React.MouseEvent) => {
-    e.preventDefault();
-    alert("스페이스 관리는 관리자만 접근할 수 있습니다.");
-  };
-
-  const projectGo = () => {
-    if (space) {
-      navigate(`/projectlist/${space}`);
-    } else {
-      //스페이스 id가 없는경우
-      // 알림창을 띄우고 스페이스 목록으로 이동시킴
-      alert("스페이스를 선택하세요");
-      navigate("/space");
-    }
-  };
-
-  return (
-    <ProjectHeaderWrap>
-      <div className="headerProject">
-        <div className="leftPro">
-          <Link to="/space">
-            <Logo>
-              <LogoIcon />
-            </Logo>
-          </Link>
-          <nav>
-            <div className="menu-wrap">
-              <span className="menu-text" onClick={projectGo}>
-                프로젝트
-              </span>
-            </div>
-            <div className="menu-wrap">
-              <span className="menu-text">
-                <span className="text-with-rigth-icon">팀</span>
-                <IoChevronDownOutline />
-              </span>
-              <ul className="sub-menu">
-                <Link to="/team">
-                  <li>사용자 목록</li>
-                </Link>
-                <Link to="/payment">
-                  <li>결제</li>
-                </Link>
-              </ul>
-            </div>
-          </nav>
-        </div>
-
-        <div
-          className="rightPro"
-          style={{ display: "flex", alignItems: "center" }}
-        >
-          <div className="notification-icon">
-            <GoBell className="icon-wrap" />
-            <span className="notification-badge"></span>
-          </div>
-          <div className="menu-wrap">
-            <IoSettingsOutline className="icon-wrap" />
-            <ul className="sub-menu">
-              {/* {isAdmin ? (
                                 <Link to='/spaceedit'>
                                     <li>스페이스관리</li>
                                 </Link>

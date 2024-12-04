@@ -45,7 +45,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('Querying user:', useremail);
         const [rows] = yield dbpool_1.default.query('SELECT * FROM User WHERE email = ?', [useremail]);
-        console.log('Query result:', rows);
         if (rows.length === 0) {
             res.status(401).json({ message: '사용자 없음' });
             return;
@@ -58,16 +57,6 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             res.status(401).json({ message: '비밀번호 틀림' });
             return;
         }
-        // 더미용 나중에 삭제 ----------------------------------------------------
-        // 더미데이터용 직접 비교
-        // const isPw = userpw === user.passwd;
-        // console.log('Password check:', isPw);
-        // if (!isPw) {
-        //   res.status(401).json({ message: '비밀번호 틀림' });
-        //   return;
-        // }
-        // ----------------------------------------------------------------------------
-        const accessToken = jsonwebtoken_1.default.sign({ uid: user.uid, uname: user.uname, email: user.email }, 'accessSecretKey', { expiresIn: '15m' });
         // 기존 리프레시 토큰 삭제
         yield dbpool_1.default.query('DELETE FROM RefreshTokens WHERE user_id = ?', [user.uid]);
         const refreshToken = jsonwebtoken_1.default.sign({}, 'refreshSecretKey', { expiresIn: '15d' });

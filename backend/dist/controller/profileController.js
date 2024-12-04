@@ -30,7 +30,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     try {
         // 토큰 검증 및 사용자 정보 추출
-        const decoded = jsonwebtoken_1.default.verify(token, 'secretKey');
+        const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
         const { uname, email } = req.body;
         // 사용자 정보 업데이트
         const query = `

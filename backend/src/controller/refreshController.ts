@@ -3,6 +3,16 @@ import {RowDataPacket} from 'mysql2/promise'
 import pool from '../config/dbpool';
 import jwt from 'jsonwebtoken';
 
+
+interface UserRow extends RowDataPacket {
+    uid: number;
+    uname: string;
+    email: string;
+    passwd: string;
+    tel: string;
+  }
+
+
 export const RefreshToken =async(req:Request , res:Response):Promise<void>=>{
     const {uid} = req.body;
 
@@ -53,12 +63,30 @@ export const reAccessToken = async(req:Request,res:Response):Promise<void>=>{
             return;
         }
 
+        const [userInfo] = await pool.query<UserRow[]>(
+            'SELECT uid, uname, email FROM User WHERE uid = ?',
+            [userId]
+        );
+
+        
+
         const accessToken = jwt.sign(
-            {uid : userId},
+            {
+                uid : userId,
+                uname: userInfo[0].uname,
+                email : userInfo[0].email
+            },
             'accessSecretKey',
             {expiresIn:'15m'}
         );
-        res.status(200).json({accessToken});
+        res.status(200).json({
+            accessToken,
+            user: {
+                uid: userInfo[0].uid,
+                uname: userInfo[0].uname,
+                email: userInfo[0].email
+            }
+        });
 
     } catch (error) {
         console.error('리프레시 토큰 검증 실패:', error);

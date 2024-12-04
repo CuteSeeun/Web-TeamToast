@@ -12,24 +12,52 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateIssueSprint = exports.getBacklogIssue = exports.getIssue = void 0;
-const dbpool_1 = __importDefault(require("../config/dbpool")); // 디폴트 익스포트 가져오기
+exports.updateIssueSprint = exports.getBacklogIssue = exports.getIssue = exports.getIssueById = void 0;
+const dbpool_1 = __importDefault(require("../config/dbpool"));
+// 특정 이슈를 issueId로 가져오는 컨트롤러
+const getIssueById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const issueId = parseInt(req.params.isid, 10);
+    const projectId = parseInt(req.params.projectid, 10);
+    try {
+        console.log('Received request to fetch issue with projectId:', projectId, 'and issueId:', issueId);
+        const query = `
+            SELECT 
+                Issue.isid, Issue.title, Issue.detail, Issue.type, 
+                Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
+                mgr.uname AS manager, crt.uname AS created_by, Issue.file
+            FROM Issue
+            JOIN User AS mgr ON Issue.manager = mgr.email
+            JOIN User AS crt ON Issue.created_by = crt.email
+            WHERE Issue.project_id = ? AND Issue.isid = ?;
+        `;
+        console.log('Executing query with projectId:', projectId, 'and issueId:', issueId);
+        const [rows] = yield dbpool_1.default.query(query, [projectId, issueId]);
+        console.log('Query result:', rows);
+        res.json(rows);
+    }
+    catch (error) {
+        console.error('Error fetching issue:', error);
+        if (error instanceof Error) {
+            res.status(500).json({ error: '이슈 호출 오류', details: error.message });
+        }
+        else {
+            res.status(500).json({ error: '이슈 호출 오류', details: '알 수 없는 오류가 발생했습니다.' });
+        }
+    }
+});
+exports.getIssueById = getIssueById;
 const getIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const sprintId = parseInt(req.params.issueid, 10); // parseInt 사용
-    const projectId = parseInt(req.params.projectid, 10); // parseInt 사용
-    const issueId = parseInt(req.params.issueid, 10);
-    // if (isNaN(sprintId) || isNaN(projectId)) { // 유효성 검사
-    //     res.status(400).json({ error: 'Invalid project ID or sprint ID' });
-    //     return;
-    // }
+    const sprintId = parseInt(req.params.issueid, 10);
+    const projectId = parseInt(req.params.projectid, 10);
     try {
         const query = `
             SELECT 
                 Issue.isid, Issue.title, Issue.detail, Issue.type, 
                 Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
-                User.uname AS manager, Issue.created_by, Issue.file
+                mgr.uname AS manager, crt.uname AS created_by, Issue.file
             FROM Issue
-            JOIN User ON Issue.manager = User.email
+            JOIN User AS mgr ON Issue.manager = mgr.email
+            JOIN User AS crt ON Issue.created_by = crt.email
             WHERE Issue.project_id = ? AND Issue.sprint_id = ?;
         `;
         const [rows] = yield dbpool_1.default.query(query, [projectId, sprintId]); // 타입 지정

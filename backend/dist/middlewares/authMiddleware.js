@@ -8,6 +8,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const checkToken = (req, res, next) => {
     var _a;
     const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+    console.log("Authorization Header Received:", req.headers.authorization);
+    console.log('Extracted token:', token);
     if (!token) {
         res.status(401).json({ message: '토큰이 없습니다.' });
         return;
@@ -21,6 +23,7 @@ const checkToken = (req, res, next) => {
             uname: decoded.uname,
             email: decoded.email
         };
+        console.log(req.user);
         next();
     }
     catch (error) {

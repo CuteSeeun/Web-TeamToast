@@ -2,7 +2,7 @@
 // projectRouter.ts
 
 import express from 'express';
-import { getAllProjects, getProjects, getProject, newProject, modifyProject, deleteProject } from '../controller/projectController';
+import { getAllProjects, getProjects, getProject, newProject, modifyProject, deleteProject, getProjectsByUUID } from '../controller/projectController';
 import { validateSid, validatePid } from '../middlewares/idMiddleware.js';
 import { validateProjectFields } from '../middlewares/checkProjectInputs.js';
 // 임시 사용자 정보
@@ -31,5 +31,7 @@ router.get('/:sid/:pid', checkToken, validatePid, getProject);
 router.post('/new/:sid', checkToken, validateProjectFields, validateSid, newProject);
 router.put('/modify/:sid/:pid', checkToken, validateProjectFields, validateSid, validatePid, modifyProject);
 router.delete('/delete/:sid/:pid', checkToken, validatePid, deleteProject);
+
+router.get('/projects/:uuid', checkToken,getProjectsByUUID);
 
 export default router;
