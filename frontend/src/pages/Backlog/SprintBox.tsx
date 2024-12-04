@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { BsThreeDots } from "react-icons/bs";
-import { AddIssueLink, IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox } from "./backlogstyle";
+import { AddIssueLink, IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox, DropdownMenu, MenuItem } from "./backlogstyle"; // 스타일 컴포넌트 임포트
 import { sprintState, sortedSprintsState, filterState, Sprint, SprintStatus } from '../../recoil/atoms/sprintAtoms';
 import { issueListState, Issue } from '../../recoil/atoms/issueAtoms';
 import DragItem from './DragItem';
 import { useDrop } from 'react-dnd';
+import { ModalContent, ModalOverlay } from './sprintModal/ModalStyle';
+import SprintModify from './sprintModal/SprintModifiy';
+import SprintDelete from './sprintModal/SprintDelete'; // SprintDelete 컴포넌트 임포트
 
 interface SprintProps {
     sprint: Sprint;
@@ -19,12 +22,16 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
     const sortedSprints = useRecoilValue(sortedSprintsState);
     const filter = useRecoilValue(filterState);
     const [activeSprint, setActiveSprint] = useState<Sprint | null>(null);
+    const [showMenu, setShowMenu] = useState(false);
+    const [modifyModalOpen, setModifyModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [currentSprint, setCurrentSprint] = useState<Sprint | null>(null); // 수정: 현재 스프린트 상태 추가
 
     useEffect(() => {
         const fetchIssues = async () => {
             try {
                 const projectId = sprint.project_id;
-                const response = await axios.get<Issue[]>(`/issue/${projectId}/${sprint.spid}`);
+                const response = await axios.get<Issue[]>(`/sissue/${projectId}/${sprint.spid}`);
                 setIssues(prevIssues => ({
                     ...prevIssues,
                     [sprint.spid]: response.data
@@ -81,6 +88,22 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
         }),
     });
 
+    const toggleMenu = () => {
+        setShowMenu(prev => !prev);
+    };
+
+    const openModifyModal = () => {
+        setCurrentSprint(sprint); // 현재 스프린트를 설정
+        setModifyModalOpen(true);
+        setShowMenu(false);
+    };
+
+    const openDeleteModal = () => {
+        setCurrentSprint(sprint); // 현재 스프린트를 설정
+        setDeleteModalOpen(true);
+        setShowMenu(false);
+    };
+
     return (
         <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
             <SprintHeader>
@@ -94,7 +117,11 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                             {sprint.status === 'disabled' ? '스프린트 활성' : sprint.status === 'enabled' ? '스프린트 완료' : '스프린트 종료됨'}
                         </button>
                     )}
-                    <BsThreeDots className="menu-icon" />
+                    <BsThreeDots className="menu-icon" onClick={toggleMenu} />
+                    <DropdownMenu show={showMenu}>
+                        <MenuItem onClick={openModifyModal}>스프린트 수정</MenuItem>
+                        <MenuItem onClick={openDeleteModal}>스프린트 삭제</MenuItem>
+                    </DropdownMenu>
                 </SprintControls>
             </SprintHeader>
             <IssueTable>
@@ -121,6 +148,22 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                 </tbody>
             </IssueTable>
             <AddIssueLink>+ 이슈 추가하기</AddIssueLink>
+
+            {modifyModalOpen && (
+                <ModalOverlay>
+                    <ModalContent>
+                        <SprintModify onClose={() => setModifyModalOpen(false)} sprint={currentSprint} />
+                    </ModalContent>
+                </ModalOverlay>
+            )}
+
+            {deleteModalOpen && (
+                <ModalOverlay>
+                    <ModalContent>
+                        <SprintDelete onClose={() => setDeleteModalOpen(false)} sprint={currentSprint} />
+                    </ModalContent>
+                </ModalOverlay>
+            )}
         </StyledSprintBox>
     );
 };

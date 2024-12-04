@@ -6,7 +6,7 @@ import { RowDataPacket } from 'mysql2';
 type IssueStatus = 'Backlog' | 'Working' | 'Dev' | 'QA';
 type IssuePriority = 'high' | 'normal' | 'low';
 
-interface Issue extends RowDataPacket { // RowDataPacket 확장
+interface Issue extends RowDataPacket { 
     isid: number;
     title: string;
     detail: string;
@@ -15,23 +15,56 @@ interface Issue extends RowDataPacket { // RowDataPacket 확장
     priority: IssuePriority;
     sprint_id: number;
     project_id: number;
-    manager: string; // manager 필드가 User.uname으로 매핑됨
+    manager: string; 
     created_by: string;
     file: string;
 }
 
+// 특정 이슈를 issueId로 가져오는 컨트롤러
+export const getIssueById = async (req: Request, res: Response): Promise<void> => {
+    const issueId = parseInt(req.params.isid, 10);
+    const projectId = parseInt(req.params.projectid, 10);
+
+    try {
+        console.log('Received request to fetch issue with projectId:', projectId, 'and issueId:', issueId);
+        const query = `
+            SELECT 
+                Issue.isid, Issue.title, Issue.detail, Issue.type, 
+                Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
+                mgr.uname AS manager, crt.uname AS created_by, Issue.file
+            FROM Issue
+            JOIN User AS mgr ON Issue.manager = mgr.email
+            JOIN User AS crt ON Issue.created_by = crt.email
+            WHERE Issue.project_id = ? AND Issue.isid = ?;
+        `;
+        console.log('Executing query with projectId:', projectId, 'and issueId:', issueId);
+        const [rows] = await pool.query<Issue[]>(query, [projectId, issueId]);
+        console.log('Query result:', rows);
+        res.json(rows);
+    } catch (error: unknown) {
+        console.error('Error fetching issue:', error);
+        if (error instanceof Error) {
+            res.status(500).json({ error: '이슈 호출 오류', details: error.message });
+        } else {
+            res.status(500).json({ error: '이슈 호출 오류', details: '알 수 없는 오류가 발생했습니다.' });
+        }
+    }
+};
+
+
 export const getIssue = async (req: Request, res: Response): Promise<void> => {
-    const sprintId = parseInt(req.params.issueid, 10); 
-    const projectId = parseInt(req.params.projectid, 10); 
+    const sprintId = parseInt(req.params.issueid, 10);
+    const projectId = parseInt(req.params.projectid, 10);
 
     try {
         const query = `
             SELECT 
                 Issue.isid, Issue.title, Issue.detail, Issue.type, 
                 Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
-                User.uname AS manager, Issue.created_by, Issue.file
+                mgr.uname AS manager, crt.uname AS created_by, Issue.file
             FROM Issue
-            JOIN User ON Issue.manager = User.email
+            JOIN User AS mgr ON Issue.manager = mgr.email
+            JOIN User AS crt ON Issue.created_by = crt.email
             WHERE Issue.project_id = ? AND Issue.sprint_id = ?;
         `;
         const [rows] = await pool.query<Issue[]>(query, [projectId, sprintId]); // 타입 지정
@@ -44,6 +77,7 @@ export const getIssue = async (req: Request, res: Response): Promise<void> => {
         }
     }
 };
+
 
 export const getBacklogIssue = async (req: Request, res: Response): Promise<void> => {
     const projectId = parseInt(req.params.projectid, 10);

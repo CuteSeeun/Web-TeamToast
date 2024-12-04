@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// server.ts
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
@@ -22,9 +23,9 @@ app.use((0, cors_1.default)());
 // 정적 파일 제공
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 // 라우터 설정
-app.use('/sprint', sprintRouter_1.default);
+app.use('/sprint', sprintRouter_1.default); //스프린트 관련 CRUD
 app.use('/issue', SissueRouter_1.default);
-app.use('/issue', BIssueRouter_1.default);
+app.use('/sissue', BIssueRouter_1.default);
 app.use('/user', BuserRouter_1.default);
 app.use('/projects', projectRouter_1.default);
 app.use('/issues', issueRouter_1.default);

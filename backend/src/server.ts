@@ -1,3 +1,4 @@
+// server.ts
 import express, { Application } from 'express';
 import cors from 'cors';
 import sprintRouter from './routes/sprintRouter';
@@ -21,9 +22,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 // 라우터 설정
-app.use('/sprint', sprintRouter);
+app.use('/sprint', sprintRouter); //스프린트 관련 CRUD
 app.use('/issue', SissueRouter);
-app.use('/issue', singleIssueRouter);
+app.use('/sissue', singleIssueRouter);
 app.use('/user', BuserRouter);
 
 app.use('/projects', projectRouter);

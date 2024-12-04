@@ -1,61 +1,97 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FormRow, FormGroup, Label, Input, Head, ButtonGroup } from './ModalStyle';
+import { useRecoilState } from "recoil";
+import { sprintState, Sprint } from "../../../recoil/atoms/sprintAtoms";
 
 interface ModalProps {
     onClose: () => void;
+    sprint: Sprint | null; // sprint를 prop으로 받음
 }
 
-const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
-    const [Sprint, setSprint] = useState({
-        spname: '',
-        startDate: '',
+const SprintModify: React.FC<ModalProps> = ({ onClose, sprint }) => {
+    const [sprints, setSprints] = useRecoilState(sprintState);
+    const [sprintDate, setSprintDate] = useState({
         startYear: '',
         startMonth: '',
         startDay: '',
-        endDate: '',
         endYear: '',
         endMonth: '',
         endDay: '',
-        goal: '',
-        project_id: 1, // project_id를 1로 지정
     });
+    const [sprintName, setSprintName] = useState('');
+    const [sprintGoal, setSprintGoal] = useState('');
     const [Error, setError] = useState('');
+
+    useEffect(() => {
+        if (sprint) {
+            const startDate = new Date(sprint.startdate);
+            const endDate = new Date(sprint.enddate);
+
+            setSprintDate({
+                startYear: String(startDate.getFullYear()),
+                startMonth: String(startDate.getMonth() + 1).padStart(2, '0'), // 월을 0부터 시작하므로 +1
+                startDay: String(startDate.getDate()).padStart(2, '0'),
+                endYear: String(endDate.getFullYear()),
+                endMonth: String(endDate.getMonth() + 1).padStart(2, '0'),
+                endDay: String(endDate.getDate()).padStart(2, '0'),
+            });
+
+            setSprintName(sprint.spname); // 스프린트 이름 설정
+            setSprintGoal(sprint.goal);   // 스프린트 목표 설정
+        }
+    }, [sprint]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setSprint(prevSprint => ({
-            ...prevSprint,
-            [name]: value,
-        }));
+        if (name === 'spname') {
+            setSprintName(value);
+        } else if (name === 'goal') {
+            setSprintGoal(value);
+        } else {
+            setSprintDate(prevDate => ({
+                ...prevDate,
+                [name]: value,
+            }));
+        }
+    };
+
+    const formatDate = (year: string, month: string, day: string, time: string) => {
+        return `${year}-${month}-${day} ${time}`;
     };
 
     const handleSubmit = async () => {
-        if (Sprint.spname === '') {
+        if (!sprint || sprintName === '') {
             setError('스프린트 이름을 입력해 주세요');
             return;
         }
-        if (Sprint.startYear === '' || Sprint.startMonth === '' || Sprint.startDay === '') {
+        if (sprintDate.startYear === '' || sprintDate.startMonth === '' || sprintDate.startDay === '') {
             setError('시작 날짜를 모두 입력해 주세요');
             return;
         }
-        if (Sprint.endYear === '' || Sprint.endMonth === '' || Sprint.endDay === '') {
+        if (sprintDate.endYear === '' || sprintDate.endMonth === '' || sprintDate.endDay === '') {
             setError('종료 날짜를 모두 입력해 주세요');
             return;
         }
 
-        const formattedStartDate = `${Sprint.startYear}-${Sprint.startMonth}-${Sprint.startDay} 00:00:00`;
-        const formattedEndDate = `${Sprint.endYear}-${Sprint.endMonth}-${Sprint.endDay} 23:59:59`;
+        const formattedStartDate = formatDate(sprintDate.startYear, sprintDate.startMonth, sprintDate.startDay, "00:00:00");
+        const formattedEndDate = formatDate(sprintDate.endYear, sprintDate.endMonth, sprintDate.endDay, "23:59:59");
+
+        const updatedSprint = {
+            ...sprint,
+            spname: sprintName, // 수정된 스프린트 이름 설정
+            goal: sprintGoal,   // 수정된 스프린트 목표 설정
+            startdate: formattedStartDate,
+            enddate: formattedEndDate,
+        };
 
         try {
-            const response = await axios.post('/sprint/createSprint', {
-                ...Sprint,
-                startDate: formattedStartDate,
-                endDate: formattedEndDate,
-                project_id: Sprint.project_id, // project_id를 포함하여 서버로 전송
-            });
+            const response = await axios.put('/sprint/modifiySprint', updatedSprint);
             if (response.data.success) {
-                alert('스프린트가 생성되었습니다');
+                alert('스프린트가 수정되었습니다');
+                setSprints(prevSprints =>
+                    prevSprints.map(s => s.spid === updatedSprint.spid ? updatedSprint : s)
+                );
                 onClose(); // 모달 닫기
             } else {
                 alert(`${response.data.message}`);
@@ -67,13 +103,13 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
 
     return (
         <div>
-            <Head>스프린트 생성</Head>
+            <Head>스프린트 수정</Head>
             <FormGroup>
                 <Label>스프린트 이름</Label>
                 <Input
                     type="text"
                     name="spname"
-                    value={Sprint.spname}
+                    value={sprintName}
                     onChange={handleChange}
                     placeholder="스프린트 이름을 입력해 주세요"
                 />
@@ -85,7 +121,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
                         <Input
                             type="text"
                             name="startYear"
-                            value={Sprint.startYear}
+                            value={sprintDate.startYear}
                             onChange={handleChange}
                             placeholder="YYYY"
                             style={{ width: '33%' }}
@@ -93,7 +129,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
                         <Input
                             type="text"
                             name="startMonth"
-                            value={Sprint.startMonth}
+                            value={sprintDate.startMonth}
                             onChange={handleChange}
                             placeholder="MM"
                             style={{ width: '33%' }}
@@ -101,7 +137,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
                         <Input
                             type="text"
                             name="startDay"
-                            value={Sprint.startDay}
+                            value={sprintDate.startDay}
                             onChange={handleChange}
                             placeholder="DD"
                             style={{ width: '33%' }}
@@ -114,7 +150,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
                         <Input
                             type="text"
                             name="endYear"
-                            value={Sprint.endYear}
+                            value={sprintDate.endYear}
                             onChange={handleChange}
                             placeholder="YYYY"
                             style={{ width: '33%' }}
@@ -122,7 +158,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
                         <Input
                             type="text"
                             name="endMonth"
-                            value={Sprint.endMonth}
+                            value={sprintDate.endMonth}
                             onChange={handleChange}
                             placeholder="MM"
                             style={{ width: '33%' }}
@@ -130,7 +166,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
                         <Input
                             type="text"
                             name="endDay"
-                            value={Sprint.endDay}
+                            value={sprintDate.endDay}
                             onChange={handleChange}
                             placeholder="DD"
                             style={{ width: '33%' }}
@@ -143,7 +179,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
                 <Input
                     type="text"
                     name="goal"
-                    value={Sprint.goal}
+                    value={sprintGoal}
                     onChange={handleChange}
                     placeholder="스프린트 목표를 입력해 주세요"
                 />
@@ -159,4 +195,4 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
     );
 };
 
-export default SprintCreate;
+export default SprintModify;

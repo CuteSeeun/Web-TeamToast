@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InsertSprint = exports.updateSprintStatus = exports.getSprint = void 0;
+exports.DeleteSprint = exports.ModifiySprint = exports.InsertSprint = exports.updateSprintStatus = exports.getSprint = void 0;
 const dbpool_1 = __importDefault(require("../config/dbpool"));
+// 스프린트 호출 컨트롤러
 const getSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const projectId = Number(req.params.projectid);
     try {
@@ -23,24 +24,25 @@ const getSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         if (error instanceof Error) {
-            console.error('Error:', error.message);
+            console.error('오류:', error.message);
         }
         else {
-            console.error('An unknown error occurred:', error);
+            console.error('알 수 없는 오류가 발생했습니다:', error);
         }
     }
 });
 exports.getSprint = getSprint;
+// 스프린트 활성 상태 변경 컨트롤러
 const updateSprintStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const spid = Number(req.params.spid);
     const { status } = req.body; // ENUM 타입 적용
     try {
         const [result] = yield dbpool_1.default.query('UPDATE Sprint SET status = ? WHERE spid = ?', [status, spid]);
         if (result.affectedRows > 0) {
-            res.json({ message: 'Sprint status updated successfully' });
+            res.json({ message: '스프린트 상태가 성공적으로 업데이트되었습니다.' });
         }
         else {
-            res.status(404).json({ error: 'Sprint not found' });
+            res.status(404).json({ error: '스프린트를 찾을 수 없습니다.' });
         }
     }
     catch (error) {
@@ -53,6 +55,7 @@ const updateSprintStatus = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.updateSprintStatus = updateSprintStatus;
+// 스프린트 생성 컨트롤러
 const InsertSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { spname, startDate, endDate, goal, project_id } = req.body;
     if (!spname || !startDate || !endDate || !project_id) {
@@ -71,3 +74,36 @@ const InsertSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.InsertSprint = InsertSprint;
+// 스프린트 수정 컨트롤러
+const ModifiySprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { spid, spname, startdate, enddate, goal, status, project_id } = req.body;
+    try {
+        const query = `
+            UPDATE Sprint
+            SET spname = ?, startdate = ?, enddate = ?, goal = ?, status = ?, project_id = ?
+            WHERE spid = ?
+        `;
+        const values = [spname, startdate, enddate, goal, status, project_id, spid];
+        yield dbpool_1.default.query(query, values);
+        res.json({ success: true, message: '스프린트가 수정되었습니다.' });
+    }
+    catch (error) {
+        console.error('스프린트를 수정하는 중 오류가 발생했습니다:', error);
+        res.status(500).json({ success: false, message: '스프린트를 수정하는 중 오류가 발생했습니다.' });
+    }
+});
+exports.ModifiySprint = ModifiySprint;
+// 스프린트 삭제 컨트롤러
+const DeleteSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { spid } = req.params;
+    try {
+        const query = 'DELETE FROM Sprint WHERE spid = ?';
+        yield dbpool_1.default.query(query, [spid]);
+        res.json({ success: true, message: '스프린트가 삭제되었습니다.' });
+    }
+    catch (error) {
+        console.error('스프린트를 삭제하는 중 오류가 발생했습니다:', error);
+        res.status(500).json({ success: false, message: '스프린트를 삭제하는 중 오류가 발생했습니다.' });
+    }
+});
+exports.DeleteSprint = DeleteSprint;

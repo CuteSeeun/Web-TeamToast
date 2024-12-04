@@ -1,3 +1,4 @@
+// BBoard.tsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -11,7 +12,7 @@ import SprintCreate from './sprintModal/SprintCreate';
 import { ModalOverlay, ModalContent } from './sprintModal/ModalStyle';
 
 const BBoard: React.FC = () => {
-    const [, setSprints] = useRecoilState(sprintState);
+    const [sprints, setSprints] = useRecoilState(sprintState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
     const [, setIssues] = useRecoilState(issueListState);
     const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
@@ -19,40 +20,44 @@ const BBoard: React.FC = () => {
     const [filter, setFilter] = useRecoilState(filterState);
     const [modalOpen, setModalOpen] = useState(false);
 
+    const fetchData = async () => {
+        try {
+            const projectId = 1;
+
+            const [sprintResponse, issueResponse, managerResponse] = await Promise.all([
+                axios.get(`/sprint/${projectId}`),
+                axios.get(`/issue/backlog/${projectId}`),
+                axios.get(`/user/project/${projectId}/managers`)
+            ]);
+
+            setSprints(sprintResponse.data);
+
+            const issuesData = issueResponse.data.map((issue: any) => {
+                const manager = typeof issue.manager === 'object' && issue.manager !== null ? issue.manager.manager : (issue.manager || '담당자 없음');
+                return {
+                    ...issue,
+                    type: Type[issue.type as keyof typeof Type] || '작업',
+                    manager: manager
+                };
+            });
+
+            const backlogData: Issue[] = issuesData.filter((issue: Issue) => issue.sprint_id === undefined);
+            setBacklog(backlogData);
+            setIssues(issuesData);
+
+            const managersData = managerResponse.data.map((manager: any) => {
+                const managerStr = typeof manager === 'object' && manager !== null ? manager.manager : manager;
+                return managerStr;
+            });
+            setManagers(managersData);
+        } catch (error) {
+            console.error('데이터 가져오기 오류:', error);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const projectId = 1;
-
-                const sprintResponse = await axios.get(`/sprint/${projectId}`);
-                setSprints(sprintResponse.data);
-
-                const issueResponse = await axios.get(`/issue/backlog/${projectId}`);
-                const issuesData = issueResponse.data.map((issue: any) => {
-                    const manager = typeof issue.manager === 'object' && issue.manager !== null ? issue.manager.manager : (issue.manager || '담당자 없음');
-                    return {
-                        ...issue,
-                        type: Type[issue.type as keyof typeof Type] || '작업',
-                        manager: manager
-                    };
-                });
-
-                const backlogData: Issue[] = issuesData.filter((issue: Issue) => issue.sprint_id === undefined);
-                setBacklog(backlogData);
-
-                const managerResponse = await axios.get(`/user/project/${projectId}/managers`);
-                const managersData = managerResponse.data.map((manager: any) => {
-                    const managerStr = typeof manager === 'object' && manager !== null ? manager.manager : manager;
-                    return managerStr;
-                });
-                setManagers(managersData);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
         fetchData();
-    }, [setSprints, setIssues, setBacklog, setManagers]);
+    }, [setSprints, setIssues, setBacklog, setManagers]); // 의존성 배열
 
     const onDrop = async (issue: Issue, newSprintId: number | null) => {
         try {
@@ -78,7 +83,7 @@ const BBoard: React.FC = () => {
                 });
             }
         } catch (error) {
-            console.error(`Error updating issue ${issue.isid} sprint_id:`, error);
+            console.error(`이슈 업데이트 오류: ${issue.isid} sprint_id:`, error);
         }
     };
 
@@ -150,7 +155,10 @@ const BBoard: React.FC = () => {
                 {modalOpen && (
                     <ModalOverlay>
                         <ModalContent>
-                            <SprintCreate onClose={() => setModalOpen(false)} />
+                            <SprintCreate onClose={() => {
+                                setModalOpen(false);
+                                fetchData(); // 모달 닫힐 때 데이터 다시 불러오기
+                            }} />
                         </ModalContent>
                     </ModalOverlay>
                 )}
