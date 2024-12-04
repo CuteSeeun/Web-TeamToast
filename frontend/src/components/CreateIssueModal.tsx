@@ -1,5 +1,5 @@
 import { CreateIssueModalWrap, PreviewContainer } from "../styles/CreateIssueModal";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import React, { useEffect, useMemo, useState } from "react";
 import { Issue } from "../types/issueTypes";
 import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
@@ -18,7 +18,6 @@ interface IssueModalProps {
 export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   => {
   const projectId = useRecoilValue(projectIdState);
   const sprints = useRecoilValue(sprintState);
-  const setSprints = useSetRecoilState(sprintState);
   const spaceId = useRecoilValue(spaceIdState);
   const [projectName, setProjectName] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -43,29 +42,6 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`
   }), [token]);
-
-  // 임시 스프린트 추가
-  const setSprintName = () => {
-    type SprintStatus = 'disabled' | 'enabled' | 'end';
-
-    interface Sprint {
-        spid: number;
-        spname: string;
-        status: SprintStatus;
-        goal: string;
-        enddate: string;
-        startdate: string;
-        project_id: number;
-    };
-
-    const sprint: Sprint[] = [
-      { spid: 12, spname: "스프린트 1", status: "enabled", goal: "첫 번째 스프린트 목표", enddate: "2024-12-10 23:59:59", startdate: "2024-12-01 00:00:00", project_id: 28 },
-      { spid: 13, spname: "스프린트 2", status: "disabled", goal: "두 번째 스프린트 목표", enddate: "2024-12-20 23:59:59", startdate: "2024-12-11 00:00:00", project_id: 28 },
-      { spid: 14, spname: "스프린트 3", status: "disabled", goal: "세 번째 스프린트 목표", enddate: "2024-12-30 23:59:59", startdate: "2024-12-21 00:00:00", project_id: 28 }
-    ];
-    setSprints(sprint);
-  };
-
 
   useEffect(() => {
     const fetchProjectName = async () => {
@@ -96,7 +72,6 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     // `spaceId`가 존재할 때만 호출
     if (spaceId) {
       fetchProjectName();
-      setSprintName(); // 임시 스프린트 추가
     }
   }, [spaceId, projectId, headers]);
 

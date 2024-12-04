@@ -8,7 +8,7 @@ import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } fro
 import { CreateIssueModal } from './CreateIssueModal';
 import { Issue } from '../types/issueTypes';
 import axios from 'axios';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { projectIdState } from '../recoil/atoms/projectAtoms';
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
 import { issueListState } from '../recoil/atoms/issueAtoms';
@@ -93,7 +93,7 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
   const spaceId = useRecoilValue(spaceIdState);
   const projectId = useRecoilValue(projectIdState);
-  const issueList = useRecoilValue(issueListState);
+  const [issueList, setIssueList] = useRecoilState(issueListState);
 
   // 백엔드로 보낼 Issue 인터페이스 형식
   interface IssueForBackend extends Omit<Issue, 'status' | 'type' | 'priority'> {
@@ -193,6 +193,8 @@ const Sidebar: React.FC = () => {
       );
 
       console.log('이슈 생성 성공:', issueResponse.data);
+      // issueList에 생성한 issue 업데이트 필요
+      
     } catch (err ) {
       if (axios.isAxiosError(err)) {
         if (err.response) {

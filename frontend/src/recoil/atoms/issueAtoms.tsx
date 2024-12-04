@@ -23,7 +23,7 @@ export interface Issue {
   project_id: number;
   manager?: string | null;
   created_by?: string | null;
-  file?: string | null;
+  file?: string[] | null; // file 여러개 들어갈 수 있어서 string[]으로 수정
   priority: Priority;
 }
 
