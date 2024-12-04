@@ -3,7 +3,6 @@
 import { useSetRecoilState } from "recoil"
 import { userState } from "../recoil/atoms/userAtoms"
 import { useEffect } from "react";
-import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import AccessToken from "../pages/Login/AccessToken";
 
@@ -23,12 +22,11 @@ export const useAuth = () =>{
               const now = Date.now() / 1000;
 
               // 토큰이 만료되었거나 만료 임박한 경우
-              if (exp - now <= 30) {
+              if (exp - now <= 90) {
                   // 토큰 재발급 시도
                   const { uid } = jwtDecode<{ uid: number }>(accessToken);
-                  const response = await axios.post('http://localhost:3001/editUser/refresh/token', 
+                  const response = await AccessToken.post('/editUser/refresh/token', 
                       { uid },
-                      { headers: { Authorization: `Bearer ${accessToken}` }}
                   );
                   
                   if (response.data.accessToken) {

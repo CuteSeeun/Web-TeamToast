@@ -22,7 +22,6 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
     // 토큰이 없는 경우 인증 오류 반환
     if (!token) {
-
         res.status(401).json({
             success: false,
             message: '인증 필요'
@@ -31,7 +30,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
     try {
         // 토큰 검증 및 사용자 정보 추출
-        const decoded = jsonwebtoken_1.default.verify(token, 'secretKey');
+        const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
         const { uname, email } = req.body;
         // 사용자 정보 업데이트
         const query = `

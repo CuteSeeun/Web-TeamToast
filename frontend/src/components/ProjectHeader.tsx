@@ -2,23 +2,30 @@
 // ProjectHeader.tsx
 //프로젝트 들어간 이후부터 쓰는 헤더
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
 import { IoSettingsOutline ,IoChevronDownOutline } from "react-icons/io5";
 import { GoBell } from "react-icons/go";
 import ProjectInvite from './InviteModal';
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
+import axios from 'axios';
+import AccessToken from '../pages/Login/AccessToken';
+import { Project } from '../types/projectTypes';
+import PJheaderBell from './PJheaderBell';
 
 const ProjectHeader = () => {
 
     const user = useRecoilValue(userState);
     const space = useRecoilValue(spaceIdState); // 프로젝트 눌렀을때 해당 스페이스의 아이디에 있는 프로젝트출력
+
     const setUser = useSetRecoilState(userState);
+    const setSpaceId = useSetRecoilState(spaceIdState);
+    const [projects, setProjects] = useState<Project[]>([]); // 현재 스페이스 안에 있는 프로젝트 리스트를 저장하는 스테이트
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const navigate = useNavigate();
    
@@ -26,11 +33,37 @@ const ProjectHeader = () => {
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
         if(confirmed){
             setUser(null);
-            localStorage.removeItem('token');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('currentSpaceUuid');
             navigate('/');
             window.location.reload();
         }
     }
+
+    useEffect(() => {
+        const currentSpace = async () => {
+          try {
+            const storedUuid = localStorage.getItem('currentSpaceUuid');
+            if (storedUuid) {
+              // Recoil 상태에 저장
+              setSpaceId(storedUuid);
+            } else {
+              const response = await AccessToken.get('/space/current-space');
+              if (response.data.spaceId) {
+                setSpaceId(response.data.spaceId);
+                localStorage.setItem('currentSpaceUuid', response.data.uuid); // UUID 저장
+              } else {
+                console.warn('현재 선택된 스페이스가 없습니다.');
+              }
+            }
+          } catch (error) {
+            console.error('현재 스페이스 복구 실패:', error);
+          }
+        };
+        currentSpace();
+      }, [setSpaceId]);
+
+
      // 관리자 권한 체크 함수
      const isAdmin = user?.role === 'admin';  // 또는 user?.role === 'ADMIN' 등 실제 데이터 구조에 맞게
     
@@ -39,18 +72,34 @@ const ProjectHeader = () => {
          e.preventDefault();
          alert('스페이스 관리는 관리자만 접근할 수 있습니다.');
      };
+     
 
-     const projectGo = () => {
-        if(space){
-            navigate(`/projectlist/${space}`)
-        }else{
-            //스페이스 id가 없는경우
-            // 알림창을 띄우고 스페이스 목록으로 이동시킴
-            alert('스페이스를 선택하세요');
-            navigate('/space')
+     const handleProjectGo = async () => {
+        
+        const currentSpaceUuid = localStorage.getItem('currentSpaceUuid');
+
+        if (!currentSpaceUuid) {
+            console.error('현재 선택된 스페이스가 없습니다.');
+            navigate('/space');
+            return;
         }
-     }
     
+        try {
+            // uuid로 해당 스페이스의 정보를 가져옴
+            const response = await AccessToken.get(`/space/get-space/${currentSpaceUuid}`);
+            
+            if (response.data && response.data.spaceId) {
+                // spaceId를 이용해서 프로젝트 리스트 페이지로 이동
+                navigate(`/projectlist/${response.data.spaceId}`);
+            } else {
+                console.error('스페이스 정보를 찾을 수 없습니다.');
+                navigate('/space');
+            }
+        } catch (error) {
+            console.error('스페이스 정보 조회 실패:', error);
+            navigate('/space');
+        }
+    };
     
     return (
         <ProjectHeaderWrap>
@@ -59,7 +108,7 @@ const ProjectHeader = () => {
                    <Link to='/space'><Logo><LogoIcon /></Logo></Link> 
                     <nav>
                         <div className="menu-wrap">
-                            <span className="menu-text" onClick={projectGo}>프로젝트</span>
+                            <span className="menu-text" onClick={handleProjectGo}>프로젝트</span>
                         </div>
                         <div className="menu-wrap">
                             <span className="menu-text"><span className='text-with-rigth-icon'>팀</span><IoChevronDownOutline /></span>
@@ -74,13 +123,15 @@ const ProjectHeader = () => {
                     </nav>
                 </div>
 
-                <div className="rightPro" style={{display:"flex", alignItems:"center"}}>
+                {/* <div className="rightPro" style={{display:"flex", alignItems:"center"}}> */}
+                <div className="rightPro">
                     <div className="notification-icon">
-                    <GoBell className="icon-wrap" />
+                    <PJheaderBell/>
                         <span className="notification-badge"></span>
                     </div>
+
                     <div className="menu-wrap">
-                        <IoSettingsOutline className='icon-wrap' />
+                        <IoSettingsOutline className='icon-wrap' style={{cursor:'pointer'}} />
                         <ul className="sub-menu">
                         {/* {isAdmin ? (
                                 <Link to='/spaceedit'>

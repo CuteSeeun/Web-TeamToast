@@ -14,6 +14,7 @@ export const backlogState = atom<Issue[]>({
 });
 
 export interface Issue {
+  isid: number;
   title: string;
   detail?: string | null;
   type: Type;
@@ -46,9 +47,3 @@ export enum Priority {
   normal = '보통',
   low = '낮음',
 }
-
-export const issueListState = atom<Issue[]> ({
-  key: 'issueListState',
-  default: []
-});
-

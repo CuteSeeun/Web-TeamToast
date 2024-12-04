@@ -11,9 +11,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProject = exports.modifyProject = exports.newProject = exports.getProject = exports.getProjects = exports.getAllProjects = void 0;
+exports.deleteProject = exports.modifyProject = exports.newProject = exports.getProject = exports.getProjects = exports.getAllProjects = exports.getProjectsByUUID = void 0;
 const projectModel_js_1 = require("../models/projectModel.js");
 const dbHelpers_js_1 = require("../utils/dbHelpers.js"); // UserRole 테이블에서 리퀘스트를 요청한 user가 sid에 권한이 있는지 확인하기 위한 헬퍼함수
+const getProjectsByUUID = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { uuid } = req.params;
+    try {
+        // const decodedUUID = decodeURIComponent(uuid);
+        const projects = yield (0, projectModel_js_1.getProjectsByUUIDQuery)(uuid);
+        if (!projects || projects.length === 0) {
+            res.status(404).json({ message: '해당 UUID의 프로젝트를 찾을 수 없습니다.' });
+            return;
+        }
+        res.status(200).json({ projects });
+    }
+    catch (error) {
+        console.error('프로젝트 조회 중 오류:', error);
+        res.status(500).json({ message: '서버 오류로 인해 프로젝트를 조회할 수 없습니다.' });
+    }
+});
+exports.getProjectsByUUID = getProjectsByUUID;
 // 모든 프로젝트 가져오기 (admin)
 const getAllProjects = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -37,16 +54,10 @@ exports.getAllProjects = getAllProjects;
 const getProjects = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sid = parseInt(req.params.sid, 10);
-
-        const user = req.userRole.user;
-        // UserRole 테이블에서 권한 검증
-        if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(user, sid))) {
-
         // const user: string = req.userRole.user; // 채경
         // UserRole 테이블에서 권한 검증
         // if (!(await checkUserInSpace(user, sid))) { // 채경
         if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(req.user.uid.toString(), sid))) { // 현진
-
             res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
             return;
         }
@@ -70,16 +81,10 @@ exports.getProjects = getProjects;
 const getProject = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sid = parseInt(req.params.sid, 10);
-
-        const user = req.userRole.user;
-        // UserRole 테이블에서 권한 검증
-        if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(user, sid))) {
-
         // const user: string = req.userRole.user; // 채경
         // UserRole 테이블에서 권한 검증
         // if (!(await checkUserInSpace(user, sid))) { // 채경
         if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(req.user.uid.toString(), sid))) { // 현진
-
             res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
             return;
         }
@@ -105,16 +110,10 @@ exports.getProject = getProject;
 const newProject = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sid = parseInt(req.params.sid, 10);
-
-        const user = req.userRole.user;
-        // UserRole 테이블에서 권한 검증
-        if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(user, sid))) {
-
         // const user: string = req.userRole.user; // 채경
         // UserRole 테이블에서 권한 검증
         // if (!(await checkUserInSpace(user, sid))) { // 채경
         if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(req.user.uid.toString(), sid))) { // 현진
-
             res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
             return;
         }
@@ -151,16 +150,10 @@ const modifyProject = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const pid = parseInt(req.params.pid, 10);
         const pname = req.body.pname;
         const desc = req.body.description;
-
-        const user = req.userRole.user;
-        // UserRole 테이블에서 권한 검증
-        if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(user, sid))) {
-
         // const user: string = req.userRole.user; // 채경
         // UserRole 테이블에서 권한 검증
         // if (!(await checkUserInSpace(user, sid))) { // 채경
         if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(req.user.uid.toString(), sid))) {
-
             res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
             return;
         }
@@ -190,16 +183,10 @@ exports.modifyProject = modifyProject;
 const deleteProject = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sid = parseInt(req.params.sid, 10);
-
-        const user = req.userRole.user;
-        // UserRole 테이블에서 권한 검증
-        if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(user, sid))) {
-
         // const user: string = req.userRole.user; // 채경
         // UserRole 테이블에서 권한 검증
         // if (!(await checkUserInSpace(user, sid))) { // 채경
         if (!(yield (0, dbHelpers_js_1.checkUserInSpace)(req.user.uid.toString(), sid))) { // 현진
-
             res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
             return;
         }

@@ -80,7 +80,7 @@ const kakaoTokenHandler = (req, res) => __awaiter(void 0, void 0, void 0, functi
             throw new Error('Invalid User data');
         }
         //jwt 토큰 생성
-        const token = jsonwebtoken_1.default.sign({ id: userData.id, name: userData.name }, process.env.JWT_SECRET_KEY || 'secretKey', { expiresIn: '1h' });
+        const token = jsonwebtoken_1.default.sign({ id: userData.id, name: userData.name }, process.env.JWT_SECRET_KEY || 'accessSecretKey', { expiresIn: '1h' });
         res.json({ message: '카카오 로그인 성공', token, user: userData });
     }
     catch (error) {

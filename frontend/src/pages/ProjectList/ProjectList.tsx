@@ -6,7 +6,7 @@ import { ProjectListWrap } from './ProjectStyle';
 import { GoPlus } from "react-icons/go";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import ProjectModal from './ProjectModal';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toSvg } from "jdenticon";
 import axios from "axios";
 import { Project } from '../../types/projectTypes';
@@ -15,6 +15,7 @@ import { currentProjectState } from '../../recoil/atoms/projectAtoms';
 import { issueListState } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as ProjectAlert } from '../../assets/images/proejctAlert.svg';
 import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
+import AccessToken from '../Login/AccessToken';
 
 interface ModalState {
     isOpen: boolean;
@@ -23,11 +24,6 @@ interface ModalState {
 }
 
 const ProjectList = () => {
-      //현진
-      const currentSpaceId = useRecoilValue(spaceIdState);
-      const setCurrentSpaceId = useSetRecoilState(spaceIdState); // Recoil 상태 업데이트용
-
-      //
     const [isAdmin] = useState<boolean>(true); // 로그인 여부 스테이트, 실제로는 로그인 상태에서 가져와야 함
     const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지 번호 스테이트
     const itemsPerPage = 10; // 한 페이지에 들어갈 아이템 개수
@@ -36,50 +32,64 @@ const ProjectList = () => {
     const setCurrentProject = useSetRecoilState(currentProjectState);
     const setIssueList = useSetRecoilState(issueListState);
 
+    const navigate = useNavigate();
 
+    const { uuid } = useParams<{ uuid: string }>();
 
-    // Space ID 초기화: localStorage에서 가져오기
-    useEffect(() => {
-      const storedSpaceId = localStorage.getItem('currentSpaceId');
-      if (storedSpaceId && !currentSpaceId) {
-          setCurrentSpaceId(Number(storedSpaceId)); // Recoil 상태 업데이트
-      }
-  }, [currentSpaceId, setCurrentSpaceId]);
-
-  // 프로젝트 데이터 가져오기
   useEffect(() => {
-    
-    const getProjList = async () => {
-      if (!currentSpaceId) {
-        console.error("Space ID가 유효하지 않습니다.");
-        return;
-      }
-      try {
-        const response  = await axios.get(`http://localhost:3001/projects/all/${currentSpaceId}`,{
-          
-          headers:{
-            Authorization:`Bearer ${localStorage.getItem('accessToken')}`
-          }
-        }); 
-        setProjects(response.data);
-      } catch (err) {
-        console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
-        
-      }
-    };
-    // getProjList();
 
-    if (currentSpaceId) {
-      getProjList();
+    console.log("uuid:", uuid); // useParams에서 가져온 원본 UUID
+
+    if (!uuid) {
+      console.error("UUID가 없습니다. 스페이스 페이지로 이동합니다.");
+      navigate('/space'); // 스페이스 선택 페이지로 리디렉션
+        return;
     }
 
-  }, [currentSpaceId]); 
-   
-  // 렌더링 이전에 스페이스 아이디 검증
-   if (!currentSpaceId) {
-    return <p>Space ID가 유효하지 않습니다. 다시 선택해주세요.</p>;;
-  }
 
+    const getProjList = async () => {
+        try {
+          console.log("Requesting projects with UUID:", uuid);
+            const response = await AccessToken.get(`/projects/all/${uuid}`);
+            console.log("Response from API:", response.data);
+            await setProjects(response.data || []);
+        } catch (err) {
+            console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
+        }
+    };
+
+    getProjList();
+}, [uuid,navigate]); // spaceId가 변경될 때마다 실행
+
+
+  // 프로젝트 데이터 가져오기
+  // useEffect(() => {
+    
+  //   const getProjList = async () => {
+  //     if (!currentSpaceId) {
+  //       console.error("Space ID가 유효하지 않습니다.");
+  //       return;
+  //     }
+  //     try {
+  //       const response  = await AccessToken.get(`/projects/all/${currentSpaceId}`,{
+          
+  //         // headers:{
+  //         //   Authorization:`Bearer ${localStorage.getItem('accessToken')}`
+  //         // }
+  //       }); 
+  //       setProjects(response.data);
+  //     } catch (err) {
+  //       console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
+        
+  //     }
+  //   };
+  //   // getProjList();
+
+  //   if (currentSpaceId) {
+  //     getProjList();
+  //   }
+
+  // }, [currentSpaceId]); 
 
     // 프로젝트 이미지 자동 생성 함수 (입력한 데이터에 따라 자동 생성되며, 같은 값을 입력한다면 이미지가 바뀌지 않음)
     const projImage = (project: Project) => {
@@ -142,7 +152,7 @@ const ProjectList = () => {
       try {
         if (modal.type === 'create') {
             // 생성 API 호출
-            const { data } = await axios.post(`http://localhost:3001/projects/new/${currentSpaceId}`, {
+            const { data } = await AccessToken.post(`/projects/new/${uuid}`, {
                 pname: name,
                 description: description,
             });
@@ -152,7 +162,7 @@ const ProjectList = () => {
             setProjects([...projects, data]);
         } else if (modal.type === 'edit' && modal.projectId) {
           // 수정 API 호출
-          const { data } = await axios.put(`http://localhost:3001/projects/modify/${currentSpaceId}/${modal.projectId}`, {
+          const { data } = await AccessToken.put(`/projects/modify/${uuid}/${modal.projectId}`, {
             pname: name,
             description: description,
           });
@@ -176,10 +186,8 @@ const ProjectList = () => {
             // 삭제 API 호출
             console.log('삭제:', modal.projectId);
           try {
-            await axios.delete(`http://localhost:3001/projects/delete/${currentSpaceId}/${modal.projectId}`,{
-              headers:{
-                Authorization:`Bearer ${localStorage.getItem('token')}`
-              }
+            await AccessToken.delete(`/projects/delete/${uuid}/${modal.projectId}`,{
+             
             }); // sid 임시로 1로 지정, 수정 필요
 
             // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외

@@ -21,33 +21,32 @@ const issueTypes_3 = require("../types/issueTypes");
 // pid에 해당하는 이슈 전체 받아오기
 const getIssues = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const customReq = req; // 타입 단언
         const pid = parseInt(req.params.pid);
         const issues = yield (0, issueModel_1.getIssuesQuery)(pid);
         if (issues.length === 0) {
-            res.status(200).json([]); // 빈 배열 반환
+            res.status(200).json([]);
             return;
         }
-        ;
         res.status(200).json(issues);
     }
     catch (err) {
         console.error(`데이터 조회 오류:${err}`);
         res.status(500).json({ error: '서버 오류가 발생했습니다.' });
     }
-    ;
 });
 exports.getIssues = getIssues;
 // 새 이슈 생성하기
 const newIssue = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    if (!req.userRole) {
+    const customReq = req; // 타입 단언
+    if (!customReq.userRole) {
         res.status(400).json({ error: '로그인하지 않은 사용자입니다.' });
         return;
     }
-    ;
-    const pid = parseInt(req.params.pid, 10); // 현재 속한 프로젝트의 pid
-    const URSid = req.userRole.space_id; // UserRole에 저장된 space_id (임시 / 로직 보고 변경 필요)
-    if (!req.body.title || !pid) {
+    const pid = parseInt(customReq.params.pid, 10);
+    const URSid = customReq.userRole.space_id;
+    if (!customReq.body.title || !pid) {
         res.status(400).json({ error: '필수 필드가 누락되었습니다.' });
         return;
     }
@@ -61,7 +60,7 @@ const newIssue = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         }
         ;
         // UserRole에서 user가 해당 스페이스에 권한이 있는지, 해당 프로젝트가 존재하는지 검증
-        const user = req.userRole.user; // UserRole에 저장된 user(email 형식)
+        const user = customReq.userRole.user; // UserRole에 저장된 user(email 형식)
         if (!(yield (0, dbHelpers_1.checkUserInProjectAndSpace)(user, pid))) {
             res.status(403).json({ error: `사용자 ${user}가 해당 프로젝트에 권한이 없습니다.` });
             return;
