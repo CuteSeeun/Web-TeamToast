@@ -97,6 +97,7 @@ export const SprintPeriod = styled.p`
 `;
 
 export const SprintControls = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
 
@@ -198,4 +199,27 @@ align-items:center;
 flex-direction: column;
 position:relative;
 margin-top: 20px;
+`;
+
+export const DropdownMenu = styled.ul<{ show: boolean }>`
+  display: ${({ show }) => (show ? 'block' : 'none')};
+  position: absolute;
+  top: 100%; /* 부모 요소 바로 아래에 위치 */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 10px;
+  margin-top: 8px; /* 약간의 간격 추가 */
+`;
+
+export const MenuItem = styled.li`
+  padding: 8px 16px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
 `;

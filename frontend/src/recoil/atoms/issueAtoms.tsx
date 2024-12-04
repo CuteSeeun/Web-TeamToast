@@ -1,6 +1,4 @@
-// 2024-11-27 한채경
-// issueAtoms.tsx
-import { atom } from "recoil";
+import { atom, selectorFamily } from 'recoil';
 
 // 이슈 상태를 객체로 관리
 export const issueListState = atom<{ [key: number]: Issue[] }>({
@@ -14,6 +12,7 @@ export const backlogState = atom<Issue[]>({
 });
 
 export interface Issue {
+  isid: number;
   title: string;
   detail?: string | null;
   type: Type;
@@ -47,8 +46,18 @@ export enum Priority {
   low = '낮음',
 }
 
-export const issueListState = atom<Issue[]> ({
-  key: 'issueListState',
-  default: []
+// 특정 이슈를 가져오는 selector
+export const issueState = selectorFamily<Issue | undefined, number>({
+  key: 'issueState',
+  get: (isid) => ({ get }) => {
+    const issueList = get(issueListState);
+    for (const sprintId in issueList) {
+      const issues = issueList[sprintId];
+      if (Array.isArray(issues)) {
+        const issue = issues.find(issue => issue.isid === isid);
+        if (issue) return issue;
+      }
+    }
+    return undefined;
+  }
 });
-

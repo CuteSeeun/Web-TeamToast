@@ -8,89 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateIssueSprint = exports.getBacklogIssue = exports.getIssue = void 0;
-const dbpool_1 = __importDefault(require("../config/dbpool")); // 디폴트 익스포트 가져오기
-const getIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const sprintId = parseInt(req.params.issueid, 10); // parseInt 사용
-    const projectId = parseInt(req.params.projectid, 10); // parseInt 사용
-    const issueId = parseInt(req.params.issueid, 10);
-    // if (isNaN(sprintId) || isNaN(projectId)) { // 유효성 검사
-    //     res.status(400).json({ error: 'Invalid project ID or sprint ID' });
-    //     return;
-    // }
-    try {
-        const query = `
-            SELECT 
-                Issue.isid, Issue.title, Issue.detail, Issue.type, 
-                Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
-                User.uname AS manager, Issue.created_by, Issue.file
-            FROM Issue
-            JOIN User ON Issue.manager = User.email
-            WHERE Issue.project_id = ? AND Issue.sprint_id = ?;
-        `;
-        const [rows] = yield dbpool_1.default.query(query, [projectId, sprintId]); // 타입 지정
-        res.json(rows);
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ error: '이슈 호출 오류', details: error.message });
-        }
-        else {
-            res.status(500).json({ error: '이슈 호출 오류', details: '알 수 없는 오류가 발생했습니다.' });
-        }
-    }
-});
-exports.getIssue = getIssue;
-const getBacklogIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const projectId = parseInt(req.params.projectid, 10);
-    if (isNaN(projectId)) {
-        console.error('Invalid project ID:', req.params.projectid);
-        res.status(400).json({ error: 'Invalid project ID' });
-        return;
-    }
-    try {
-        const query = `
-            SELECT
-                Issue.isid, Issue.title, Issue.type, Issue.priority, Issue.status, User.uname AS manager
-            FROM Issue
-            JOIN User ON Issue.manager = User.email
-            WHERE Issue.project_id = ? AND Issue.sprint_id IS NULL;
-        `;
-        const [rows] = yield dbpool_1.default.query(query, [projectId]);
-        res.json(rows);
-    }
-    catch (error) {
-        res.status(500).json({ error: '백로그 이슈 호출 오류' });
-    }
-});
-exports.getBacklogIssue = getBacklogIssue;
-const updateIssueSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const issueId = Number(req.params.issueid); // req.params.issueid로 수정
-    const { sprint_id } = req.body;
-    try {
-        const [result] = yield dbpool_1.default.query('UPDATE Issue SET sprint_id = ? WHERE isid = ?', [sprint_id, issueId]);
-        if (result.affectedRows > 0) {
-            res.json({ message: 'Issue sprint_id updated successfully' });
-        }
-        else {
-            res.status(404).json({ message: 'Issue not found' });
-        }
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-        else {
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
-});
-exports.updateIssueSprint = updateIssueSprint;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.newIssue = exports.getIssues = void 0;
 // 모델
@@ -101,9 +18,8 @@ const dbHelpers_1 = require("../utils/dbHelpers");
 const issueTypes_1 = require("../types/issueTypes");
 const issueTypes_2 = require("../types/issueTypes");
 const issueTypes_3 = require("../types/issueTypes");
-// import { CustomRequest } from '../types/index';
 // pid에 해당하는 이슈 전체 받아오기
-const getIssues = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getIssues = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const pid = parseInt(req.params.pid);
         const issues = yield (0, issueModel_1.getIssuesQuery)(pid);
@@ -122,7 +38,7 @@ const getIssues = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getIssues = getIssues;
 // 새 이슈 생성하기
-const newIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const newIssue = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     if (!req.userRole) {
         res.status(400).json({ error: '로그인하지 않은 사용자입니다.' });
@@ -216,4 +132,3 @@ const newIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     ;
 });
 exports.newIssue = newIssue;
-
