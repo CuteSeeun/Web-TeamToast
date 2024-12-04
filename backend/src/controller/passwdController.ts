@@ -80,7 +80,7 @@ export const findUserPassword = async(req:Request , res:Response): Promise<void>
     }
     try {
         //jwt 토큰 검증 및 사용자 정보 추출
-        const decoded = jwt.verify(token,'secretKey') as {uid:string};
+        const decoded = jwt.verify(token,'accessSecretKey') as {uid:string};
 
         //DB에서 현재 사용자의 비밀번호 해시 가져오기
         const [rows]:any = await pool.query(
@@ -133,7 +133,7 @@ export const findUserPassword = async(req:Request , res:Response): Promise<void>
         return;
     }
     try {
-        const decoded = jwt.verify(token,'secretKey') as {uid:string};
+        const decoded = jwt.verify(token,'accessSecretKey') as {uid:string};
 
         const [user]:any = await pool.query(
             'select passwd from User where uid = ? ',

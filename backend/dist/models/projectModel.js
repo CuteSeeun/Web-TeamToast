@@ -10,9 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProjectQuery = exports.modifyProjectQuery = exports.newProjectQuery = exports.getProjectQuery = exports.getProjectsQuery = exports.getAllProjectsQuery = void 0;
+exports.getProjectsByUUIDQuery = exports.deleteProjectQuery = exports.modifyProjectQuery = exports.newProjectQuery = exports.getProjectQuery = exports.getProjectsQuery = exports.getAllProjectsQuery = void 0;
 const dbUtils_1 = require("../utils/dbUtils");
+const dbpool_1 = __importDefault(require("../config/dbpool")); // 데이터베이스 연결
 // 모든 프로젝트 가져오기
 const getAllProjectsQuery = () => __awaiter(void 0, void 0, void 0, function* () {
     return (0, dbUtils_1.executeQuery)((connection) => __awaiter(void 0, void 0, void 0, function* () {
@@ -88,3 +92,21 @@ const deleteProjectQuery = (pid) => __awaiter(void 0, void 0, void 0, function* 
     }));
 });
 exports.deleteProjectQuery = deleteProjectQuery;
+const getProjectsByUUIDQuery = (uuid) => __awaiter(void 0, void 0, void 0, function* () {
+    const connection = yield dbpool_1.default.getConnection();
+    try {
+        const [rows] = yield connection.query(`
+        SELECT p.* 
+        FROM Project p
+        JOIN Space s ON p.space_id = s.sid
+        WHERE s.uuid = ?
+        `, // space_id와 uuid를 조인하여 프로젝트 검색
+        [uuid]);
+        console.log('Fetched projects:', rows);
+        return rows;
+    }
+    finally {
+        connection.release();
+    }
+});
+exports.getProjectsByUUIDQuery = getProjectsByUUIDQuery;

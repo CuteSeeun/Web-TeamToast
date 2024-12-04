@@ -44,6 +44,7 @@ export enum Priority {
   high = '높음',
   normal = '보통',
   low = '낮음',
+
 }
 
 // 특정 이슈를 가져오는 selector
@@ -61,3 +62,4 @@ export const issueState = selectorFamily<Issue | undefined, number>({
     return undefined;
   }
 });
+

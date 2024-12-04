@@ -1,6 +1,64 @@
 import styled from 'styled-components';
 
 
+//팝업 스타일
+export const NotificationsPopup = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 300px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  border: 1px solid #e5e5e5;
+`;
+
+
+// 
+export const NotificationCard = styled.div`
+ display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e5e5;
+
+  &:hover{
+    background: #e5e5e5;
+  }
+
+/* 
+  a{
+    &:hover{
+      background: #e5e5e5;
+      border-radius: 4px;
+      padding: 5px;
+    }
+  } */
+
+  .notification-header {
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .notification-body {
+    font-size: 12px;
+    color: #555;
+  }
+
+  .time-stamp {
+    font-size: 10px;
+    color: #888;
+    margin-top: 4px;
+    text-align: right;
+  }
+`;
+
+
 export const ProjectHeaderWrap = styled.div`
   width: 100%;
   max-width: 1920px;
@@ -78,7 +136,6 @@ export const ProjectHeaderWrap = styled.div`
       background: #fff;
       border: 1px solid #e5e5e5;
       border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       min-width: 150px;
       padding: 8px 0;
 

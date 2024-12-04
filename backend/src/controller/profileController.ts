@@ -25,7 +25,7 @@ export const updateProfile = async(req: ProfileRequest, res: Response):Promise<v
     }
     try {
         // 토큰 검증 및 사용자 정보 추출
-        const decoded = jwt.verify(token,'secretKey') as JwtPayload;
+        const decoded = jwt.verify(token,'accessSecretKey') as JwtPayload;
         const {uname , email} = req.body;
 
         // 사용자 정보 업데이트

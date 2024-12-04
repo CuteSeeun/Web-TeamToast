@@ -79,7 +79,7 @@ const checkCurrentPw = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     try {
         //jwt 토큰 검증 및 사용자 정보 추출
-        const decoded = jsonwebtoken_1.default.verify(token, 'secretKey');
+        const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
         //DB에서 현재 사용자의 비밀번호 해시 가져오기
         const [rows] = yield dbpool_1.default.query('select passwd from User where uid = ?', [decoded.uid]);
         //사용자가 없는경우
@@ -122,7 +122,7 @@ const changePw = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return;
     }
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, 'secretKey');
+        const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
         const [user] = yield dbpool_1.default.query('select passwd from User where uid = ? ', [decoded.uid]);
         const isValid = yield bcrypt_1.default.compare(currentPw, user[0].passwd);
         if (!isValid) {

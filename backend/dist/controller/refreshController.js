@@ -53,8 +53,20 @@ const reAccessToken = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             res.status(403).json({ message: '유효하지 않은 리프레시 토큰입니다.' });
             return;
         }
-        const accessToken = jsonwebtoken_1.default.sign({ uid: userId }, 'accessSecretKey', { expiresIn: '15m' });
-        res.status(200).json({ accessToken });
+        const [userInfo] = yield dbpool_1.default.query('SELECT uid, uname, email FROM User WHERE uid = ?', [userId]);
+        const accessToken = jsonwebtoken_1.default.sign({
+            uid: userId,
+            uname: userInfo[0].uname,
+            email: userInfo[0].email
+        }, 'accessSecretKey', { expiresIn: '15m' });
+        res.status(200).json({
+            accessToken,
+            user: {
+                uid: userInfo[0].uid,
+                uname: userInfo[0].uname,
+                email: userInfo[0].email
+            }
+        });
     }
     catch (error) {
         console.error('리프레시 토큰 검증 실패:', error);

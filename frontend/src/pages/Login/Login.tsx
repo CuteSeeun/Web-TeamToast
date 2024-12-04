@@ -9,7 +9,7 @@ import AccessToken from './AccessToken';
 const Login:React.FC = () => {
     const [useremail , setUseremail] = useState<string>('');
     const [userpw , setUserpw] = useState<string>('');
-    const [isLoading,setIsLoading] = useState<boolean>(false);
+    // const [isLoading,setIsLoading] = useState<boolean>(false);
     const navi = useNavigate();
 
     //로그인 정보 확인
@@ -20,7 +20,6 @@ const Login:React.FC = () => {
 
         console.log('Sending login data:', { useremail, userpw });
 
-        if (isLoading) return;
 
         if(useremail === '' && userpw === ''){
             alert('아이디와 비밀번호를 입력해주세요');
@@ -38,25 +37,27 @@ const Login:React.FC = () => {
             const response= await axios.post('http://localhost:3001/editUser/loginUser',{
                 useremail,
                 userpw
+            },{
+                timeout:5000 // 5초 설정
             });
 
             console.log('Login response:', response.data); 
 
             const { accessToken, refreshToken, user } = response.data;
 
-            if (!user || !accessToken || !refreshToken) {
-                throw new Error('로그인 응답 데이터가 올바르지 않습니다.');
-            }
-
             localStorage.setItem('accessToken',accessToken);
           
             await navi('/');
-            setTimeout(() => window.location.reload(), 100);
+            await setTimeout(() => window.location.reload(), 100);
 
-        } catch (error:any) {
-            if (error.response && error.response.status === 403) {
+        } catch (error: any) {
+            if (error.code === 'ECONNABORTED') {
+                alert('서버 응답 시간이 초과되었습니다. 다시 시도해주세요.');
+            } else if (error.code === 'ECONNREFUSED') {
+                alert('서버에 연결할 수 없습니다. 서버 상태를 확인해주세요.');
+            } else if (error.response?.status === 403) {
                 alert('이메일 인증이 필요합니다.');
-            } else if (error.response && error.response.status === 401) {
+            } else if (error.response?.status === 401) {
                 alert('아이디와 비밀번호를 다시 확인해주세요');
             } else {
                 console.error('로그인 중 문제가 발생했습니다:', error);
@@ -86,10 +87,10 @@ const Login:React.FC = () => {
                 <p>TeamToast에 오신 것을 환영합니다.</p>
                 <form onSubmit={infoCheck}> 
                 <div className="inputBox">
-                    <input type="text" value={useremail} onChange={e=> setUseremail(e.target.value)} placeholder='이메일를 입력해주세요' />
+                    <input type="text" value={useremail} onChange={e=> setUseremail(e.target.value.trim())} placeholder='이메일를 입력해주세요' />
                 </div>
                 <div className="inputBox">
-                    <input type="password" value={userpw} onChange={e=> setUserpw(e.target.value)} placeholder='비밀번호를 입력해주세요' />
+                    <input type="password" value={userpw} onChange={e=> setUserpw(e.target.value.trim())} placeholder='비밀번호를 입력해주세요' />
                 </div>
                 <div>
                     <button type='submit' className='loginBtn'>로그인</button>
