@@ -61,6 +61,7 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
         rid: channel.rid,
         rname: channel.rname,
         messages,
+        newMessages: [], // 새로운 메시지는 초기화
       });
       console.log('클릭한 채널 및 메시지 저장 성공:', channel.rname);
        console.log(response.data);
@@ -106,7 +107,6 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
             active={selectedChannel?.rid === channel.rid}
             onClick={() => handleChannelClick(channel)}
             >
-                      {/* //  active={index === 0}> */}
             {channel.rname}
           </ChannelItem>
         ))}

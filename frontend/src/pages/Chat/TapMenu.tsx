@@ -79,31 +79,6 @@ const FriendListWrapper = styled.div<{ isOpen: boolean }>`
   transition: height 0.3s ease; /* 부드러운 애니메이션 */
 `;
 
-// const ChannelList = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   gap: 10px;
-// `;
-
-// const ChannelItem = styled.div<{ active?: boolean }>`
-//   display: flex;
-//   align-items: center;
-//   justify-content: space-between;
-//   padding: 10px 15px;
-//   background-color: ${({ active }) => (active ? "#e7f3f3" : "transparent")};
-//   border-radius: 8px;
-//   cursor: pointer;
-//   font-size: 14px;
-//   font-weight: ${({ active }) => (active ? "bold" : "normal")};
-//   color: ${({ active }) => (active ? "#038c8c" : "#333")};
-//   box-shadow: ${({ active }) =>
-//         active ? "0 0 5px rgba(0, 0, 0, 0.1)" : "none"};
-
-//   &:hover {
-//     background-color: #e9ecef;
-//   }
-// `;
-
 
 const AddButton = styled.div`
   display: flex;
@@ -127,7 +102,6 @@ const AddButton = styled.div`
     }
   }
 `;
-
 
 const FriendList = styled.div`
   display: flex;
@@ -171,16 +145,13 @@ flex: 1;
   margin-right: 50px;
 `;
 
-
-
 const TapMenu: React.FC = () => {
     const [isChannelListOpen, setChannelListOpen] = useState(true); // 채널 리스트 상태 관리
     const toggleChannelList = () => {
         setChannelListOpen((prev) => !prev); // 상태 토글
     };
 
-    // 친구 섹션의 상태
-    const [isFriendListOpen, setFriendListOpen] = useState(true);
+    const [isFriendListOpen, setFriendListOpen] = useState(true);// 친구 리스트 상태 관리
     const toggleFriendList = () => {
         setFriendListOpen((prev) => !prev);
     };
@@ -205,7 +176,6 @@ const TapMenu: React.FC = () => {
                         <FriendItem><ProfileImage>3</ProfileImage> <UserName>김현진</UserName></FriendItem>
                     </FriendList>
                 </FriendListWrapper>
-                {/* )} */}
                 <AddButton><AiOutlinePlus /> 멤버 추가하기</AddButton>
             </FriendSection>
             

@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ImAttachment, ImSmile, ImCompass } from "react-icons/im";
-import { useRecoilValue } from 'recoil';
+import { IoPersonAddOutline, IoNotificationsOutline, IoLogOutOutline } from "react-icons/io5";
+import { FcCollaboration } from "react-icons/fc";
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { selectedChannelAtom } from '../../recoil/atoms/selectedChannelAtoms'; // selectedChannelAtom 가져오기
 import { userState } from '../../recoil/atoms/userAtoms';
+import { channelAtom } from '../../recoil/atoms/channelAtoms'; // 전체 채널 상태 관리
+
 
 const ProfileImage = styled.div`
    width: 30px;
@@ -121,53 +125,128 @@ const CompassIcon = styled(ImCompass)`
   }
 `;
 
+const ChatHeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f0f2f4;
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+  font-weight: bold;
+`;
+
+const HeaderTitle = styled.div`
+  flex: 1;
+  font-size: 18px;
+  font-weight: bold;
+`;
+
+const HeaderIcons = styled.div`
+  display: flex;
+  gap: 15px;
+  font-size: 20px;
+  color: #555;
+  cursor: pointer;
+
+  svg {
+    &:hover {
+      /* color: #007bff; */
+      color: #038c8c;
+    }
+  }
+`;
+
+
 
 const ChatContainerComponent: React.FC = () => {
-  const selectedChannel = useRecoilValue(selectedChannelAtom); // 선택된 채널 구독
+  // const selectedChannel = useRecoilValue(selectedChannelAtom); // 선택된 채널 구독
+  // const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom);
+  const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom);
   const loggedInUser = useRecoilValue(userState);//로그인한 유저 이메일은 userState에서 가져온다
-  
+  const [newMessages, setNewMessages] = useState<Array<any>>([]); // 추가 메시지 상태
+  const [currentInput, setCurrentInput] = useState(''); // 입력 필드 상태
+  const [channels, setChannels] = useRecoilState(channelAtom); // 전체 채널 상태 관리
+
+
+  // 메시지 전송 핸들러 _ 메시지 추가할 때 selectedChannel상태 업데이트
+  const handleSendMessage = () => {
+    if (!currentInput.trim() || !selectedChannel) return;
+
+    const newMessage = {
+      mid: new Date().getTime(), // 혹은 UUID 등 고유 ID 생성 로직
+      content: currentInput,
+      timestamp: new Date().toLocaleTimeString(),
+      user: loggedInUser?.uname || '(알수없음)',
+      user_email: loggedInUser?.email || '(이메일없음)',
+    };
+
+    // selectedChannel 업데이트
+    setSelectedChannel((prev) => ({
+      ...prev,
+      messages: [...prev.messages, newMessage], // 기존메시지에서 새 메시지 추가
+    }));
+
+    setChannels((prevChannels) =>
+      prevChannels.map((channel) =>
+        channel.rid === selectedChannel.rid
+          ? {
+            ...channel,
+            messages: [...selectedChannel.messages, newMessage], // 배열로 보장
+          }
+          : channel
+      )
+    );
+
+    // 입력 필드 초기화
+    setCurrentInput(''); 
+  };
 
   return (
     <ChatContainer>
-      <ChatHeader>{selectedChannel?.rname || '대화를 시작해보세요!'}</ChatHeader>
+      
+      <ChatHeaderContainer>
+        <HeaderTitle>{selectedChannel?.rname || '대화를 시작해보세요!'}</HeaderTitle>
+        {selectedChannel?.rname && (
+          <HeaderIcons>
+            <IoPersonAddOutline />
+            <IoNotificationsOutline />
+            <IoLogOutOutline />
+          </HeaderIcons>
+        )}
+      </ChatHeaderContainer>
 
       <MessageList>
-        {selectedChannel?.messages.map((msg) => (
-          loggedInUser ? (
-          // </MessageItem><MessageItem key={msg.mid} isMine={msg.user_email === "kh32100@naver.com"}>
-          <MessageItem key={msg.mid} isMine={msg.user_email === loggedInUser.email}>
-          
+        {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
 
-            <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
-            <div>
-              {msg.user_email === loggedInUser.email ? (
-                // 내 메시지 표시: content와 timestamp만 표시
-                <>
-                  <MessageBubble isMine={true}>{msg.content}</MessageBubble>
-                  <MessageTime>{msg.timestamp}</MessageTime>
-                </>
-              ) : (
-                // 다른 사용자의 메시지 표시
-                <>
-                  <MessageBubble isMine={false}>{msg.content}</MessageBubble>
-                  <MessageTime>{msg.timestamp}</MessageTime>
-                </>
+          selectedChannel?.messages.map((msg, index) => (
+            <MessageItem key={`msg-${index}`} isMine={msg.user_email === loggedInUser?.email}>
+              {loggedInUser && msg.user_email !== loggedInUser.email && (
+                <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
               )}
-            </div>
-          </MessageItem>
-          ) : null
-        ))}
+              <MessageBubble isMine={msg.user_email === loggedInUser?.email}>
+                {msg.content}
+              </MessageBubble>
+              <MessageTime>{msg.timestamp}</MessageTime>
+              {/* <MessageTime>{new Date(msg.timestamp).toLocaleTimeString()}</MessageTime> */}
+            </MessageItem>
+          ))
+        ) : (
+          // messages가 null 또는 빈 배열일 경우에만 렌더링
+          <FcCollaboration style={{ fontSize: "300px", margin: "100px auto", display: "block" }} />
+        )}
       </MessageList>
 
-      <InputContainer>
-        <InputField placeholder="메시지 입력" />
-        <InputIcon>
-          <ImAttachment />
-          <ImSmile />
-          <CompassIcon />
-        </InputIcon>
-
-      </InputContainer>
+      {selectedChannel?.rname ? (
+        <InputContainer>
+          <InputField placeholder="메시지 입력" value={currentInput}
+            onChange={(e) => setCurrentInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+          />
+          <InputIcon> <ImAttachment /><ImSmile /><CompassIcon onClick={handleSendMessage} />
+          </InputIcon>
+        </InputContainer>
+      ) : ( <></> )}
 
     </ChatContainer>
   );

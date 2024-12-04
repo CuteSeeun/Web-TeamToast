@@ -9,4 +9,8 @@ interface Channel {
 export const channelAtom = atom<Channel[]>({
   key: 'channelAtom',
   default: [], // 초기값은 빈 배열
+  // default: {
+  //   rid: 1,
+  //   rname: '',
+  // }
 });
