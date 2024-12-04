@@ -1,3 +1,10 @@
+
+import Payment from "./pages/Payment/Payment";
+import Success from "./pages/Payment/Success";
+import Fail from "./pages/Payment/Fail";
+import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
+import CardChangeFail from "./pages/Payment/CardChangeFail";
+
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
@@ -22,6 +29,7 @@ import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
 import { useAuth } from './hooks/useAuth';
 import { useCurrentSpace } from './hooks/spaceId';
+
 
 
 const App: React.FC = () => {
@@ -53,6 +61,11 @@ const App: React.FC = () => {
             <Route path="/profile" element={<Profile/>}/>
             <Route path="/issue/:id" element={<IssueDetail/>}/>
             <Route path="/plan" element={<Plan/>}/>
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/card-change-success" element={<CardChangeSuccess />} />
+            <Route path="/card-change-fail" element={<CardChangeFail />} />
+            <Route path="/success" element={<Success />} />
+            <Route path="/fail" element={<Fail />} />
           </Route>
         </Routes>
       </Router>
