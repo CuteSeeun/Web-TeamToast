@@ -23,7 +23,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const [messages] = yield dbpool_1.default.query(`SELECT mid, content, timestamp, email as user_email, uname as user
          FROM Message m
          JOIN User u ON user_email = email
-         WHERE room_id = ?
+         WHERE rid = ?
          ORDER BY timestamp ASC;`, [rid]);
         console.log('쿼리 결과:', messages);
         res.json(messages);

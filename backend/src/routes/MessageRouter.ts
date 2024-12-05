@@ -16,7 +16,7 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
         `SELECT mid, content, timestamp, email as user_email, uname as user
          FROM Message m
          JOIN User u ON user_email = email
-         WHERE room_id = ?
+         WHERE rid = ?
          ORDER BY timestamp ASC;`,
         [rid]
       );

@@ -1,5 +1,14 @@
 import { io, Socket } from 'socket.io-client';
 
+interface Message {
+  mid: number;       // 메시지 ID (고유값, UUID 사용 권장)
+  rid: number;       // 방 ID
+  content: string;    // 메시지 내용
+  timestamp: string;  // 메시지가 생성된 시간 (ISO 8601 형식)
+  user_email: string; // 보낸 사용자 이메일
+  user: string;  // 보낸 사용자 이름
+};
+
 // 전역 소켓 객체
 let socket: Socket | null = null;
 
@@ -7,6 +16,7 @@ let socket: Socket | null = null;
 export const connectSocket = (): Socket => {
   if (!socket) {
     socket = io('http://localhost:3001'); // 백엔드 URL
+    console.log('야야야야야야야 소켓 연결된다.');
     console.log('Socket connected:', socket.id);
   }
   return socket;
@@ -29,15 +39,15 @@ export const disconnectSocket = () => {
 export const joinRoom = (rid: number) => {
   if (socket) {
     socket.emit('joinRoom', rid);
-    console.log(`Joined room: ${rid}`);
+    console.log(`!!클라이언트가 ${rid}방에 참가함!!`);
   }
 };
 
 // 메시지 보내기
-export const sendMessage = (messageData: { rid: number; user: string; content: string }) => {
+export const sendMessage = (messageData: Message) => { //{ mid: number; content: string; timestamp:string; user: string; user_emial:string;}
   if (socket) {
     socket.emit('sendMessage', messageData);
-    console.log('Message sent:', messageData);
+    console.log('!!특정 사용자가 메시지 보낸걸 받았다!!', messageData);
   }
 };
 
@@ -45,7 +55,7 @@ export const sendMessage = (messageData: { rid: number; user: string; content: s
 export const onMessage = (callback: (message: any) => void) => {
   if (socket) {
     socket.on('newMessage', callback);
-    console.log('Message listener registered');
+    console.log('!!!모든 클라이언트들에게 메시지 보내줄게!!!');
   }
 };
 

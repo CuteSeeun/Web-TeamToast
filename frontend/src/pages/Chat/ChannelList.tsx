@@ -5,7 +5,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'; // Recoil 훅 가져오
 import { userState } from '../../recoil/atoms/userAtoms'; // Recoil atom 가져오기
 import { channelAtom } from '../../recoil/atoms/channelAtoms';
 import { selectedChannelAtom } from '../../recoil/atoms/selectedChannelAtoms';
-
+import { joinRoom } from '../../socketClient';
 
 const ChannelListWrapper = styled.div<{ isOpen: boolean }>`
   height: ${({ isOpen }) => (isOpen ? 'auto' : '0px')};
@@ -49,6 +49,9 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   // 채널 클릭 핸들러
   const handleChannelClick = async (channel: { rid: number; rname: string }) => {
     try {
+      // Socket.IO 방 참여
+      joinRoom(channel.rid);
+
       // 선택된 채널의 메시지 가져오기
       const response = await axios.get('http://localhost:3001/messages', {
         params: { rid: channel.rid },
