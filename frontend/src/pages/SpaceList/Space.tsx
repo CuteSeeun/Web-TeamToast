@@ -59,7 +59,7 @@ const SpaceAll:React.FC = () => {
             await AccessToken.post('/space/select-space',{uuid});
             const selectSpace = spaces.find(space=>space.uuid === uuid);
             if(selectSpace){
-                localStorage.setItem('currentSpaceUuid', uuid)
+                localStorage.setItem('currentSpaceUuid', uuid);
                 localStorage.setItem('userRole',selectSpace.role);
                 // 스토리지 이벤트 강제 발생
                 // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.

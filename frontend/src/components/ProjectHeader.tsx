@@ -6,7 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
-import { Link, useNavigate } from 'react-router-dom';
+
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
 import { IoSettingsOutline } from "react-icons/io5";
@@ -15,10 +16,11 @@ import AccessToken from '../pages/Login/AccessToken';
 import PJheaderBell from './PJheaderBell';
 
 const ProjectHeader = () => {
-
     const user = useRecoilValue(userState);
     const setUser = useSetRecoilState(userState);
+
     const setSpaceId = useSetRecoilState(spaceIdState); // 안쓰지만 일단 넣었음 *
+
     const [userRole,setUserRole] = useState(localStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
    
@@ -30,7 +32,7 @@ const ProjectHeader = () => {
             localStorage.removeItem('currentSpaceUuid');
             localStorage.removeItem('userRole');
             setUserRole(null);
-            window.location.reload();
+            navigate('/');
         }
     }
 
@@ -57,12 +59,12 @@ const ProjectHeader = () => {
         currentSpace();
       }, [setSpaceId]);
 
-      
       useEffect(() => {
         const syncRole = () => {
           const role = localStorage.getItem('userRole');
           setUserRole(role);
         };
+
         // storage 이벤트 감지
         window.addEventListener('storage', syncRole);
         // 초기 로드 시 동기화
@@ -75,7 +77,7 @@ const ProjectHeader = () => {
 
      // 유저롤 권한 체크
      const Admin = userRole === 'normal';
-    
+
      const handleProjectGo = async () => {
         const currentSpaceUuid = localStorage.getItem('currentSpaceUuid');
         if (!currentSpaceUuid) {
@@ -83,7 +85,6 @@ const ProjectHeader = () => {
             navigate('/space');
             return;
         }
-    
         try {
             // uuid로 해당 스페이스의 정보를 가져옴
             const response = await AccessToken.get(`/space/get-space/${currentSpaceUuid}`);
@@ -118,6 +119,7 @@ const ProjectHeader = () => {
                         </div>
                     </nav>
                 </div>
+                
 
                 <div className="rightPro">
 

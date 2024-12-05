@@ -35,23 +35,27 @@ const ProjectList = () => {
 
     const navigate = useNavigate();
 
-    const { uuid } = useParams<{ uuid: string }>();
+    const { sid } = useParams<{ sid: string }>();
+
+  useEffect(()=>{
+    console.log("매번 이펙트 프로젝트 sid",sid);
+  },[])
 
   useEffect(() => {
-    console.log("uuid:", uuid); // useParams에서 가져온 원본 UUID
+    console.log("프로젝트 sid:", sid); // 
 
-    if (!uuid) {
+    if (!sid) {
       console.error("UUID가 없습니다. 스페이스 페이지로 이동합니다.");
       navigate('/space'); // 스페이스 선택 페이지로 리디렉션
         return;
     };
-    SetSpaceId(uuid);
+    SetSpaceId(sid);
     console.log(`spaceId:`, spaceId);
 
     const getProjList = async () => {
         try {
-          console.log("Requesting projects with UUID:", uuid);
-            const response = await AccessToken.get(`/projects/all/${uuid}`);
+          console.log("Requesting projects with UUID:", sid);
+            const response = await AccessToken.get(`/projects/all/${sid}`);
             console.log("Response from API:", response.data);
             setProjects(response.data || []);
         } catch (err) {
@@ -60,7 +64,9 @@ const ProjectList = () => {
     };
 
     getProjList();
-  }, [uuid, navigate]); // spaceId가 변경될 때마다 실행
+
+}, [sid,navigate]); // spaceId가 변경될 때마다 실행
+
 
 
     // 프로젝트 이미지 자동 생성 함수 (입력한 데이터에 따라 자동 생성되며, 같은 값을 입력한다면 이미지가 바뀌지 않음)
@@ -121,7 +127,8 @@ const ProjectList = () => {
       try {
         if (modal.type === 'create') {
             // 생성 API 호출
-            const { data } = await AccessToken.post(`/projects/new/${spaceId}`, {
+
+            const { data } = await AccessToken.post(`/projects/new/${sid}`, {
                 pname: name,
                 description: description,
             });
@@ -131,7 +138,7 @@ const ProjectList = () => {
           setProjects([...projects, data]);
         } else if (modal.type === 'edit' && modal.projectId) {
           // 수정 API 호출
-          const { data } = await AccessToken.put(`/projects/modify/${spaceId}/${modal.projectId}`, {
+          const { data } = await AccessToken.put(`/projects/modify/${sid}/${modal.projectId}`, {
             pname: name,
             description: description
           });
@@ -155,8 +162,7 @@ const ProjectList = () => {
             // 삭제 API 호출
             console.log('삭제:', modal.projectId);
           try {
-            await AccessToken.delete(`/projects/delete/${spaceId}/${modal.projectId}`,{
-             
+            await AccessToken.delete(`/projects/delete/${sid}/${modal.projectId}`,{
             }); // sid 임시로 1로 지정, 수정 필요
 
           // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외
