@@ -2,6 +2,7 @@
 // index.d.ts (임시)
 import { PoolConnection } from 'mysql2/promise';
 
+
 // Express Request 객체 타입 확장
 declare global {
   namespace Express {

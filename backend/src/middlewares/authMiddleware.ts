@@ -9,9 +9,11 @@ interface JwtPayload {
 
 export const checkToken = (req:Request , res:Response, next: NextFunction):void=>{
     const token = req.headers.authorization?.split(' ')[1];
+    console.log("Authorization Header Received:", req.headers.authorization);
+    console.log('Extracted token:', token);
 
     if(!token){
-        res.status(401).json({message:'토큰이 없습니다.'})
+       res.status(401).json({message:'토큰이 없습니다.'})
         return;
     }
 
@@ -25,10 +27,10 @@ export const checkToken = (req:Request , res:Response, next: NextFunction):void=
             uname:decoded.uname,
             email:decoded.email
         }
+        console.log(req.user);
         next();
     } catch (error) {
         console.error('토큰 검증 오류:', error);
-        
         // 구체적인 에러 메시지 제공
         if (error instanceof jwt.JsonWebTokenError) {
             res.status(401).json({ 

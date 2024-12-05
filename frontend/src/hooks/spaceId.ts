@@ -1,57 +1,32 @@
-import { useSetRecoilState } from "recoil";
-import { spaceIdState } from "../recoil/atoms/spaceAtoms";
-import { useEffect } from "react";
-import axios from "axios";
+import { useCallback } from "react";
+import AccessToken from "../pages/Login/AccessToken";
 
 
 export const useCurrentSpace = () => {
-    const setCurrentSpaceId = useSetRecoilState(spaceIdState);
-    
-    
-  useEffect(()=>{
-    const CurrentSpace = async()=>{
-
-      const storedSpaceId = localStorage.getItem("currentSpaceId");
-      if (storedSpaceId) {
-        setCurrentSpaceId(Number(storedSpaceId)); // 로컬 저장소 값으로 초기화
-        return;
-      }
-
-      try {
-        const response = await axios.get("http://localhost:3001/space/current",{
-          headers:{
-            Authorization:`Bearer ${localStorage.getItem('token')}`,
-          }
-        });
-        if(response.data.spaceId){
-          setCurrentSpaceId(response.data.spaceId);
-          localStorage.setItem("currentSpaceId", response.data.spaceId.toString()); 
-          // 로컬 저장소에 저장
-        }
-      } catch (error) {
-        console.error("현재 스페이스 아이디 에러 :",error);
-      }
-    };
-
-    CurrentSpace();
-  },[setCurrentSpaceId]);
-
-  const selectSpace =async(spaceId:number)=>{
+  
+  // 새로고침 시 저장된 스페이스 복구
+  const loadCurrentSpace = useCallback(async () => {
     try {
-      await axios.post(
-        "http://localhost:3001/space/select",
-        {spaceId},
-        {
-          headers:{
-            Authorization:`Bearer ${localStorage.getItem("token")}`,
-          }
-        }
-      );
-      setCurrentSpaceId(spaceId);
-      localStorage.setItem("currentSpaceId", spaceId.toString()); // 로컬 저장소에 저장
+        const response = await AccessToken.get("/space/current-space");
+            // setCurrentSpaceId(response.data.spaceId);
+            localStorage.setItem('currentSpaceUuid', response.data.uuid);
     } catch (error) {
-      console.error("Failed to select space ID:", error);
+        console.error("현재 스페이스 복구 실패:", error);
     }
-  }
-  return { selectSpace };
+}, []);
+// }, [setCurrentSpaceId]);
+
+  
+  // 스페이스 선택 로직
+  const selectSpace = useCallback(async (uuid: string) => {
+    try {
+        await AccessToken.post("/space/select-space", { uuid });
+        localStorage.setItem('currentSpaceUuid', uuid); // 선택한 UUID 저장
+    } catch (error) {
+        console.error("스페이스 선택 실패:", error);
+    }
+}, []);
+
+  return { selectSpace,loadCurrentSpace};
+
 };

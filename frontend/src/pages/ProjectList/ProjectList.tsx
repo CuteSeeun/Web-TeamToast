@@ -1,19 +1,19 @@
 // 2024-11-25 한채경 수정, 11-29 마지막 수정
 // ProjectList.tsx
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProjectListWrap } from './ProjectStyle';
 import { GoPlus } from "react-icons/go";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import ProjectModal from './ProjectModal';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toSvg } from "jdenticon";
-import axios from "axios";
 import { Project } from '../../types/projectTypes';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { projectIdState } from '../../recoil/atoms/projectAtoms';
-import { issueListState } from '../../recoil/atoms/issueAtoms';
+import { issueListState, backlogState, Issue, Type } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as ProjectAlert } from '../../assets/images/proejctAlert.svg';
+import AccessToken from '../Login/AccessToken';
 import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 interface ModalState {
@@ -23,77 +23,44 @@ interface ModalState {
 }
 
 const ProjectList = () => {
-  //현진
-  const spaceId = useRecoilValue(spaceIdState);
-  const setSpaceId = useSetRecoilState(spaceIdState); // Recoil 상태 업데이트용
-
   const [isAdmin] = useState<boolean>(true); // 로그인 여부 스테이트, 실제로는 로그인 상태에서 가져와야 함
   const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지 번호 스테이트
   const itemsPerPage = 10; // 한 페이지에 들어갈 아이템 개수
   const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null }); // 모달창 상태 관련 스테이트
   const [projects, setProjects] = useState<Project[]>([]); // 현재 스페이스 안에 있는 프로젝트 리스트를 저장하는 스테이트
   const setProjectId = useSetRecoilState(projectIdState);
-  const setIssueList = useSetRecoilState(issueListState);
+  const [issues, setIssues] = useRecoilState(issueListState);
+  const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
+  const [spaceId, SetSpaceId] = useRecoilState(spaceIdState);
 
+    const navigate = useNavigate();
 
-  const token = localStorage.getItem('accessToken');
-  if (!token) {
-    console.error('Access Token이 없습니다.');
-  } else {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1])); // JWT의 payload 디코드
-      const now = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
-      if (payload.exp && payload.exp < now) {
-        console.error('Access Token이 만료되었습니다.');
-      };
-    } catch (err) {
-      console.error('Access Token 디코드 오류:', err);
-    };
-  };
+    const { uuid } = useParams<{ uuid: string }>();
 
-  const headers = useMemo(() => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`
-  }), [token]);
-
-   // Space ID 초기화: localStorage에서 가져오기
   useEffect(() => {
-    const storedSpaceId = localStorage.getItem('currentSpaceId');
-    if (storedSpaceId && !spaceId) {
-      setSpaceId(Number(storedSpaceId)); // Recoil 상태 업데이트
-    };
-    // =========
-    if (!spaceId) {
-      setSpaceId(10); // 임시로 추가
-      console.log('임시 스페이스 아이디:', 10);
-    };
-    // =========
-  }, [spaceId, setSpaceId]);
+    console.log("uuid:", uuid); // useParams에서 가져온 원본 UUID
 
-  // 프로젝트 데이터 가져오기
-  useEffect(() => {
-    const getProjList = async () => {
-      if (!spaceId) {
-        console.error("Space ID가 유효하지 않습니다.");
+    if (!uuid) {
+      console.error("UUID가 없습니다. 스페이스 페이지로 이동합니다.");
+      navigate('/space'); // 스페이스 선택 페이지로 리디렉션
         return;
-      };
+    };
+    SetSpaceId(uuid);
+    console.log(`spaceId:`, spaceId);
 
-      try {
-        const response  = await axios.get(`http://localhost:3001/projects/all/${spaceId}`,{headers}); 
-        setProjects(response.data);
-      } catch (err) {
-        console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
-      };
+    const getProjList = async () => {
+        try {
+          console.log("Requesting projects with UUID:", uuid);
+            const response = await AccessToken.get(`/projects/all/${uuid}`);
+            console.log("Response from API:", response.data);
+            setProjects(response.data || []);
+        } catch (err) {
+            console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
+        }
     };
-    if (spaceId) {
-      getProjList();
-    };
-  }, [spaceId, headers]); 
-   
-  // 렌더링 이전에 스페이스 아이디 검증
-   if (!spaceId) {
-    return <p>Space ID가 유효하지 않습니다. 다시 선택해주세요.</p>;;
-  };
+
+    getProjList();
+  }, [uuid, navigate]); // spaceId가 변경될 때마다 실행
 
 
     // 프로젝트 이미지 자동 생성 함수 (입력한 데이터에 따라 자동 생성되며, 같은 값을 입력한다면 이미지가 바뀌지 않음)
@@ -153,22 +120,21 @@ const ProjectList = () => {
     const handleSubmit = async ( name: string, description: string ) => {
       try {
         if (modal.type === 'create') {
-          // 생성 API 호출
-          const { data } = await axios.post(`http://localhost:3001/projects/new/${spaceId}`, {
-            pname: name,
-            description: description
-          }, {headers}
-          );
-          console.log(`생성 완료: ${data.pname}, ${data.description}`);
+            // 생성 API 호출
+            const { data } = await AccessToken.post(`/projects/new/${spaceId}`, {
+                pname: name,
+                description: description,
+            });
+            console.log(`생성 완료: ${data.pname}, ${data.description}`);
 
           // projects 목록 업데이트
           setProjects([...projects, data]);
         } else if (modal.type === 'edit' && modal.projectId) {
           // 수정 API 호출
-          const { data } = await axios.put(`http://localhost:3001/projects/modify/${spaceId}/${modal.projectId}`, {
+          const { data } = await AccessToken.put(`/projects/modify/${spaceId}/${modal.projectId}`, {
             pname: name,
             description: description
-          }, {headers});
+          });
           console.log(`수정 완료: ${data.pname}, ${data.description}`);
 
           // projects 목록 업데이트
@@ -185,11 +151,13 @@ const ProjectList = () => {
 
     // 삭제 모달
     const handleDelete = async () => {
-      if (modal.projectId) {
-        // 삭제 API 호출
-        console.log('삭제:', modal.projectId);
-        try {
-          await axios.delete(`http://localhost:3001/projects/delete/${spaceId}/${modal.projectId}`, {headers});
+        if (modal.projectId) {
+            // 삭제 API 호출
+            console.log('삭제:', modal.projectId);
+          try {
+            await AccessToken.delete(`/projects/delete/${spaceId}/${modal.projectId}`,{
+             
+            }); // sid 임시로 1로 지정, 수정 필요
 
           // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외
           const newProjects = projects.filter(project => project.pid !== modal.projectId);
@@ -244,12 +212,32 @@ const ProjectList = () => {
       };
 
       try {
-        // 이슈 데이터 get 요청
-        const { data } = await axios.get(`http://localhost:3001/issues/all/${spaceId}/${pid}`,{headers});
+        console.log(`spaceId: ${spaceId}`);
+        
+        // 해당 프로젝트 이슈 데이터 get 요청
+        const { data } = await AccessToken.get(`http://localhost:3001/issues/all/${spaceId}/${pid}`);
+        
         if (data) {
-          // issueList에 받아온 이슈 데이터 넣기
-          setIssueList(data);
+          const issuesData = await data.map((issue: any) => {
+            const manager = typeof issue.manager === 'object' && issue.manager !== null ? issue.manager.manager : (issue.manager || '담당자 없음');
+            return {
+              ...issue,
+              type: Type[issue.type as keyof typeof Type] || '작업',
+              manager: manager
+            };
+          });
+          
+          const backlogData: Issue[] = issuesData.filter((issue: Issue) => issue.sprint_id === undefined);
+          setBacklog(backlogData);
+          setIssues(issuesData);
+          console.log(backlogData);
+          console.log(issuesData);
+          
         };
+        // if (data) {
+        //   // issueList에 받아온 이슈 데이터 넣기
+        //   setIssueList(data);
+        // };
       } catch (err) {
         console.error(`이슈를 받아오는 중 에러 발생: ${err}`);
       };
@@ -286,7 +274,7 @@ const ProjectList = () => {
                 {currentItems.map((project) => (
                   <tr key={project.pid}>
                     <td>
-                      <Link to='/activesprint' onClick={(e) => {
+                      <Link to={`/activesprint/${project.pid}`} onClick={(e) => {
                         saveProjectId(project.pid);
                         saveIssuesData(project.pid);
                         }}>

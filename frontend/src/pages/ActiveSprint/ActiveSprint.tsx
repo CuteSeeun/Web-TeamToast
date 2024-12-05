@@ -5,6 +5,9 @@ import Sidebar from '../../components/Sidebar';
 import SBoard from './SBoard';
 import Layout from '../../components/Layout';
 import Header from '../../components/Header';
+import { useParams } from 'react-router-dom';
+
+
 
 const PageContainer = styled.div`
   display: flex;
@@ -18,6 +21,8 @@ const ContentContainer = styled.div`
 `;
 
 const ActiveSprint: React.FC = () => {
+  const { pid } = useParams<{ pid: string }>();
+  
   return (
     <PageContainer>
       <ContentContainer>

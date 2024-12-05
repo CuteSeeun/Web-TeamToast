@@ -4,7 +4,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 
-export const setTemporaryUser = (req: Request, res: Response, next: NextFunction) => {
+export const setTemporaryUser = (req: Request, res: Response, next: NextFunction):void => {
   // 임시 사용자 정보 설정
   req.user = {
     uid: 11,

@@ -16,16 +16,14 @@ const IntroHeader = () => {
         try {
             const accessToken = localStorage.getItem('accessToken');
             if(accessToken){
-                await AccessToken.post('http://localhost:3001/editUser/logout',{},{
-                    headers:{
-                        Authorization:`Bearer ${accessToken}`
-                    }
-                });
+                await AccessToken.post('/editUser/logout',{},{});
             }
             const confirmed = window.confirm('로그아웃 하시겠습니까?');
             if(confirmed){
                 // 토큰 삭제
                 localStorage.removeItem('accessToken');
+                // uuid 삭제
+                localStorage.removeItem('currentSpaceUuid');
                 // 리코일 초기화
                 setUser(null);
                 // 인트로 이동

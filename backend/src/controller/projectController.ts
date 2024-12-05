@@ -1,12 +1,35 @@
 // 2024-11-25 한채경
 // projectController.ts
 
-import { Request, Response, NextFunction } from 'express';
-import { getAllProjectsQuery, getProjectsQuery, getProjectQuery, newProjectQuery, modifyProjectQuery, deleteProjectQuery } from '../models/projectModel.js';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { getAllProjectsQuery, getProjectsQuery, getProjectQuery, newProjectQuery, modifyProjectQuery, deleteProjectQuery, getProjectsByUUIDQuery } from '../models/projectModel.js';
 import { ResultSetHeader } from 'mysql2';
 
 import { Project } from '../types/projectTypes'; // 프로젝트 타입 인터페이스
 import { checkUserInSpace } from '../utils/dbHelpers.js'; // UserRole 테이블에서 리퀘스트를 요청한 user가 sid에 권한이 있는지 확인하기 위한 헬퍼함수
+
+
+
+export const getProjectsByUUID:RequestHandler = async(req,res):Promise<void>=>{
+  const {uuid} = req.params;
+
+  try {
+    // const decodedUUID = decodeURIComponent(uuid);
+
+    const projects = await getProjectsByUUIDQuery(uuid);
+
+    if (!projects || projects.length === 0) {
+       res.status(404).json({ message: '해당 UUID의 프로젝트를 찾을 수 없습니다.' });
+       return;
+  }
+
+  res.status(200).json({ projects });
+
+  } catch (error) {
+    console.error('프로젝트 조회 중 오류:', error);
+    res.status(500).json({ message: '서버 오류로 인해 프로젝트를 조회할 수 없습니다.' });
+  }
+}
 
 
 // 모든 프로젝트 가져오기 (admin)

@@ -1,13 +1,13 @@
 import { CreateIssueModalWrap, PreviewContainer } from "../styles/CreateIssueModal";
 import { useRecoilValue } from "recoil";
-import React, { useEffect, useMemo, useState } from "react";
-import { Issue } from "../types/issueTypes";
+import React, { useEffect, useState } from "react";
+import { Issue, Type, Status, Priority } from '../recoil/atoms/issueAtoms';
 import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
+import AccessToken from '../pages/Login/AccessToken';
 
 import { spaceIdState } from "../recoil/atoms/spaceAtoms";
 import { projectIdState } from "../recoil/atoms/projectAtoms";
 import { sprintState } from "../recoil/atoms/sprintAtoms";
-import axios from "axios";
 
 interface IssueModalProps {
   isOpen: boolean;
@@ -24,24 +24,6 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
   const [previews, setPreviews] = useState<string[]>([]);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const token = localStorage.getItem('accessToken');
-  // if (!token) {
-  //   console.error('Access Token이 없습니다.');
-  // } else {
-  //   try {
-  //     const payload = JSON.parse(atob(token.split('.')[1])); // JWT의 payload 디코드
-  //     const now = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
-  //     if (payload.exp && payload.exp < now) {
-  //       console.error('Access Token이 만료되었습니다.');
-  //     };
-  //   } catch (err) {
-  //     console.error('Access Token 디코드 오류:', err);
-  //   };
-  // };
-  const headers = useMemo(() => ({
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`
-  }), [token]);
 
   useEffect(() => {
     const fetchProjectName = async () => {
@@ -55,7 +37,7 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
       };
 
       try {
-        const { data } = await axios.get(`http://localhost:3001/projects/${spaceId}/${projectId}`, {headers});
+        const { data } = await AccessToken.get(`http://localhost:3001/projects/${spaceId}/${projectId}`);
 
         if (data && data.length > 0) {
           setProjectName(data[0].pname); // pname 가져오기
@@ -73,20 +55,20 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     if (spaceId) {
       fetchProjectName();
     }
-  }, [spaceId, projectId, headers]);
+  }, [spaceId, projectId]);
 
   // 객체 기반 issue 스테이트 작성 (임시)
   const [issue, setIssue] = useState<Issue>({
     title: '',
     detail: '',
-    type: 'process',
-    status: 'backlog',
+    type: Type.process,
+    status: Status.Backlog,
     sprint_id: null,
     project_id: projectId,
     manager: null,
     created_by: null,
     file: null,
-    priority: 'normal',
+    priority: Priority.normal,
   });
   
   // 파일 선택 핸들러
@@ -128,14 +110,14 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     setIssue({
       title: '',
       detail: '',
-      type: 'process',
-      status: 'backlog',
+      type: Type.process,
+      status: Status.Backlog,
       sprint_id: null,
       project_id: projectId,
       manager: null,
       created_by: null,
       file: null,
-      priority: 'normal',
+      priority: Priority.normal,
     });
     setSelectedFiles([]);
     setPreviews([]); // 미리보기 초기화
@@ -201,8 +183,8 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
                   value={issue.type}
                   onChange={(e) => handleValueChange('type', e.target.value)}
                 >
-                  <option value="process">작업</option>
-                  <option value="bug">버그</option>
+                  <option value={Type.process}>작업</option>
+                  <option value={Type.bug}>버그</option>
                 </select>
                 <IoChevronDownOutline className="downIcon" />
               </div>
@@ -216,10 +198,10 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
                   value={issue.status}
                   onChange={(e) => handleValueChange('status', e.target.value)}
                 >
-                  <option value="backlog">백로그</option>
-                  <option value="working">작업중</option>
-                  <option value="dev">개발완료</option>
-                  <option value="QA">QA완료</option>
+                  <option value={Status.Backlog}>백로그</option>
+                  <option value={Status.Working}>작업중</option>
+                  <option value={Status.Dev}>개발완료</option>
+                  <option value={Status.QA}>QA완료</option>
                 </select>
                 <IoChevronDownOutline className="downIcon" />
               </div>
@@ -232,9 +214,9 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
                   value={issue.priority}
                   onChange={(e) => handleValueChange('priority', e.target.value)}
                 >
-                  <option value="high">높음</option>
-                  <option value="normal">보통</option>
-                  <option value="low">낮음</option>
+                  <option value={Priority.high}>높음</option>
+                  <option value={Priority.normal}>보통</option>
+                  <option value={Priority.low}>낮음</option>
                 </select>
                 <IoChevronDownOutline className="downIcon" />
               </div>

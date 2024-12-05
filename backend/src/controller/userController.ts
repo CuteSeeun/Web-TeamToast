@@ -65,7 +65,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       [useremail]
     );
 
-    console.log('Query result:', rows);  
+    console.log('Query result:', rows[0]);  
 
     if (rows.length === 0) {
       res.status(401).json({ message: '사용자 없음' });
@@ -83,19 +83,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // 더미용 나중에 삭제 ----------------------------------------------------
-    // 더미데이터용 직접 비교
-    // const isPw = userpw === user.passwd;
-    // console.log('Password check:', isPw);
-
-    // if (!isPw) {
-    //   res.status(401).json({ message: '비밀번호 틀림' });
-    //   return;
-    // }
-    // ----------------------------------------------------------------------------
-
     const accessToken = jwt.sign(
-      { uid: user.uid, uname: user.uname , email:user.email },
+      { uid: user.uid,
+        uname: user.uname,
+        email:user.email 
+      },
       'accessSecretKey',
       { expiresIn: '15m' }
     );

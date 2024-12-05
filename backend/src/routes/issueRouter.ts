@@ -10,8 +10,8 @@ import { checkToken } from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
 // 임시 유저 정보, 로그인 구현 시 아래 주석 풀고 위 삭제
-router.use(setTemporaryUser);
-// router.use(checkToken);
+// router.use(setTemporaryUser);
+router.use(checkToken);
 
 router.get('/all/:sid/:pid', validatePid, getIssues);
 router.post('/new/:sid/:pid', validatePid, newIssue);

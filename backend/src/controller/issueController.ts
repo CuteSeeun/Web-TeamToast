@@ -63,6 +63,16 @@ export const newIssue = async (req: Request, res: Response) => {
     return;
   };
 
+  const validStatus = ['백로그', '작업중', '개발완료', 'QA완료'];
+  const validType = ['작업', '버그'];
+  const validPriority = ['높음', '보통', '낮음'];
+  const { type, status, priority } = req.body;
+
+  if (!validStatus.includes(status) || !validType.includes(type) || !validPriority.includes(priority)) {
+    res.status(400).json({ error: '유효하지 않은 값이 포함되어 있습니다.' });
+    return;
+  };
+
   try {
     // 프로젝트 존재 여부 확인
     const projectExists = await checkProjectExists(pid);
@@ -103,7 +113,6 @@ export const newIssue = async (req: Request, res: Response) => {
       res.status(403).json({ message: `${createdByEmail}는 스페이스 접근 권한이 없습니다.` });
       return;
     };
-
     const issue: Issue = {
       title: req.body.title,
       detail: req.body.detail || null,

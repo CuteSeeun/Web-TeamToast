@@ -2,6 +2,7 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
 import { Link } from 'react-router-dom';
+import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 const Intro = () => {
 

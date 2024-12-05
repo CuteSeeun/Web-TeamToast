@@ -6,12 +6,13 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
 import { CreateIssueModal } from './CreateIssueModal';
-import { Issue } from '../types/issueTypes';
+// import { Issue } from '../types/issueTypes';
 import axios from 'axios';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { projectIdState } from '../recoil/atoms/projectAtoms';
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
-import { issueListState } from '../recoil/atoms/issueAtoms';
+import { issueListState, backlogState, Issue, Type } from '../recoil/atoms/issueAtoms';
+import AccessToken from '../pages/Login/AccessToken';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -93,47 +94,12 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
   const spaceId = useRecoilValue(spaceIdState);
   const projectId = useRecoilValue(projectIdState);
-  const [issueList, setIssueList] = useRecoilState(issueListState);
-
-  // 백엔드로 보낼 Issue 인터페이스 형식
-  interface IssueForBackend extends Omit<Issue, 'status' | 'type' | 'priority'> {
-    status: string; // 한글
-    type: string; // 한글
-    priority: string; // 한글
-  }
-
-  // status 한글로 변환
-  const statusMap: Record<string, string> = {
-    backlog: '백로그',
-    working: '작업중',
-    dev: '개발완료',
-    QA: 'QA완료',
-  };
-
-  // type 한글로 변환
-  const typeMap: Record<string, string> = {
-    process: '작업',
-    bug: '버그',
-  };
-
-  // priority 한글로 변환
-  const priorityMap: Record<string, string> = {
-    high: '높음',
-    normal: '보통',
-    low: '낮음',
-  };
-
-  const transformIssueForDatabase = (issue: Issue): IssueForBackend => ({
-    ...issue,
-    status: statusMap[issue.status] as '백로그' | '작업중' | '개발완료' | 'QA완료',
-    type: typeMap[issue.type] as '작업' | '버그',
-    priority: priorityMap[issue.priority] as '높음' | '보통' | '낮음',
-  });
-
+  const [issues, setIssues] = useRecoilState(issueListState);
+  const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
 
   
   const openModal = () => {
-    console.log(issueList);
+    console.log(issues);
     setIsOpen(true);
   };
   const closeModal = () => {
@@ -141,25 +107,7 @@ const Sidebar: React.FC = () => {
   };
 
   // 자식 컴포넌트에서 props를 받아 서버에 데이터 전송
-  const handleSubmit = async (issue: Issue, files: File[]) => {  
-    // const token = localStorage.getItem('accessToken');
-    // if (!token) {
-    //   console.error('Access Token이 없습니다.');
-    // } else {
-    //   try {
-    //     const payload = JSON.parse(atob(token.split('.')[1])); // JWT의 payload 디코드
-    //     const now = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
-    //     if (payload.exp && payload.exp < now) {
-    //       console.error('Access Token이 만료되었습니다.');
-    //     };
-    //   } catch (err) {
-    //     console.error('Access Token 디코드 오류:', err);
-    //   };
-    // };
-    const headers = {
-      Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-    };
-
+  const handleSubmit = async (issue: Issue, files: File[]) => {
     try {
       // 1. 파일 업로드
       let uploadedFileNames: string[] = [];
@@ -167,9 +115,8 @@ const Sidebar: React.FC = () => {
         const formData = new FormData();
         files.forEach((file) => formData.append('files', file));
   
-        const uploadResponse = await axios.post('http://localhost:3001/upload/upload', formData, {
+        const uploadResponse = await AccessToken.post('http://localhost:3001/upload/upload', formData, {
           headers: {
-            ...headers,
             'Content-Type': 'multipart/form-data',
           },
         });
@@ -179,23 +126,59 @@ const Sidebar: React.FC = () => {
       }
   
       // 2. 이슈 데이터 전송
-      const sid = spaceId || 1; // 임시로 sid 지정
+      const sid = spaceId; // 임시로 sid 지정
       if (!spaceId || projectId === 0) {
         console.error('유효하지 않은 Space ID 또는 Project ID');
         return;
-      }
+      };
   
-      const issueForBackend = transformIssueForDatabase({ ...issue, file: uploadedFileNames });
-      const issueResponse = await axios.post(
+      const issueForBackend: Issue = {
+        ...issue,
+        file: uploadedFileNames,
+      };
+      const { data } = await AccessToken.post(
         `http://localhost:3001/issues/new/${sid}/${projectId}`,
-        issueForBackend,
-        { headers }
-      );
+        issueForBackend);
+        
+        if (data) {
+          const issuesData: Issue = {
+            ...data,
+            manager:
+              typeof data.manager === "object" && data.manager !== null
+                ? data.manager.manager
+                : data.manager || "담당자 없음",
+            type: Type[data.type as keyof typeof Type] || "작업",
+          };
+        
+          console.log("원본 데이터:", data);
+          console.log("수정된 데이터:", issuesData);
+        
+          const sprintId = issuesData.sprint_id;
+        
+          if (sprintId === 0 || sprintId === null || sprintId === undefined) {
+            // Backlog로 추가
+            setBacklog((prevBacklog) => [...prevBacklog, issuesData]);
+          } else {
+            // Issues로 추가
+            setIssues((prevIssues) => {
+              const updatedSprintIssues = prevIssues[sprintId]
+                ? [...prevIssues[sprintId], issuesData]
+                : [issuesData];
+        
+              return {
+                ...prevIssues,
+                [sprintId]: updatedSprintIssues,
+              };
+            });
+          }
+        }
 
-      console.log('이슈 생성 성공:', issueResponse.data);
-      // issueList에 생성한 issue 업데이트 필요
-      
-    } catch (err ) {
+        console.log(`issues: ${issues}`);
+        console.log(`backlog: ${backlog}`);
+        
+        
+
+    } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response) {
           console.error('서버 응답 오류:', err.response.data); // 서버에서 보낸 메시지

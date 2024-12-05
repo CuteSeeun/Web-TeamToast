@@ -4,6 +4,7 @@
 import { executeQuery } from '../utils/dbUtils';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { Project } from '../types/projectTypes'; // 프로젝트 타입 인터페이스
+import pool from '../config/dbpool'; // 데이터베이스 연결
 
 // 모든 프로젝트 가져오기
 export const getAllProjectsQuery = async () => {
@@ -78,4 +79,25 @@ export const deleteProjectQuery = async (pid: number) => {
     const [result] = await connection.query<ResultSetHeader>(query, [pid]);
     return result;
   });
+};
+
+
+export const getProjectsByUUIDQuery = async (uuid: string) => {
+  const connection = await pool.getConnection();
+
+  try {
+      const [rows]: any = await connection.query(
+        `
+        SELECT p.* 
+        FROM Project p
+        JOIN Space s ON p.space_id = s.sid
+        WHERE s.uuid = ?
+        `, // space_id와 uuid를 조인하여 프로젝트 검색
+        [uuid]
+      );
+      console.log('Fetched projects:', rows);
+      return rows;
+  } finally {
+      connection.release();
+  }
 };
