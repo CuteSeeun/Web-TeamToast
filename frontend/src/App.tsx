@@ -24,11 +24,11 @@ import SpaceAll from './pages/SpaceList/Space';
 import ProjectList from './pages/ProjectList/ProjectList';
 import OAuthCallback from './pages/Login/KakaoLogin';
 import TeamManagement from "./pages/TeamList/TeamManagement";
-// import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
 import { useAuth } from './hooks/useAuth';
+
 
 const App: React.FC = () => {
   useAuth(); // 로그인 상태 관리 
@@ -47,8 +47,8 @@ const App: React.FC = () => {
             <Route path="/space" element={<SpaceAll/>}/>
             <Route path="/projectlist/:uuid" element={<ProjectList/>}/>
             <Route path="/oauth" element={<OAuthCallback/>}/>
-            <Route path="/team" element={<TeamMa/>}/>
-            <Route path="/activesprint" element={<ActiveSprint/>}/>
+            <Route path="/team" element={<TeamManagement />} /> 
+            <Route path="/activesprint/:pid" element={<ActiveSprint/>}/>
             <Route path="/dashboard" element={<Dashboard/>}/>
             <Route path="/backlog" element={<Backlog/>}/>
             <Route path="/issuelist" element={<IssueList/>}/>

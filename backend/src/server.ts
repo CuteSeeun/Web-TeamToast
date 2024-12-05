@@ -2,20 +2,22 @@
 // server.ts
 import express, { Application } from 'express';
 import cors from 'cors';
-import sprintRouter from "./routes/sprintRouter";
-
 import path from "path";
 import pool from "./config/dbpool";
+
 import billingRouter from "./routes/billingRouter"; //빌링키 발급 api 요청
 import subscriptionRouter from "./routes/subscriptionRouter"; //빌링키 발급 api 요청
-import { scheduledRecurringPayments } from "./scheduledPayment";
+import sprintRouter from "./routes/sprintRouter";
 import teamRouter from "./routes/teamRouter"
 import projectRouter from './routes/projectRouter';
 import issueRouter from './routes/issueRouter';
 import userRouter from './routes/userRouter';
 import spaceRouter from './routes/spaceRouter';
+import uploadRouter from './routes/uploadRouter';
 
+import { scheduledRecurringPayments } from "./scheduledPayment";
 
+// 2024-11-28 조하영
 import SissueRouter from './routes/SissueRouter';
 import singleIssueRouter from './routes/BIssueRouter';
 import BuserRouter from './routes/BuserRouter';
@@ -56,8 +58,9 @@ app.use('/user', BuserRouter);
 
 app.use('/projects', projectRouter);
 app.use('/issues', issueRouter);
-app.use('/editUser', userRouter); // 로그인 회원가입 
-app.use('/space', spaceRouter);
+app.use('/upload', uploadRouter);
+app.use('/editUser',userRouter); // 로그인 회원가입 
+app.use('/space',spaceRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
