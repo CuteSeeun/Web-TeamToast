@@ -45,7 +45,7 @@ export const useAuth = () =>{
                   email: response.data.user.email,
                   isLoggedIn: true,
                   token: localStorage.getItem('accessToken') || undefined,
-                  role: 'member'
+                  // role: 'member'
                 });
               } 
             } catch (error) {

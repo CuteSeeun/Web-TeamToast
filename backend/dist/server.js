@@ -6,12 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // server.ts
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
-const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
-const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
-const userRouter_1 = __importDefault(require("./routes/userRouter"));
-const spaceRouter_1 = __importDefault(require("./routes/spaceRouter"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const billingRouter_1 = __importDefault(require("./routes/billingRouter")); //빌링키 발급 api 요청
@@ -22,8 +17,6 @@ const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
 const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
 const spaceRouter_1 = __importDefault(require("./routes/spaceRouter"));
-// 2024-11-28 조하영
-const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 const SissueRouter_1 = __importDefault(require("./routes/SissueRouter"));
 const BIssueRouter_1 = __importDefault(require("./routes/BIssueRouter"));
 const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));

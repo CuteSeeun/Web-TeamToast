@@ -1,10 +1,3 @@
-
-import Payment from "./pages/Payment/Payment";
-import Success from "./pages/Payment/Success";
-import Fail from "./pages/Payment/Fail";
-import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
-import CardChangeFail from "./pages/Payment/CardChangeFail";
-
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
@@ -23,10 +16,15 @@ import SpaceAll from './pages/SpaceList/Space';
 import ProjectList from './pages/ProjectList/ProjectList';
 import OAuthCallback from './pages/Login/KakaoLogin';
 import TeamMa from './pages/TeamList/TeamList';
-// import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
+import Payment from "./pages/Payment/Payment";
+import Success from "./pages/Payment/Success";
+import Fail from "./pages/Payment/Fail";
+import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
+import CardChangeFail from "./pages/Payment/CardChangeFail";
+
 import { useAuth } from './hooks/useAuth';
 
 const App: React.FC = () => {
@@ -44,7 +42,7 @@ const App: React.FC = () => {
             <Route path="/join" element={<Join/>}/>
             <Route path="/rate" element={<RatePlan/>}/>
             <Route path="/space" element={<SpaceAll/>}/>
-            <Route path="/projectlist/:uuid" element={<ProjectList/>}/>
+            <Route path="/projectlist/:sid" element={<ProjectList/>}/>
             <Route path="/oauth" element={<OAuthCallback/>}/>
             <Route path="/team" element={<TeamMa/>}/>
             <Route path="/activesprint" element={<ActiveSprint/>}/>
@@ -57,7 +55,6 @@ const App: React.FC = () => {
             <Route path="/profile" element={<Profile/>}/>
             <Route path="/issue/:id" element={<IssueDetail/>}/>
             <Route path="/plan" element={<Plan/>}/>
-            {/* <Route path="/payment" element={<Payment />} /> */}
             <Route path="/card-change-success" element={<CardChangeSuccess />} />
             <Route path="/card-change-fail" element={<CardChangeFail />} />
             <Route path="/success" element={<Success />} />

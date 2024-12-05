@@ -34,13 +34,17 @@ const ProjectList = () => {
 
     const navigate = useNavigate();
 
-    const { uuid } = useParams<{ uuid: string }>();
+    const { sid } = useParams<{ sid: string }>();
+
+  useEffect(()=>{
+    console.log("매번 이펙트 프로젝트 sid",sid);
+  },[])
 
   useEffect(() => {
 
-    console.log("uuid:", uuid); // useParams에서 가져온 원본 UUID
+    console.log("프로젝트 sid:", sid); // 
 
-    if (!uuid) {
+    if (!sid) {
       console.error("UUID가 없습니다. 스페이스 페이지로 이동합니다.");
       navigate('/space'); // 스페이스 선택 페이지로 리디렉션
         return;
@@ -49,8 +53,8 @@ const ProjectList = () => {
 
     const getProjList = async () => {
         try {
-          console.log("Requesting projects with UUID:", uuid);
-            const response = await AccessToken.get(`/projects/all/${uuid}`);
+          console.log("Requesting projects with UUID:", sid);
+            const response = await AccessToken.get(`/projects/all/${sid}`);
             console.log("Response from API:", response.data);
             await setProjects(response.data || []);
         } catch (err) {
@@ -59,7 +63,7 @@ const ProjectList = () => {
     };
 
     getProjList();
-}, [uuid,navigate]); // spaceId가 변경될 때마다 실행
+}, [sid,navigate]); // spaceId가 변경될 때마다 실행
 
 
   // 프로젝트 데이터 가져오기
@@ -152,7 +156,7 @@ const ProjectList = () => {
       try {
         if (modal.type === 'create') {
             // 생성 API 호출
-            const { data } = await AccessToken.post(`/projects/new/${uuid}`, {
+            const { data } = await AccessToken.post(`/projects/new/${sid}`, {
                 pname: name,
                 description: description,
             });
@@ -162,7 +166,7 @@ const ProjectList = () => {
             setProjects([...projects, data]);
         } else if (modal.type === 'edit' && modal.projectId) {
           // 수정 API 호출
-          const { data } = await AccessToken.put(`/projects/modify/${uuid}/${modal.projectId}`, {
+          const { data } = await AccessToken.put(`/projects/modify/${sid}/${modal.projectId}`, {
             pname: name,
             description: description,
           });
@@ -186,7 +190,7 @@ const ProjectList = () => {
             // 삭제 API 호출
             console.log('삭제:', modal.projectId);
           try {
-            await AccessToken.delete(`/projects/delete/${uuid}/${modal.projectId}`,{
+            await AccessToken.delete(`/projects/delete/${sid}/${modal.projectId}`,{
              
             }); // sid 임시로 1로 지정, 수정 필요
 

@@ -6,27 +6,21 @@ import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
-import { IoSettingsOutline ,IoChevronDownOutline } from "react-icons/io5";
-import { GoBell } from "react-icons/go";
+import { IoSettingsOutline } from "react-icons/io5";
 import ProjectInvite from './InviteModal';
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
-import axios from 'axios';
 import AccessToken from '../pages/Login/AccessToken';
-import { Project } from '../types/projectTypes';
 import PJheaderBell from './PJheaderBell';
 
 const ProjectHeader = () => {
-
     const user = useRecoilValue(userState);
-    const space = useRecoilValue(spaceIdState); // 프로젝트 눌렀을때 해당 스페이스의 아이디에 있는 프로젝트출력
-
     const setUser = useSetRecoilState(userState);
     const setSpaceId = useSetRecoilState(spaceIdState);
-    const [projects, setProjects] = useState<Project[]>([]); // 현재 스페이스 안에 있는 프로젝트 리스트를 저장하는 스테이트
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [userRole,setUserRole] = useState(localStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
    
     const logoutGo = () =>{
@@ -35,8 +29,9 @@ const ProjectHeader = () => {
             setUser(null);
             localStorage.removeItem('accessToken');
             localStorage.removeItem('currentSpaceUuid');
+            localStorage.removeItem('userRole');
+            setUserRole(null);
             navigate('/');
-            window.location.reload();
         }
     }
 
@@ -63,31 +58,37 @@ const ProjectHeader = () => {
         currentSpace();
       }, [setSpaceId]);
 
-
-     // 관리자 권한 체크 함수
-     const isAdmin = user?.role === 'admin';  // 또는 user?.role === 'ADMIN' 등 실제 데이터 구조에 맞게
+      useEffect(() => {
+        const syncRole = () => {
+          const role = localStorage.getItem('userRole');
+          setUserRole(role);
+        };
     
+        // storage 이벤트 감지
+        window.addEventListener('storage', syncRole);
+    
+        // 초기 로드 시 동기화
+        syncRole();
+    
+        return () => {
+          window.removeEventListener('storage', syncRole);
+        };
+      }, []);
+
+
      // 권한 없을 때 처리하는 함수
-     const handleUnauthorizedAccess = (e: React.MouseEvent) => {
-         e.preventDefault();
-         alert('스페이스 관리는 관리자만 접근할 수 있습니다.');
-     };
-     
+     const Admin = userRole === 'normal';
 
      const handleProjectGo = async () => {
-        
         const currentSpaceUuid = localStorage.getItem('currentSpaceUuid');
-
         if (!currentSpaceUuid) {
             console.error('현재 선택된 스페이스가 없습니다.');
             navigate('/space');
             return;
         }
-    
         try {
             // uuid로 해당 스페이스의 정보를 가져옴
             const response = await AccessToken.get(`/space/get-space/${currentSpaceUuid}`);
-            
             if (response.data && response.data.spaceId) {
                 // spaceId를 이용해서 프로젝트 리스트 페이지로 이동
                 navigate(`/projectlist/${response.data.spaceId}`);
@@ -111,20 +112,26 @@ const ProjectHeader = () => {
                             <span className="menu-text" onClick={handleProjectGo}>프로젝트</span>
                         </div>
                         <div className="menu-wrap">
-                            <span className="menu-text"><span className='text-with-rigth-icon'>팀</span><IoChevronDownOutline /></span>
-                            <ul className="sub-menu">
-                                <li onClick={() => setIsInviteModalOpen(true)}>사용자 초대</li>
+                            <span className="menu-text">
+                            <Link to='/team'>
+                            <span className='text-with-rigth-icon'>팀</span>
+                            </Link>
+                            </span>
+                            {/* <ul className="sub-menu">
                                 <Link to='/team'><li>사용자 목록</li></Link>
-                                <Link to='/payment'>
-                                <li>결제</li>
-                                </Link>
-                            </ul>
+                            </ul> */}
+                                {/* <Link to='/payment'><li>결제</li></Link> */}
                         </div>
                     </nav>
                 </div>
+                
 
-                {/* <div className="rightPro" style={{display:"flex", alignItems:"center"}}> */}
                 <div className="rightPro">
+
+                <div className="Subscription">
+                  <span onClick={()=> navigate('/payment')}>구독 관리</span>
+                </div>
+
                     <div className="notification-icon">
                     <PJheaderBell/>
                         <span className="notification-badge"></span>
@@ -133,24 +140,35 @@ const ProjectHeader = () => {
                     <div className="menu-wrap">
                         <IoSettingsOutline className='icon-wrap' style={{cursor:'pointer'}} />
                         <ul className="sub-menu">
-                        {/* {isAdmin ? (
-                                <Link to='/spaceedit'>
+                        {!Admin ? (
+                               <li onClick={(e) => {
+                                e.preventDefault();
+                                const currentRole = localStorage.getItem('userRole');
+                                if(currentRole === 'normal') {
+                                    alert('관리자만 접근할 수 있습니다.');
+                                    return;
+                                }
+                                navigate('/spacemanagement');
+                            }}>
+                                스페이스관리
+                            </li>
+                        ) : (
+                            <li 
+                                style={{ 
+                                    color: '#999',
+                                    cursor: 'not-allowed'
+                                }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    alert('관리자만 접근할 수 있습니다.');
+                                }}
+                            >
+                                스페이스관리
+                            </li>
+                        )}
+                                {/* <Link to='/spacemanagement'>
                                     <li>스페이스관리</li>
-                                </Link>
-                            ) : (
-                                <li 
-                                    onClick={handleUnauthorizedAccess}
-                                    style={{ 
-                                        color: '#999',
-                                        cursor: 'not-allowed'
-                                    }}
-                                >
-                                    스페이스관리
-                                </li>
-                            )} */}
-                                <Link to='/spacemanagement'>
-                                    <li>스페이스관리</li>
-                                </Link>
+                                </Link> */}
                             
                         </ul>
                     </div>
