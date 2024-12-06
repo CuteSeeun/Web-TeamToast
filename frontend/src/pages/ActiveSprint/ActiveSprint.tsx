@@ -3,8 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Sidebar from '../../components/Sidebar';
 import SBoard from './SBoard';
-import Layout from '../../components/Layout';
-import Header from '../../components/Header';
+// import Header from '../../components/Header';
 
 const PageContainer = styled.div`
   display: flex;
@@ -26,11 +25,6 @@ const ActiveSprint: React.FC = () => {
       </ContentContainer>
     </PageContainer>
   );
-  // return (
-  //   <Layout>
-  //     <Board />
-  //   </Layout>
-  // );
 };
 
 export default ActiveSprint;

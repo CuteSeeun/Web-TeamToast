@@ -1,3 +1,4 @@
+
 import { atom, selector } from 'recoil';
 
 // 이슈 상태를 객체로 관리
@@ -17,24 +18,25 @@ export const allIssuesState = atom<Issue[]>({
   default: [],
 });
 
+
 export interface Issue {
   isid: number;
   title: string;
-  detail?: string | null;
-  type: Type;
-  status: Status;
+  detail: string;
+  type: string;
+  status: string;
+  priority: string;
+  manager: string;
   sprint_id: number | null;
   project_id: number;
-  manager?: string | null;
-  created_by?: string | null;
-  file?: string | null;
-  priority: Priority;
+  created_by: string;
+  file: string | null;
 }
 
 // Status ENUM 속성 지정
 export enum Status {
   Backlog = '백로그',
-  Working = '작업중',
+  Working = ' 작업중',
   Dev = '개발완료',
   QA = 'QA완료',
 }
@@ -61,3 +63,4 @@ export const allIssuesSelector = selector({
     return issueList;
   }
 });
+

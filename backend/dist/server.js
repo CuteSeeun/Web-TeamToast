@@ -7,6 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // server.ts
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
+const dbpool_1 = __importDefault(require("./config/dbpool"));
+require("dotenv").config();
+const http_1 = require("http"); // HTTP 서버 생성
+const socketServer_1 = require("./socketServer"); // 분리된 Socket.IO 코드 import
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
@@ -17,12 +22,16 @@ const teamRouter_1 = __importDefault(require("./routes/teamRouter"));
 const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
 const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
+const ChannelListRouter_1 = __importDefault(require("./routes/ChannelListRouter"));
 const spaceRouter_1 = __importDefault(require("./routes/spaceRouter"));
 const SissueRouter_1 = __importDefault(require("./routes/SissueRouter"));
 const BIssueRouter_1 = __importDefault(require("./routes/BIssueRouter"));
 const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
 // 미들웨어 설정
+const MessageRouter_1 = __importDefault(require("./routes/MessageRouter"));
+
 const app = (0, express_1.default)();
+// Middleware
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 // 정적 파일 서빙 설정
@@ -39,12 +48,21 @@ app.use('/sprint', sprintRouter_1.default); //스프린트 관련 CRUD
 app.use('/issue', SissueRouter_1.default); // 올바른 라우트 설정
 app.use('/sissue', BIssueRouter_1.default); // 올바른 라우트 설정
 app.use('/user', BuserRouter_1.default);
+
 app.use('/projects', projectRouter_1.default);
 app.use('/issues', issueRouter_1.default);
 app.use('/editUser', userRouter_1.default); // 로그인 회원가입 
+app.use('/channel', ChannelListRouter_1.default);
 app.use('/space', spaceRouter_1.default);
+
+app.use('/messages', MessageRouter_1.default);
+// HTTP 서버 생성
+const httpServer = (0, http_1.createServer)(app);
+// Socket.IO 초기화
+(0, socketServer_1.initSocket)(httpServer);
+
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
 dbpool_1.default.getConnection()

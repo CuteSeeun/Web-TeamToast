@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { AddSprint, BoardContainer, BoardHeader, BoardTitle, Breadcrumb, Filters, Div, StyledSprintBox, SprintHeader, SprintName, IssueTable } from './backlogstyle';
@@ -41,7 +42,6 @@ const BBoard: React.FC = () => {
     const onDrop = async (issue: Issue, newSprintId: number | null) => {
         try {
             await axios.put(`/issue/${issue.isid}`, { sprint_id: newSprintId });
-
             const updatedIssues = allIssues.map((i) => {
                 if (i.isid === issue.isid) {
                     return { ...i, sprint_id: newSprintId };
@@ -164,6 +164,7 @@ const BBoard: React.FC = () => {
                     </StyledSprintBox>
                 </>
             )}
+
         </BoardContainer>
     );
 };

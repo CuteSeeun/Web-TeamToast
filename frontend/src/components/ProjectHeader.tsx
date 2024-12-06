@@ -18,6 +18,7 @@ import AccessToken from '../pages/Login/AccessToken';
 import { Project } from '../types/projectTypes';
 import PJheaderBell from './PJheaderBell';
 
+
 const ProjectHeader = () => {
 
     const user = useRecoilValue(userState);
@@ -29,9 +30,31 @@ const ProjectHeader = () => {
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const navigate = useNavigate();
    
-    const logoutGo = () =>{
-        const confirmed = window.confirm('로그아웃 하시겠습니까?');
-        if(confirmed){
+    const logoutGo = async() =>{
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+            if(accessToken){
+                await AccessToken.post('http://localhost:3001/editUser/logout',{},{
+                    headers:{
+                        Authorization:`Bearer ${accessToken}`
+                    }
+                });
+            }
+            const confirmed = window.confirm('로그아웃 하시겠습니까?');
+            if(confirmed){
+                // 토큰 삭제
+                localStorage.removeItem('accessToken');
+                // 리코일 초기화
+                setUser(null);
+                // 인트로 이동
+                navigate('/');
+                // 새로고침
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('로그아웃 중 에러 발생:', error);
+            // 에러가 발생하더라도 로컬의 데이터는 삭제
+            localStorage.removeItem('accessToken');
             setUser(null);
             localStorage.removeItem('accessToken');
             localStorage.removeItem('currentSpaceUuid');

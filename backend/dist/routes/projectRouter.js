@@ -26,4 +26,5 @@ router.post('/new/:sid', authMiddleware_js_1.checkToken, checkProjectInputs_js_1
 router.put('/modify/:sid/:pid', authMiddleware_js_1.checkToken, checkProjectInputs_js_1.validateProjectFields, idMiddleware_js_1.validateSid, idMiddleware_js_1.validatePid, projectController_1.modifyProject);
 router.delete('/delete/:sid/:pid', authMiddleware_js_1.checkToken, idMiddleware_js_1.validatePid, projectController_1.deleteProject);
 router.get('/projects/:uuid', authMiddleware_js_1.checkToken, projectController_1.getProjectsByUUID);
+
 exports.default = router;

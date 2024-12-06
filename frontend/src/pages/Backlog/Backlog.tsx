@@ -9,6 +9,7 @@ import { useRecoilState } from 'recoil';
 import { allIssuesState } from '../../recoil/atoms/issueAtoms';
 import { sprintState } from '../../recoil/atoms/sprintAtoms';
 
+
 const Backlog: React.FC = () => {
   const [allIssues, setAllIssues] = useRecoilState(allIssuesState);
   const [, setSprints] = useRecoilState(sprintState);
