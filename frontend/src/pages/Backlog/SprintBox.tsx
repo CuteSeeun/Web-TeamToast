@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { BsThreeDots } from "react-icons/bs";
 import { AddIssueLink, IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox, DropdownMenu, MenuItem } from "./backlogstyle"; // 스타일 컴포넌트 임포트
 import { sprintState, sortedSprintsState, filterState, Sprint, SprintStatus } from '../../recoil/atoms/sprintAtoms';
-import { issueListState, Issue } from '../../recoil/atoms/issueAtoms';
+import { allIssuesState, Issue } from '../../recoil/atoms/issueAtoms';
 import DragItem from './DragItem';
 import { useDrop } from 'react-dnd';
 import { ModalContent, ModalOverlay } from './sprintModal/ModalStyle';
 import SprintModify from './sprintModal/SprintModifiy';
 import SprintDelete from './sprintModal/SprintDelete'; // SprintDelete 컴포넌트 임포트
+import axios from 'axios';
+
 
 interface SprintProps {
     sprint: Sprint;
@@ -18,7 +19,7 @@ interface SprintProps {
 
 const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
     const setSprints = useSetRecoilState(sprintState);
-    const [issues, setIssues] = useRecoilState(issueListState);
+    const allIssues = useRecoilValue(allIssuesState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
     const filter = useRecoilValue(filterState);
     const [activeSprint, setActiveSprint] = useState<Sprint | null>(null);
@@ -26,22 +27,7 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
     const [modifyModalOpen, setModifyModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [currentSprint, setCurrentSprint] = useState<Sprint | null>(null); // 수정: 현재 스프린트 상태 추가
-
-    useEffect(() => {
-        const fetchIssues = async () => {
-            try {
-                const projectId = sprint.project_id;
-                const response = await axios.get<Issue[]>(`/sissue/${projectId}/${sprint.spid}`);
-                setIssues(prevIssues => ({
-                    ...prevIssues,
-                    [sprint.spid]: response.data
-                }));
-            } catch (error) {
-                console.error('Error fetching issues:', error);
-            }
-        };
-        fetchIssues();
-    }, [sprint, setIssues]);
+    const [loading, setLoading] = useState(false); // 로딩 상태 추가
 
     useEffect(() => {
         const active = sortedSprints.find(s => s.status === 'enabled');
@@ -67,14 +53,16 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
 
         try {
             await axios.put(`/sprint/${sprint.spid}/status`, { status: updatedSprint.status });
+            console.log('Sprint status updated:', updatedSprint); // 상태 업데이트 확인
         } catch (error) {
             console.error('Error updating status:', error);
         }
     };
 
     const shouldHideButton = activeSprint !== null && activeSprint.spid !== sprint.spid;
+    const filteredIssues = allIssues.filter(issue =>
+        issue.sprint_id === sprint.spid &&
 
-    const filteredIssues = (issues[sprint.spid] || []).filter(issue =>
         (!filter.manager || issue.manager === filter.manager) &&
         (!filter.status || issue.status === filter.status) &&
         (!filter.priority || issue.priority === filter.priority)
@@ -104,6 +92,7 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
         setShowMenu(false);
     };
 
+
     return (
         <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
             <SprintHeader>
@@ -117,11 +106,13 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                             {sprint.status === 'disabled' ? '스프린트 활성' : sprint.status === 'enabled' ? '스프린트 완료' : '스프린트 종료됨'}
                         </button>
                     )}
+
                     <BsThreeDots className="menu-icon" onClick={toggleMenu} />
                     <DropdownMenu show={showMenu}>
                         <MenuItem onClick={openModifyModal}>스프린트 수정</MenuItem>
                         <MenuItem onClick={openDeleteModal}>스프린트 삭제</MenuItem>
                     </DropdownMenu>
+
                 </SprintControls>
             </SprintHeader>
             <IssueTable>
@@ -134,21 +125,31 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredIssues.length === 0 ? (
+                    {loading ? (
+
                         <tr>
-                            <td colSpan={4} style={{ textAlign: 'center', color: '#6c757d', userSelect: 'none' }}>
-                                이슈를 이 영역으로 끌어와 스프린트를 채우세요.
+                            <td colSpan={4} style={{ textAlign: 'center', color: '#6c757d' }}>
+                                로딩 중...
                             </td>
                         </tr>
                     ) : (
-                        filteredIssues.map(issue => (
-                            <DragItem key={issue.isid} issue={issue} />
-                        ))
+
+                        filteredIssues.length === 0 ? (
+                            <tr>
+                                <td colSpan={4} style={{ textAlign: 'center', color: '#6c757d', userSelect: 'none' }}>
+                                    이슈를 이 영역으로 끌어와 스프린트를 채우세요.
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredIssues.map(issue => (
+                                <DragItem key={issue.isid} issue={issue} />
+                            ))
+                        )
+
                     )}
                 </tbody>
             </IssueTable>
             <AddIssueLink>+ 이슈 추가하기</AddIssueLink>
-
             {modifyModalOpen && (
                 <ModalOverlay>
                     <ModalContent>
@@ -164,6 +165,7 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                     </ModalContent>
                 </ModalOverlay>
             )}
+
         </StyledSprintBox>
     );
 };

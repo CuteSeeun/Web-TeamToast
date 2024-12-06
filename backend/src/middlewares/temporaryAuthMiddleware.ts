@@ -6,11 +6,24 @@ import { Request, Response, NextFunction } from 'express';
 
 export const setTemporaryUser = (req: Request, res: Response, next: NextFunction):void => {
   // 임시 사용자 정보 설정
-  req.user = {
-    uid: 11,
-    uname: '한채경',
-    email: 'gch2505@gmail.com',
+  // req.userRole = {
+  //   user: 'john.doe@example.com', // 테스트용 이메일
+  //   role: 'normal', // 'manager' 또는 'top_manager' 중 하나로 테스트 가능
+  //   space_id: 1,
+  // };
+
+
+  req.userRole = {
+    user: 'jane.smith@example.com',
+    role: 'manager', // 권한 있음
+    space_id: 1,
   };
+  
+  // req.userRole = {
+  //   user: 'kim.lee@example.com',
+  //   role: 'top_manager', // 권한 있음
+  //   space_id: 2,
+  // };
 
   next();
 };

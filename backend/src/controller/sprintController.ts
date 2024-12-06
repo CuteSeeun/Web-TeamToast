@@ -1,3 +1,4 @@
+// sprintController.ts
 import { Request, Response } from 'express';
 import pool from '../config/dbpool';
 
@@ -12,6 +13,25 @@ interface Sprint {
     startdate: Date;
     project_id: number;
 }
+
+
+// 스프린트 전체 호출 컨트롤러
+export const getAllSprints = async (req: Request, res: Response): Promise<void> => {
+
+    try {
+        const [rows]: [any[], any] = await pool.query('SELECT * FROM Sprint');
+        const sprints: Sprint[] = rows as Sprint[];
+        res.json(sprints);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('오류:', error.message);
+        } else {
+            console.error('알 수 없는 오류가 발생했습니다:', error);
+        }
+    }
+};
+
+
 
 // 스프린트 호출 컨트롤러
 export const getSprint = async (req: Request, res: Response): Promise<void> => {
@@ -30,6 +50,7 @@ export const getSprint = async (req: Request, res: Response): Promise<void> => {
 };
 
 // 스프린트 활성 상태 변경 컨트롤러
+
 export const updateSprintStatus = async (req: Request, res: Response): Promise<void> => {
     const spid: number = Number(req.params.spid);
     const { status }: { status: SprintStatus } = req.body; // ENUM 타입 적용
@@ -37,9 +58,11 @@ export const updateSprintStatus = async (req: Request, res: Response): Promise<v
     try {
         const [result]: any = await pool.query('UPDATE Sprint SET status = ? WHERE spid = ?', [status, spid]);
         if (result.affectedRows > 0) {
+
             res.json({ message: '스프린트 상태가 성공적으로 업데이트되었습니다.' });
         } else {
             res.status(404).json({ error: '스프린트를 찾을 수 없습니다.' });
+
         }
     } catch (error: unknown) {
         if (error instanceof Error) {
@@ -49,6 +72,7 @@ export const updateSprintStatus = async (req: Request, res: Response): Promise<v
         }
     }
 };
+
 
 // 스프린트 생성 컨트롤러
 export const InsertSprint = async (req: Request, res: Response): Promise<void> => {
@@ -105,3 +129,4 @@ export const DeleteSprint = async (req: Request, res: Response): Promise<void> =
         res.status(500).json({ success: false, message: '스프린트를 삭제하는 중 오류가 발생했습니다.' });
     }
 };
+

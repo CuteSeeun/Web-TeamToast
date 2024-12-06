@@ -3,8 +3,8 @@ import { checkToken } from '../middlewares/authMiddleware';
 import { createSpace, getCurrentSpace, getMySpaces, getSpaceByUuid, selectSpace } from '../controller/spaceController';
 
 
-const router = express.Router();
 
+const router = express.Router();
 
 router.post('/create',checkToken,createSpace); // 스페이스 생성
 router.get('/my-spaces',checkToken,getMySpaces); // 스페이스 목록 조회

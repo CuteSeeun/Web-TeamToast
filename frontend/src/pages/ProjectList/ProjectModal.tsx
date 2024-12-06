@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ProjectModalWrap } from './ProjectStyle';
+import { Project } from '../../types/projectTypes';
 
 interface ProjectModalProps {
     type: 'create' | 'edit' | 'delete';
