@@ -1,7 +1,7 @@
 // 2024-11-25 한채경
 // projectController.ts
 
-import { RequestHandler } from 'express';
+import { Request, Response, RequestHandler } from 'express';
 import { getAllProjectsQuery, getProjectsQuery, getProjectQuery, newProjectQuery, modifyProjectQuery, deleteProjectQuery, getProjectsByUUIDQuery } from '../models/projectModel.js';
 import { ResultSetHeader } from 'mysql2';
 
@@ -75,6 +75,25 @@ export const getProjects: RequestHandler = async (req, res) => {
   };
 };
 
+// pid로 해당 프로젝트의 space_id 찾기
+export const getSidByPid = async (req: Request, res: Response) => {
+  try {
+    const pid: number = parseInt(req.params.pid, 10); 
+
+    const projects: Project[] = (await getProjectQuery(pid)) as Project[];
+    if (projects.length === 0) {
+      res.status(404).json({ error: '해당하는 데이터가 없습니다.' });
+      return;
+    };
+    console.log('Fetched project data:', projects);
+    
+    res.status(200).json(projects);
+  } catch (err) {
+    console.error(`오류:${err}`);
+    res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+  }
+};
+
 // 프로젝트 하나 가져오기
 // pid와 일치하는 프로젝트를 가져옴
 export const getProject: RequestHandler = async (req, res) => {
@@ -102,6 +121,8 @@ export const getProject: RequestHandler = async (req, res) => {
     res.status(500).json({ error: '서버 오류가 발생했습니다.' });
   };
 };
+
+
 
 // 프로젝트 생성
 // space_id(params), pname, description을 받아서 DB에 새 프로젝트 데이터 생성, space_id와 pname이 모두 일치하는 데이터(&&)는 생성 불가.

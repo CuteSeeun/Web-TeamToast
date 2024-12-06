@@ -4,19 +4,18 @@
 import { atom } from 'recoil';
 import { Project } from '../../types/projectTypes';
 
-// 현재 선택된 프로젝트 정보 저장하는 Atom
-export const currentProjectState = atom<Project> ({
+export const projectListState = atom<Project[]>({
+  key: 'projectListState',
+  default: [],
+});
+
+// 현재 선택된 프로젝트 정보를 저장하는 Atom
+export const currentProjectState = atom<Project>({
   key: 'currentProjectState',
-  default: {
+  default:{
     pid: 0,
     pname: '',
     description: '',
     space_id: 0
-  }
-});
-
-// 프로젝트의 ID를 저장하는 Atom
-export const projectIdState = atom ({
-  key: 'projectIdState',
-  default: 0
+  },
 });

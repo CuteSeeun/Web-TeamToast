@@ -1,4 +1,4 @@
-// 2024-11-25 한채경 수정, 11-28 마지막 수정
+// 2024-11-25 한채경 수정, 11-29 마지막 수정
 // ProjectList.tsx
 
 import React, { useEffect, useState } from 'react';
@@ -8,14 +8,13 @@ import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import ProjectModal from './ProjectModal';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toSvg } from "jdenticon";
-import axios from "axios";
 import { Project } from '../../types/projectTypes';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { currentProjectState } from '../../recoil/atoms/projectAtoms';
-import { issueListState } from '../../recoil/atoms/issueAtoms';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { projectListState, currentProjectState } from '../../recoil/atoms/projectAtoms';
+import { issueListState, backlogState, Issue, Type, Status, Priority } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as ProjectAlert } from '../../assets/images/proejctAlert.svg';
-import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 import AccessToken from '../Login/AccessToken';
+import { Sprint, sprintState } from '../../recoil/atoms/sprintAtoms';
 
 interface ModalState {
     isOpen: boolean;
@@ -24,85 +23,59 @@ interface ModalState {
 }
 
 const ProjectList = () => {
-    const [isAdmin] = useState<boolean>(true); // 로그인 여부 스테이트, 실제로는 로그인 상태에서 가져와야 함
-    const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지 번호 스테이트
-    const itemsPerPage = 10; // 한 페이지에 들어갈 아이템 개수
-    const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null }); // 모달창 상태 관련 스테이트
-    const [projects, setProjects] = useState<Project[]>([]); // 현재 스페이스 안에 있는 프로젝트 리스트를 저장하는 스테이트
-    const setCurrentProject = useSetRecoilState(currentProjectState);
-    const setIssueList = useSetRecoilState(issueListState);
+  const [isAdmin] = useState<boolean>(true); // 로그인 여부 스테이트, 실제로는 로그인 상태에서 가져와야 함
+  const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지 번호 스테이트
+  const itemsPerPage = 10; // 한 페이지에 들어갈 아이템 개수
+  const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null }); // 모달창 상태 관련 스테이트
+  const [projects, setProjects] = useRecoilState<Project[]>(projectListState); // 현재 스페이스 안에 있는 프로젝트 리스트를 저장하는 스테이트
+  const setCurrentProject = useSetRecoilState(currentProjectState);
+  const [issues, setIssues] = useRecoilState(issueListState);
+  const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
+  const [sprints, setSprints] = useRecoilState(sprintState);
+  const [isReady, setIsReady] = useState(false);
 
-    const navigate = useNavigate();
-
-    const { uuid } = useParams<{ uuid: string }>();
+  const navigate = useNavigate();
+  const { sid } = useParams<{ sid: string }>() || { sid: '' };
 
   useEffect(() => {
+    // sid가 정의되지 않은 상태일 경우 아무 작업도 하지 않음
+    if (sid === undefined) {
+      return;
+    };
 
-    console.log("uuid:", uuid); // useParams에서 가져온 원본 UUID
-
-    if (!uuid) {
-      console.error("UUID가 없습니다. 스페이스 페이지로 이동합니다.");
+    if (!sid) {
+      console.error("sid가 없습니다. 스페이스 페이지로 이동합니다.");
       navigate('/space'); // 스페이스 선택 페이지로 리디렉션
         return;
-    }
-
+    };
 
     const getProjList = async () => {
         try {
-          console.log("Requesting projects with UUID:", uuid);
-            const response = await AccessToken.get(`/projects/all/${uuid}`);
-            console.log("Response from API:", response.data);
-            await setProjects(response.data || []);
+            const { data } = await AccessToken.get(`/projects/all/${sid}`);
+            console.log("Response from API:", data);
+            setProjects(data || []);
         } catch (err) {
             console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
+        } finally {
+          setIsReady(true); // 로딩 완료
         }
     };
-
     getProjList();
-}, [uuid,navigate]); // spaceId가 변경될 때마다 실행
+  }, [sid, navigate]); // spaceId가 변경될 때마다 실행
 
-
-  // 프로젝트 데이터 가져오기
-  // useEffect(() => {
-    
-  //   const getProjList = async () => {
-  //     if (!currentSpaceId) {
-  //       console.error("Space ID가 유효하지 않습니다.");
-  //       return;
-  //     }
-  //     try {
-  //       const response  = await AccessToken.get(`/projects/all/${currentSpaceId}`,{
-          
-  //         // headers:{
-  //         //   Authorization:`Bearer ${localStorage.getItem('accessToken')}`
-  //         // }
-  //       }); 
-  //       setProjects(response.data);
-  //     } catch (err) {
-  //       console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
-        
-  //     }
-  //   };
-  //   // getProjList();
-
-  //   if (currentSpaceId) {
-  //     getProjList();
-  //   }
-
-  // }, [currentSpaceId]); 
+  if (!isReady) {
+    return <div>로딩 중...</div>;
+  };
 
     // 프로젝트 이미지 자동 생성 함수 (입력한 데이터에 따라 자동 생성되며, 같은 값을 입력한다면 이미지가 바뀌지 않음)
     const projImage = (project: Project) => {
       // 다른 스페이스에 같은 이름의 프로젝트가 있을 경우 이미지가 겹치는 것을 방지
       const svgString = toSvg(( project.pname + project.pid ), 32);
-      return (
-        <div
-          dangerouslySetInnerHTML={{ __html: svgString }}
-          style={{ width: 32, height: 32, overflow: "hidden", borderRadius: "3px" }}
-        ></div>
-      )
+      return React.createElement('div', {
+        dangerouslySetInnerHTML: { __html: svgString },
+        style: { width: 32, height: 32, overflow: "hidden", borderRadius: "3px" },
+      });
     };
-    
 
     // 페이지네이션 계산
     const totalPages = Math.ceil(projects.length / itemsPerPage);
@@ -117,19 +90,19 @@ const ProjectList = () => {
 
     // 페이지네이션 버튼 생성
     const renderPaginationButtons = () => {
-        const buttons = [];
-        for (let i = 1; i <= totalPages; i++) {
-            buttons.push(
-                <button
-                    key={i}
-                    onClick={() => handlePageChange(i)}
-                    className={currentPage === i ? 'active' : ''}
-                >
-                    {i}
-                </button>
-            );
-        }
-        return buttons;
+      const buttons = [];
+      for (let i = 1; i <= totalPages; i++) {
+        buttons.push(
+          <button
+            key={i}
+            onClick={() => handlePageChange(i)}
+            className={currentPage === i ? 'active' : ''}
+          >
+            {i}
+          </button>
+        );
+      };
+      return buttons;
     };
 
      // 모달 관련 핸들러
@@ -152,19 +125,19 @@ const ProjectList = () => {
       try {
         if (modal.type === 'create') {
             // 생성 API 호출
-            const { data } = await AccessToken.post(`/projects/new/${uuid}`, {
+            const { data } = await AccessToken.post(`/projects/new/${sid}`, {
                 pname: name,
                 description: description,
             });
             console.log(`생성 완료: ${data.pname}, ${data.description}`);
 
-            // projects 목록 업데이트
-            setProjects([...projects, data]);
+          // projects 목록 업데이트
+          setProjects([...projects, data]);
         } else if (modal.type === 'edit' && modal.projectId) {
           // 수정 API 호출
-          const { data } = await AccessToken.put(`/projects/modify/${uuid}/${modal.projectId}`, {
+          const { data } = await AccessToken.put(`/projects/modify/${sid}/${modal.projectId}`, {
             pname: name,
-            description: description,
+            description: description
           });
           console.log(`수정 완료: ${data.pname}, ${data.description}`);
 
@@ -172,7 +145,7 @@ const ProjectList = () => {
           setProjects(projects.map(project => 
             project.pid === modal.projectId ? { ...project, pname: name, description: description } : project
           ));
-        }
+        };
       } catch (err) {
         console.error(`API 호출 중 오류 발생: ${err}`);
       } finally {
@@ -186,42 +159,42 @@ const ProjectList = () => {
             // 삭제 API 호출
             console.log('삭제:', modal.projectId);
           try {
-            await AccessToken.delete(`/projects/delete/${uuid}/${modal.projectId}`,{
+            await AccessToken.delete(`/projects/delete/${sid}/${modal.projectId}`,{
              
             }); // sid 임시로 1로 지정, 수정 필요
 
-            // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외
-            const newProjects = projects.filter(project => project.pid !== modal.projectId);
-            setProjects(newProjects);
+          // 프로젝트 목록 스테이트에서 삭제한 프로젝트 제외
+          const newProjects = projects.filter(project => project.pid !== modal.projectId);
+          setProjects(newProjects);
 
-            // 현재 페이지가 범위를 벗어나지 않도록 수정 [현진]
-            if (newProjects.length <= (currentPage - 1) * itemsPerPage) {
+          // 현재 페이지가 범위를 벗어나지 않도록 수정 [현진]
+          if (newProjects.length <= (currentPage - 1) * itemsPerPage) {
             setCurrentPage((prev) => Math.max(1, prev - 1));
-            }
+          }
 
-          } catch (err) {
-            console.error(`프로젝트를 삭제하는 중 에러 발생: ${err}`);
-          };
+        } catch (err) {
+          console.error(`프로젝트를 삭제하는 중 에러 발생: ${err}`);
         };
-        closeModal();
+      };
+      closeModal();
     };
 
     // 현재 편집중인 프로젝트 데이터 가져오기
     const getProjectData = () => {
-        if (modal.projectId) {
-            const proj = projects.find(p => p.pid === modal.projectId);
-            if (proj) {
-                return {
-                    pname: proj.pname,
-                    description: proj.description
-                };
-            }
-        }
+      if (modal.projectId) {
+        const proj = projects.find(p => p.pid === modal.projectId);
+        if (proj) {
+          return {
+            pname: proj.pname,
+            description: proj.description
+          };
+        };
+      };
         return undefined;
     };
 
     // 클릭한 프로젝트의 데이터를 저장하는 함수
-    const saveProjectData = ( pid: number ) => {
+    const saveCurrentProject = ( pid: number ) => {
       // projects에서 해당하는 프로젝트 찾기
       const selectedProject = projects.find((project) => project.pid === pid);
       if (selectedProject) {
@@ -229,6 +202,29 @@ const ProjectList = () => {
       } else {
         console.log(`${pid}에 해당하는 프로젝트를 프로젝트 목록에서 찾을 수 없습니다.`);
       };
+    };
+
+    const saveSprintsData = async (pid: number) => {
+      const selectedProject = projects.find((project) => project.pid === pid);
+      
+      // 프로젝트가 없으면 return
+      if (!selectedProject) {
+        console.error(`프로젝트를 찾을 수 없습니다: ${pid}`);
+        return;
+      };
+
+      try {
+        const { data } = await AccessToken.get(`http://localhost:3001/sprint/${pid}`);
+        let parsedData = Array.isArray(data) ? data : JSON.parse(data);
+    
+        if (Array.isArray(parsedData)) {
+          setSprints(parsedData); // 상태 업데이트
+        } else {
+          console.error('Parsed data is not an array:', parsedData);
+        }
+      } catch (err) {
+        console.error('Error fetching sprints:', err);
+      }
     };
 
     // 클릭한 프로젝트의 이슈 목록 저장하기
@@ -243,11 +239,29 @@ const ProjectList = () => {
       };
 
       try {
-        // 이슈 데이터 get 요청
-        const { data } = await axios.get(`http://localhost:3001/issues/all/${pid}`);
+        console.log(`spaceId: ${sid}`);
+        
+        // 해당 프로젝트 이슈 데이터 get 요청
+        const { data } = await AccessToken.get(`http://localhost:3001/issues/all/${sid}/${pid}`);
+        
         if (data) {
-          // issueList에 받아온 이슈 데이터 넣기
-          setIssueList(data);
+          // sprint_id가 없는 이슈는 backlog로 분리
+          const backlogData = await data.filter((issue: Issue) => !issue.sprint_id);
+          console.log('backlogData:',backlogData);
+          setBacklog(backlogData);
+
+          // sprint_id가 있는 이슈는 sprint_id별로 그룹화
+          const sprintIssues: Issue[] = data.filter((issue: Issue) => issue.sprint_id !== null);
+          const groupedIssues = sprintIssues.reduce<{ [key: number]: Issue[] }>((acc, issue) => {
+            const sprintId = issue.sprint_id!;
+            if (!acc[sprintId]) {
+              acc[sprintId] = [];
+            }
+            acc[sprintId].push(issue);
+            return acc;
+          }, {});
+          console.log('issueData:',groupedIssues);
+          setIssues(groupedIssues);
         };
       } catch (err) {
         console.error(`이슈를 받아오는 중 에러 발생: ${err}`);
@@ -285,8 +299,9 @@ const ProjectList = () => {
                 {currentItems.map((project) => (
                   <tr key={project.pid}>
                     <td>
-                      <Link to='/activesprint' onClick={(e) => {
-                        saveProjectData(project.pid);
+                      <Link to={`/activesprint/${project.pid}`} onClick={(e) => {
+                        saveCurrentProject(project.pid);
+                        saveSprintsData(project.pid);
                         saveIssuesData(project.pid);
                         }}>
                         <div className="project-info">
