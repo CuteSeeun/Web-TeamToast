@@ -7,9 +7,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
+<<<<<<< HEAD
 require("dotenv").config();
 const http_1 = require("http"); // HTTP 서버 생성
 const socketServer_1 = require("./socketServer"); // 분리된 Socket.IO 코드 import
+=======
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const billingRouter_1 = __importDefault(require("./routes/billingRouter")); //빌링키 발급 api 요청
@@ -19,12 +22,12 @@ const teamRouter_1 = __importDefault(require("./routes/teamRouter"));
 const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
 const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
-const ChannelListRouter_1 = __importDefault(require("./routes/ChannelListRouter"));
 const spaceRouter_1 = __importDefault(require("./routes/spaceRouter"));
 <<<<<<< HEAD
 const SissueRouter_1 = __importDefault(require("./routes/SissueRouter"));
 const BIssueRouter_1 = __importDefault(require("./routes/BIssueRouter"));
 const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
+<<<<<<< HEAD
 const MessageRouter_1 = __importDefault(require("./routes/MessageRouter"));
 =======
 const uploadRouter_1 = __importDefault(require("./routes/uploadRouter"));
@@ -34,19 +37,28 @@ const BIssueRouter_1 = __importDefault(require("./routes/BIssueRouter"));
 const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
 const scheduledPayment_1 = require("./scheduledPayment");
 >>>>>>> develop
+=======
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 // 미들웨어 설정
 const app = (0, express_1.default)();
-// Middleware
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+// app.use(cors({
+//     origin: 'http://localhost:3000', // 프론트엔드 주소
+//     credentials: true, // 쿠키 포함
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//     allowedHeaders: ['Content-Type', 'Authorization']
+// }));
+// 정적 파일 서빙 설정
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
-//스케쥴링 작업 시작
-(0, scheduledPayment_1.scheduledRecurringPayments)();
-// 라우터 설정
 app.use("/billing", billingRouter_1.default);
 app.use("/subscription", subscriptionRouter_1.default);
 app.use("/team", teamRouter_1.default);
+<<<<<<< HEAD
 app.use('/issue', SissueRouter_1.default); // 올바른 라우트 설정
 app.use('/sissue', BIssueRouter_1.default); // 올바른 라우트 설정
 =======
@@ -59,26 +71,28 @@ app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 app.use("/billing", billingRouter_1.default);
 app.use("/subscription", subscriptionRouter_1.default);
 app.use("/team", teamRouter_1.default);
+=======
+//스케쥴링 작업 시작
+(0, scheduledPayment_1.scheduledRecurringPayments)();
+// 정적 파일 제공
+app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 // 라우터 설정
 app.use('/sprint', sprintRouter_1.default); //스프린트 관련 CRUD
 app.use('/issue', SissueRouter_1.default);
 app.use('/sissue', BIssueRouter_1.default);
+<<<<<<< HEAD
 >>>>>>> develop
+=======
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 app.use('/user', BuserRouter_1.default);
-app.use('/sprint', sprintRouter_1.default);
 app.use('/projects', projectRouter_1.default);
 app.use('/issues', issueRouter_1.default);
 app.use('/upload', uploadRouter_1.default);
 app.use('/editUser', userRouter_1.default); // 로그인 회원가입 
-app.use('/channel', ChannelListRouter_1.default);
 app.use('/space', spaceRouter_1.default);
-app.use('/messages', MessageRouter_1.default);
-// HTTP 서버 생성
-const httpServer = (0, http_1.createServer)(app);
-// Socket.IO 초기화
-(0, socketServer_1.initSocket)(httpServer);
 const PORT = process.env.PORT || 3001;
-httpServer.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
 dbpool_1.default.getConnection()

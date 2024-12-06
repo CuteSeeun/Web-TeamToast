@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
@@ -26,6 +27,37 @@ import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
 import CardChangeFail from "./pages/Payment/CardChangeFail";
 
 import { useAuth } from './hooks/useAuth';
+=======
+import Payment from "./pages/Payment/Payment";
+import Success from "./pages/Payment/Success";
+import Fail from "./pages/Payment/Fail";
+import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
+import CardChangeFail from "./pages/Payment/CardChangeFail";
+
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import GlobalStyles from "./styles/GlobalStyles";
+import ActiveSprint from "./pages/ActiveSprint/ActiveSprint";
+import Backlog from "./pages/Backlog/Backlog";
+import Chat from "./pages/Chat/Chat";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import IssueDetail from "./pages/IssueDetail/IssueDetail";
+import IssueList from "./pages/IssueList/IssueList";
+import Layout from "./components/Layout";
+import Intro from "./pages/Intro/Intro";
+import Login from "./pages/Login/Login";
+import Join from "./pages/Join/Join";
+import RatePlan from "./pages/Intro/RatePlan";
+import SpaceAll from "./pages/SpaceList/Space";
+import ProjectList from "./pages/ProjectList/ProjectList";
+import OAuthCallback from "./pages/Login/KakaoLogin";
+import TeamManagement from "./pages/TeamList/TeamManagement";
+// import Payment from './pages/Payment/Payment';
+import SpaceManagement from "./pages/SpaceManagement/SpaceManagement";
+import Profile from "./pages/Profile/Profile";
+import Plan from "./pages/Plan/Plan";
+import { useAuth } from "./hooks/useAuth";
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 
 
 const App: React.FC = () => {
@@ -46,7 +78,8 @@ const App: React.FC = () => {
             <Route path="/space" element={<SpaceAll />} />
             <Route path="/projectlist/:uuid" element={<ProjectList />} />
             <Route path="/oauth" element={<OAuthCallback />} />
-            <Route path="/team" element={<TeamManagement />} />s
+            <Route path="/team" element={<TeamManagement />} />
+
             <Route path="/activesprint" element={<ActiveSprint />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/backlog" element={<Backlog />} />
@@ -58,6 +91,7 @@ const App: React.FC = () => {
             <Route path="/issue/:id" element={<IssueDetail />} />
             <Route path="/plan" element={<Plan />} />
             {/* <Route path="/payment" element={<Payment />} /> */}
+<<<<<<< HEAD
 =======
           <Route path="/" element={<Layout/>}>
             <Route index element={<Intro/>}/>
@@ -80,6 +114,12 @@ const App: React.FC = () => {
             <Route path="/plan" element={<Plan/>}/>
 >>>>>>> develop
             <Route path="/card-change-success" element={<CardChangeSuccess />} />
+=======
+            <Route
+              path="/card-change-success"
+              element={<CardChangeSuccess />}
+            />
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
             <Route path="/card-change-fail" element={<CardChangeFail />} />
             <Route path="/success" element={<Success />} />
             <Route path="/fail" element={<Fail />} />

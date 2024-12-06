@@ -1,20 +1,18 @@
 // 2024-11-26 한채경
 // issueTypes.ts
 
-export type Issue = {
-  isid?: number; // 새로 생성할 때는 optional
+export interface Issue {
   title: string;
-  detail?: string;
-  type: Type; // 한글 작업 유형
-  status: Status; // 한글 상태
-  sprint_id: number | null; // 스프린트 ID
-  project_id: number; // 프로젝트 ID
-  manager?: string | null; // 담당자
-  created_by?: string | null; // 보고자
-  file?: string | null; // 첨부파일
-  priority: Priority; // 한글 우선순위
-};
-
+  detail?: string | null;
+  type: Type;
+  status: Status;
+  sprint_id: number | null;
+  project_id: number;
+  manager?: string | null;
+  created_by?: string | null;
+  file?: string | null;
+  priority: Priority;
+}
 
 // Status ENUM 속성 지정
 export enum Status {

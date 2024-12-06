@@ -6,7 +6,7 @@ interface UserState {
     email: string | undefined;
     token: string | null | undefined;
     isLoggedIn: boolean;
-    // role: 'admin' | 'member' | null; 
+    role: 'admin' | 'member' | null; 
 }
 
 export const userState = atom<UserState | null>({

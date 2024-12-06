@@ -10,6 +10,11 @@
 
 # production
 /build
+<<<<<<< HEAD
+=======
+ 
+
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 
 # misc
 .DS_Store
@@ -22,4 +27,4 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-/dist
+backend/dist 

@@ -1,23 +1,26 @@
+<<<<<<< HEAD
 
 import { atom, selector } from 'recoil';
+=======
+import { atom, selectorFamily } from "recoil";
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 
 // 이슈 상태를 객체로 관리
 export const issueListState = atom<{ [key: number]: Issue[] }>({
-  key: 'issueListState',
+  key: "issueListState",
   default: {},
 });
 
 export const backlogState = atom<Issue[]>({
-  key: 'backlogState',
+  key: "backlogState",
   default: [],
 });
 
 // 새로운 atom 추가 <------ 전체 이슈 저장하는 아톰임
 export const allIssuesState = atom<Issue[]>({
-  key: 'allIssuesState',
+  key: "allIssuesState",
   default: [],
 });
-
 
 export interface Issue {
   isid: number;
@@ -35,20 +38,21 @@ export interface Issue {
 
 // Status ENUM 속성 지정
 export enum Status {
-  Backlog = '백로그',
-  Working = ' 작업중',
-  Dev = '개발완료',
-  QA = 'QA완료',
+  Backlog = "백로그",
+  Working = " 작업중",
+  Dev = "개발완료",
+  QA = "QA완료",
 }
 
 // Type ENUM 속성 지정
 export enum Type {
-  process = '작업',
-  bug = '버그',
+  process = "작업",
+  bug = "버그",
 }
 
 // Priority ENUM 속성 지정
 export enum Priority {
+<<<<<<< HEAD
   high = '높음',
   normal = '보통',
   low = '낮음',
@@ -63,4 +67,10 @@ export const allIssuesSelector = selector({
     return issueList;
   }
 });
+=======
+  high = "높음",
+  normal = "보통",
+  low = "낮음",
+}
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 

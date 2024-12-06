@@ -4,6 +4,24 @@
 import { executeQuery } from './dbUtils';
 import { RowDataPacket } from 'mysql2';
 
+// UserRole 테이블에서 email과 space_id 검증
+
+//채경
+// export const checkUserInSpace = async (user: string | undefined, sid: number): Promise<boolean> => {
+//   if (!user) return false;
+
+//   return executeQuery(async (connection) => {
+//     const query = `
+//       SELECT COUNT(*) as count 
+//       FROM UserRole 
+//       WHERE user = ? AND space_id = ?;
+//     `;
+//     const [rows] = await connection.query<RowDataPacket[]>(query, [user, sid]);
+//     return rows[0].count > 0;
+//   });
+// };
+//--------------------------------------------------------
+
 //현진
 export const checkUserInSpace = async (userId: string | number, sid: number): Promise<boolean> => {
   if (!userId) return false;
@@ -31,22 +49,16 @@ export const checkUserInSpace = async (userId: string | number, sid: number): Pr
 
 //------------------------------------------------------------------------------------------------
 
+
 // 이슈를 생성하는 user가 space와 project에 소속되어 있는지 검증
 export const checkUserInProjectAndSpace = async (
-  uid: number | undefined,
+  user: string | undefined,
   pid: number
 ): Promise<boolean> => {
-  if (!uid) return false;
+  if (!user) return false;
 
   return executeQuery(async (connection) => {
-    const userQuery = `SELECT email FROM User WHERE uid = ?`;
-    const [userRows] = await connection.query<RowDataPacket[]>(userQuery, [uid]);
-
-    if (!userRows || userRows.length === 0) return false;
-
-    const userEmail = userRows[0].email;
-
-    const roleQuery = `
+    const query = `
       SELECT COUNT(*) as count 
       FROM UserRole ur
       WHERE ur.user = ? AND ur.space_id = (
@@ -55,7 +67,7 @@ export const checkUserInProjectAndSpace = async (
         WHERE p.pid = ?
       );
     `;
-    const [rows] = await connection.query<RowDataPacket[]>(roleQuery, [userEmail, pid]);
+    const [rows] = await connection.query<RowDataPacket[]>(query, [user, pid]);
     return rows[0].count > 0;
   });
 };

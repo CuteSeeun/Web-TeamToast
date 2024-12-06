@@ -78,22 +78,6 @@ export const ProjectHeaderWrap = styled.div`
     padding: 0 8px;
   }
 
-    .centerPro {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-
-    span {
-      font-size: 14px;
-      color: #4d4d4d;
-      cursor: pointer;
-
-      &:hover {
-        color: #333;
-      }
-    }
-  }
-
   .leftPro {
     display: flex;
     align-items: center;
@@ -180,7 +164,7 @@ export const ProjectHeaderWrap = styled.div`
 
     .menu-wrap {
       position: relative;
-      border-radius: 4px;
+      border-radius: 5px;
 
     &:hover {
       background: #E6E6E680;
@@ -194,21 +178,6 @@ export const ProjectHeaderWrap = styled.div`
         display: block;
       }
     }
-
-    .Subscription{
-    padding: 10px 16px; /* 배경 네모를 명확히 하기 위한 여백 추가 */
-    border-radius: 4px;
-    font-size: 15px;
-    cursor: pointer;
-    border: 1px solid #038c8c;
-    color: #038c8c;
-
-    &:hover {
-      border: 1px solid #017276;
-      color: #017276;
-    }
-    }
-
     
     .icon-wrap{
       padding: 8px;
@@ -229,7 +198,7 @@ export const ProjectHeaderWrap = styled.div`
 
 .notification-icon {
     position: relative;
-    border-radius: 4px;
+    border-radius: 5px;
 
     &:hover {
       background: #E6E6E680;
@@ -245,6 +214,20 @@ export const ProjectHeaderWrap = styled.div`
         border-radius: 50%;
     }
 }
+
+    /* .notification-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4D4D4D;
+      border-radius: 50%;
+      cursor: pointer;
+
+      &:hover {
+        background: #f5f5f5;
+      }
+    } */
+
     .menu-text {
       cursor: pointer;
 
