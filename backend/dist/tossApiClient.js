@@ -80,26 +80,20 @@ exports.processRecurringPayment = processRecurringPayment;
 // Toss Payments 금액 변경 함수
 const updateTossPaymentAmount = (billingKey, amount) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const apiUrl = "https://api.tosspayments.com/v1/billing"; // Toss Payments API 엔드포인트
-    const secretKey = "test_sk_DpexMgkW36xJQYxKbq0brGbR5ozO"; // Toss Payments Secret Key (환경 변수로 관리 권장)
     try {
-        const response = yield axios_1.default.post(`${apiUrl}/${billingKey}`, { amount }, {
+        const response = yield axios_1.default.post(`https://api.tosspayments.com/v1/billing/${billingKey}`, {
+            amount, // 변경된 금액
+            currency: "KRW", // 통화 (Toss는 KRW만 지원)
+        }, {
             headers: {
-                Authorization: `Basic ${Buffer.from(secretKey + ":").toString("base64")}`,
+                Authorization: `Basic ${Buffer.from("test_sk_DpexMgkW36xJQYxKbq0brGbR5ozO:").toString("base64")}`,
                 "Content-Type": "application/json",
             },
         });
-        console.log("Toss Payments amount updated:", response.data);
+        console.log("Toss Payments billing amount updated successfully:", response.data);
     }
     catch (error) {
-        if (axios_1.default.isAxiosError(error)) {
-            // AxiosError 타입에 접근 가능
-            console.error("Failed to update Toss Payments amount:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
-        }
-        else {
-            // Unknown 에러 처리
-            console.error("Unknown error occurred:", error);
-        }
+        console.error("Failed to update Toss Payments billing amount:", ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || error.message);
         throw new Error("Toss Payments 금액 업데이트 실패");
     }
 });

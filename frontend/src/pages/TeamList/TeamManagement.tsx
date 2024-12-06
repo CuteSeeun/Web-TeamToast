@@ -1,35 +1,17 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { teamMembersState } from "../../recoil/atoms/memberAtoms";
+import { spaceIdState } from "../../recoil/atoms/spaceAtoms";
 import TeamList from "./TeamList";
 import TeamInviteModal from "./TeamInvite";
+import axios from "axios";
 
 const TeamManagement: React.FC = () => {
-  const spaceId = 4; // 임의로 Space ID 설정
-  const [teamMembers, setTeamMembers] = useState([]);
+  const teamMembers = useRecoilValue(teamMembersState); // Recoil에서 팀 멤버 데이터 가져오기
+  const spaceId = useRecoilValue(spaceIdState); // Recoil에서 현재 스페이스 ID 가져오기
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [reload, setReload] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null); // 에러 메시지 상태 추가
 
-  // 팀 멤버 목록 가져오기
-  const fetchTeamMembers = async () => {
-    if (!spaceId) return;
-    try {
-      const response = await axios.get("http://localhost:3001/team/members", {
-        params: { spaceId },
-      });
-      setTeamMembers(response.data);
-    } catch (err: any) {
-      console.error(
-        "Failed to fetch team members:",
-        err.response?.data?.message
-      );
-    }
-  };
-
-  // 목록 갱신 트리거
-  const handleReload = () => {
-    setReload(!reload);
-  };
   // 초대 API 호출
   const handleInvite = async (email: string, role: string) => {
     try {
@@ -39,7 +21,7 @@ const TeamManagement: React.FC = () => {
         role,
       });
       setInviteError(null); // 초대 성공 시 에러 메시지 초기화
-      handleReload(); // 초대 성공 시 목록 갱신
+      // 갱신은 ProjectHeader의 fetchTeamMembers가 수행
     } catch (error: any) {
       if (error.response?.status === 409) {
         const errorMessage = error.response.data.message;
@@ -68,21 +50,21 @@ const TeamManagement: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTeamMembers();
-  }, [reload]);
-
   return (
     <div>
       {/* TeamList 컴포넌트 */}
       <TeamList
-        teamMembers={teamMembers}
+        teamMembers={teamMembers} // Recoil에서 가져온 데이터를 전달
         onOpenInviteModal={() => {
           setInviteError(null); // 모달 열릴 때 에러 메시지 초기화
           setIsInviteModalOpen(true);
         }}
-        onReload={handleReload}
-        spaceId={spaceId}
+        onReload={() => {
+          // 새로고침 동작 정의
+          // 예: ProjectHeader에서 fetchTeamMembers 호출
+          window.location.reload(); // 간단히 페이지를 새로고침하거나 상태를 업데이트하는 동작 추가
+        }}
+        spaceId={spaceId ? Number(spaceId) : 0} // spaceId가 null일 경우 기본값 0 설정
       />
 
       {/* TeamInviteModal 컴포넌트 */}
@@ -90,8 +72,12 @@ const TeamManagement: React.FC = () => {
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         onInvite={handleInvite}
-        spaceId={spaceId}
-        onInviteSuccess={handleReload}
+        onInviteSuccess={() => {
+          // 초대 성공 시 호출될 동작
+          console.log("초대 성공");
+          window.location.reload(); // 간단히 페이지를 새로고침하거나 Recoil 상태 갱신
+        }}
+        spaceId={spaceId ? Number(spaceId) : 0} // spaceId가 null일 경우 기본값 0 설정
         errorMessage={inviteError} // 에러 메시지 전달
       />
     </div>

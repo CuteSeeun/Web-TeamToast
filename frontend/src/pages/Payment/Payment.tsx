@@ -3,14 +3,15 @@ import axios from "axios";
 import { PaymentWrap } from "./priceStyle";
 
 const Payment = () => {
-  const [selectedPlan, setSelectedPlan] = useState<"free" | "team">("free");
+  const [selectedPlan, setSelectedPlan] = useState<"basic" | "team">("basic");
   const [cardInfo, setCardInfo] = useState<string | null>(null);
   const [additionalMembers, setAdditionalMembers] = useState(0); // 추가 인원
   const [monthlyFee, setMonthlyFee] = useState(0); // 월별 결제 요금
-  const userEmail = "kh32100@naver.com"; // 로그인 후 동적으로 변경
-  const spaceId = 4; // 실제 스페이스 ID로 설정 (임시 값)
+  const userEmail = "jyknowu@gmail.com"; // 로그인 후 동적으로 변경
+  const spaceId = 25; // 실제 스페이스 ID로 설정 (임시 값)
   const unitPrice = 3000; // 인당 금액
 
+  const [isLoading, setIsLoading] = useState(true);
   // 서버에서 구독 정보 가져오기
   const fetchSubscriptionDetails = async () => {
     try {
@@ -19,12 +20,15 @@ const Payment = () => {
         { params: { spaceId, userEmail } }
       );
 
-      const { plan, cardNumber, additionalMembers } = response.data;
-      console.log("Fetched cardNumber:", cardNumber); // 서버에서 받은 카드 번호 확인
-      setSelectedPlan(plan);
-      setCardInfo(cardNumber || null); // null 처리
-      setAdditionalMembers(additionalMembers || 0);
-      calculateMonthlyFee(additionalMembers || 0); // 추가 인원 기준으로 요금 계산
+      const { plan, cardNumber, limit } = response.data;
+      console.log("Fetched subscription details:", response.data);
+      console.log("현재 요금제 상태:", plan);
+
+      setSelectedPlan(plan); // `selectedPlan` 업데이트
+      setCardInfo(plan === "team" ? cardNumber : null); // 유료 플랜인 경우만 설정
+      const calculatedAdditionalMembers = limit > 10 ? limit - 10 : 0; // 추가 인원 계산
+      setAdditionalMembers(calculatedAdditionalMembers); // 추가 인원 상태 업데이트
+      calculateMonthlyFee(calculatedAdditionalMembers); // 요금 계산
     } catch (error) {
       console.error("Failed to fetch subscription details:", error);
     }
@@ -36,7 +40,7 @@ const Payment = () => {
   };
 
   // 요금제 변경 처리
-  const handlePlanSelect = (plan: "free" | "team") => {
+  const handlePlanSelect = (plan: "basic" | "team") => {
     setSelectedPlan(plan);
   };
 
@@ -50,8 +54,7 @@ const Payment = () => {
         }
       );
       alert(response.data.message);
-      // 필요한 경우 상태 업데이트
-      setSelectedPlan("free");
+      setSelectedPlan("basic");
       setAdditionalMembers(0);
       setMonthlyFee(0);
     } catch (error: any) {
@@ -66,11 +69,16 @@ const Payment = () => {
   // 무료 -> 유료 또는 유료 -> 유료 변경 처리
   const handleUpgrade = async () => {
     try {
+      const orderName = "Team Subscription Fee";
+      const orderId = `ORDER-${Date.now()}`; // 고유 주문 ID 생성
       if (selectedPlan === "team" && cardInfo) {
         // 유료 -> 유료 변경 (결제 없이 업데이트만)
         await axios.post("http://localhost:3001/subscription/updatedLimit", {
           spaceId,
           additionalMembers,
+          customerKey: userEmail,
+          orderId, // 추가된 필드
+          orderName, // 추가된 필드
         });
         alert(
           `구독 변경이 완료되었습니다. 다음 결제일부터는 ￦${monthlyFee}이 결제될 예정입니다.`
@@ -81,7 +89,7 @@ const Payment = () => {
         const amount = additionalMembers * unitPrice;
         const orderName = "Team Subscription Fee";
         const orderId = `ORDER-${Date.now()}`;
-        const subscriptionId = 2; // 실제 Subscription ID로 대체
+        const subscriptionId = 9; // 실제 Subscription ID로 대체
 
         const tossPayments = (window as any).TossPayments(
           "test_ck_GjLJoQ1aVZ9xkgwmj0o13w6KYe2R"
@@ -114,19 +122,20 @@ const Payment = () => {
       .requestBillingAuth("카드", {
         customerKey: userEmail,
         successUrl: `http://localhost:3000/card-change-success`,
-        failUrl: "http://localhost:3000/card-change-fail",
+        failUrl: `http://localhost:3000/card-change-fail`,
       })
       .then(() => {
         alert("카드 정보 변경 요청이 성공적으로 완료되었습니다.");
+        fetchSubscriptionDetails(); // 카드 정보 변경 후 최신 정보로 갱신
       })
       .catch((error: any) => {
         console.error("카드 변경 요청 중 오류 발생:", error);
       });
   };
 
-  // 구독 상태 및 요금 계산
+  // 초기 구독 상태 불러오기
   useEffect(() => {
-    fetchSubscriptionDetails();
+    fetchSubscriptionDetails(); // 페이지 로드 시 구독 정보 가져오기
   }, []);
 
   // 추가 인원 변경 시 월별 요금 계산
@@ -134,25 +143,23 @@ const Payment = () => {
     calculateMonthlyFee(additionalMembers);
   }, [additionalMembers]);
 
-  useEffect(() => {
-    console.log("Card Info:", cardInfo); // cardInfo 값 확인
-  }, [cardInfo]);
-
   return (
     <PaymentWrap>
       <div className="plan-section">
         <div className="section-header">구독 관리</div>
         <div className="plan-options">
           <div
-            className={`plan-card ${selectedPlan === "free" ? "selected" : ""}`}
-            onClick={() => handlePlanSelect("free")}
+            className={`plan-card ${
+              selectedPlan === "basic" ? "selected" : ""
+            }`}
+            onClick={() => handlePlanSelect("basic")}
           >
             <input
               type="radio"
               name="plan"
-              value="free"
-              checked={selectedPlan === "free"}
-              onChange={() => handlePlanSelect("free")}
+              value="basic"
+              checked={selectedPlan === "basic"}
+              onChange={() => handlePlanSelect("basic")}
             />
             <div className="plan-info">
               <h3>무료 요금제</h3>
@@ -179,7 +186,7 @@ const Payment = () => {
             </div>
           </div>
         </div>
-        {selectedPlan === "free" && (
+        {selectedPlan === "basic" && (
           <button className="change-btn" onClick={handleFreePlanChange}>
             무료 요금제로 변경
           </button>

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateCardInfo = exports.processScheduledPayment = exports.createBillingKey = void 0;
+exports.updateCreditAmount = exports.updateCardInfo = exports.processScheduledPayment = exports.createBillingKey = void 0;
 const tossApiClient_1 = require("../tossApiClient");
 const dbpool_1 = __importDefault(require("../config/dbpool"));
 // Helper 함수: ISO 형식의 날짜 문자열 반환
@@ -231,3 +231,21 @@ const updateCardInfo = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.updateCardInfo = updateCardInfo;
+const updateCreditAmount = (customerKey, newAmount) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const [result] = yield dbpool_1.default.execute(`UPDATE Credit 
+       SET amount = ?, updatedAt = NOW()
+       WHERE customerKey = ? AND status = 'active'`, [newAmount, customerKey]);
+        if (result.affectedRows === 0) {
+            console.warn("No credit record found to update amount.");
+        }
+        else {
+            console.log("Credit amount updated successfully:", result);
+        }
+    }
+    catch (error) {
+        console.error("Failed to update Credit amount:", error);
+        throw new Error("Credit amount 업데이트 실패");
+    }
+});
+exports.updateCreditAmount = updateCreditAmount;

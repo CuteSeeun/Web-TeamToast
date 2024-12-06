@@ -11,7 +11,7 @@ const CardChangeSuccess: React.FC = () => {
 
   const authKey = searchParams.get("authKey"); // Toss Payments에서 반환된 인증 키
   const customerKey = searchParams.get("customerKey"); // 고객 고유 키
-  const spaceId = 1; // TODO: 실제 스페이스 ID로 대체. 현재 더미 데이터 사용 중
+  const spaceId = 25; // TODO: 실제 스페이스 ID로 대체. 현재 더미 데이터 사용 중
 
   const postAuthKeyToServer = async () => {
     if (!authKey || !customerKey || !spaceId) {
