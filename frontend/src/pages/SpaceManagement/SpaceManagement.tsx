@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SpaceEditWrap } from '../../components/SpaceStyle';
-import { userState } from '../../recoil/atoms/userAtoms';
-import { useRecoilValue } from 'recoil';
 import { useNavigate } from 'react-router-dom';
+import AccessToken from '../Login/AccessToken';
 
 interface ValidationMessage {
     text: string;
@@ -10,35 +9,54 @@ interface ValidationMessage {
 }
 
 const SpaceManagement = () => {
-
-    const currentSpace = useRecoilValue(userState); // 현재 스페이스 정보
-    const [spaceName, setSpaceName] = useState('');
-    const [deleteSpaceName, setDeleteSpaceName] = useState('');
-    const [validationMsg, setValidationMsg] = useState<ValidationMessage | null>(null);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showPlanModal, setShowPlanModal] = useState(false);
-    const [activeTab, setActiveTab] = useState<'space' | 'plan'>('space');
+    const [spaceName, setSpaceName] = useState(''); // 스페이스 이름
+    const [deleteSpaceName, setDeleteSpaceName] = useState(''); // 스페이스 삭제 입력
+    const [validationMsg, setValidationMsg] = useState<ValidationMessage | null>(null); // 검증 메시지
+    const [showDeleteModal, setShowDeleteModal] = useState(false); // 삭제 확인 모달
+    const [activeTab, setActiveTab] = useState<'space' | 'plan'>('space'); // 탭 상태
+    // const [updateSuccess, setUpdateSuccess] = useState(false);
     const navi = useNavigate();
 
 
 
     useEffect(() => {
-        if (currentSpace?.uname) {
-            setSpaceName(currentSpace.uname);
+        // 로컬에서 uuid 가져옴
+        const currentUuid = localStorage.getItem('currentSpaceUuid');
+        if(!currentUuid){
+            alert('스페이스 정보가 없습니다.');
+            navi('/space')
+            return;
         }
-    }, [currentSpace]);
 
+        // 스페이스 이름 가져오기
+        const fetchSpaceName = async() =>{
+            try {
+                const response = await AccessToken.get(`/space/get-space/${currentUuid}`); // uuid 기반으로 스페이스 이름 조회함
+                setSpaceName(response.data.spaceName);
+            } catch (error) {
+                console.error('스페이스 정보를 가져오는 데 실패함',error);
+                alert('스페이스 정보를 불러오지 못했습니다.');
+                navi('/space');
+            }
+        };
+        fetchSpaceName();
+    }, [navi]);
+
+
+    // 스페이스 이름 수정 
     const handleSpaceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSpaceName(e.target.value);
     };
 
+
+    // 스페이스 삭제 
     const handleDeleteSpaceNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setDeleteSpaceName(value);
 
         if (value === '') {
             setValidationMsg(null);
-        } else if (value === currentSpace?.uname) {
+        } else if (value === spaceName) {
             setValidationMsg({
                 text: '스페이스 명이 동일합니다.',
                 type: 'success'
@@ -51,36 +69,42 @@ const SpaceManagement = () => {
         }
     };
 
+    // 스페이스 이름 수정 요청
     const handleUpdate = async () => {
-        try {
-            // API 호출로 스페이스 이름 수정
-            // await updateSpace(spaceName);
-            alert('스페이스 이름이 수정되었습니다.');
+       const currentUuid = localStorage.getItem('currentSpaceUuid');
+       if(!currentUuid) return;
+       try {
+           await AccessToken.put(`/space/update-space/${currentUuid}`,{sname:spaceName});
+           alert('스페이스 이름이 수정되었습니다.');
         } catch (error) {
+            console.error('스페이스 이름 수정 실패 : ',error);
             alert('스페이스 이름 수정에 실패했습니다.');
         }
     };
 
+    // 스페이스 삭제 
     const handleDelete = () => {
-        if (deleteSpaceName !== currentSpace?.uname) {
+        if (deleteSpaceName !== spaceName) {
             alert('스페이스 명을 다시 확인해주세요.');
             return;
         }
         setShowDeleteModal(true);
     };
 
+    // 스페이스 삭제 요청
     const confirmDelete = async () => {
-        setShowDeleteModal(false);
+        const currentUuid = localStorage.getItem('currentSpaceUuid');
+       if(!currentUuid) return;
+       try {
+           await AccessToken.delete(`/space/delete-space/${currentUuid}`);
+           alert('스페이스가 삭제되었습니다.');
+           setShowDeleteModal(false);
+           navi('/space');
+        } catch (error) {
+            console.error('스페이스 삭제 실패 : ',error);
+            alert('스페이스 삭제에 실패했습니다.');
+        }
     };
-
-    const handlePlanChange = () => {
-        setShowPlanModal(true); // 플랜 모달 열기
-    };
-
-    const closePlanModal = () => {
-        setShowPlanModal(false); // 플랜 모달 닫기
-    };
-
 
     return (
         <SpaceEditWrap>
@@ -91,15 +115,9 @@ const SpaceManagement = () => {
                >
                    스페이스 관리
                </button>
-               <button 
-                   className={`tab-button ${activeTab === 'plan' ? 'active' : ''}`}
-                   onClick={() => setActiveTab('plan')}
-               >
-                   플랜 관리
-               </button>
            </div>
 
-           <h1>{activeTab === 'space' ? '스페이스 관리' : '플랜 관리'}</h1>
+           <h1>{activeTab === 'space' ? '스페이스 관리' : ''}</h1>
 
            {activeTab === 'space' && (
                <>
@@ -112,7 +130,7 @@ const SpaceManagement = () => {
                                    type="text" 
                                    value={spaceName}
                                    onChange={handleSpaceNameChange}
-                                   placeholder="스페이스 이름 1"
+                                   placeholder="스페이스 이름"
                                />
                                <button className="confirm-btn" onClick={handleUpdate}>수정</button>
                            </div>
@@ -162,7 +180,7 @@ const SpaceManagement = () => {
                </>
            )}
 
-           {activeTab === 'plan' && (
+           {/* {activeTab === 'plan' && (
                  <div className="plan-section">
                  <h2>플랜 정보</h2>
                  <div className="plan-info-grid">
@@ -190,7 +208,7 @@ const SpaceManagement = () => {
                      <button className="card-change-btn">카드 변경하기</button>
                  </div>
              </div>
-            )}
+            )} */}
         </SpaceEditWrap>
     );
 };

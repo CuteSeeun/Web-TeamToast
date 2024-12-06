@@ -5,8 +5,9 @@ import SpaceModal from './SpaceModal';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccessToken from '../Login/AccessToken';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
+import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 interface SpaceItem {
     spaceId : number;
@@ -31,6 +32,10 @@ const SpaceAll:React.FC = () => {
     const [error , setError] = useState<string>('');
     const navgate = useNavigate();
     
+    const spaceId = useSetRecoilState(spaceIdState);
+
+    
+    
     const userName = useRecoilValue(userState);
 
     //현재 로그인한 유저 정보
@@ -38,34 +43,9 @@ const SpaceAll:React.FC = () => {
     useEffect(() => {
         const fetchSpace = async () => {
             try {
-                // 현재 선택된 스페이스 UUID 가져오기
-                // const currentSpaceUuid = localStorage.getItem('currentSpaceUuid');
-
                  // 하나의 API 호출만 유지
                  const response = await AccessToken.get('/space/my-spaces');
                  setSpaces(response.data.space || []);
-
-                 
-                 //여러번 호출 되는 부분 
-                // if(!currentSpaceUuid){
-                //     // UUID가 없으면 내 스페이스 목록 조회
-                //     const response = await AccessToken.get('/space/my-spaces');
-                //     await setSpaces(response.data.space || []);
-                // }else{
-                //     // 각 API 요청을 개별적으로 처리
-                //     try {
-                //         const mySpacesResponse = await AccessToken.get('/space/my-spaces');
-                //         setSpaces(mySpacesResponse.data.space || []);
-                //     } catch (error) {
-                //         console.error('내 스페이스 목록 조회 실패:', error);
-                //     }
-                //     try {
-                //         await AccessToken.get('/space/current-space');
-                //     } catch (error) {
-                //         console.error('현재 스페이스 조회 실패:', error);
-                //     }
-                // }
-
             } catch (error) {
                 console.error('스페이스 정보 조회 실패:', error);
                 // 토큰이 만료되었거나 오류가 발생하면 로그인 페이지로
@@ -75,18 +55,22 @@ const SpaceAll:React.FC = () => {
                 }
             } 
         };
-        
         fetchSpace();
-        // loadCurrentSpace();
-    // }, [loadCurrentSpace]);
     }, [navgate]);
 
   // 선택된 스페이스 저장
     const handleSelectSpace = async(uuid:string) => {
         try {
             await AccessToken.post('/space/select-space',{uuid});
-            // await AccessToken.get('/space/current-space');
-            localStorage.setItem('currentSpaceUuid', uuid)
+            const selectSpace = spaces.find(space=>space.uuid === uuid);
+            if(selectSpace){
+                localStorage.setItem('currentSpaceUuid', uuid);
+                localStorage.setItem('userRole',selectSpace.role);
+                spaceId(String(selectSpace.spaceId)); 
+                // 스토리지 이벤트 강제 발생
+                // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.
+                window.dispatchEvent(new Event('storage'));
+            }
         } catch (error) {
             console.error("Error selecting space:", error);
         }

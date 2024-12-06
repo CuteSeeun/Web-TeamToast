@@ -16,7 +16,7 @@ const Success: React.FC = () => {
   const orderName = searchParams.get("orderName");
   const orderId = searchParams.get("orderId");
   const subscriptionId = searchParams.get("subscriptionId");
-  const spaceId = "4"; // 임시로 설정된 값
+  const spaceId = "25"; // 임시로 설정된 값
   const additionalMembers = searchParams.get("additionalMembers"); // 추가 인원 정보
 
   useEffect(() => {
@@ -89,18 +89,6 @@ const Success: React.FC = () => {
         }
       );
       console.log("유료 요금제 업그레이드 성공:", upgradeResponse.data);
-
-      // 추가 인원 업데이트
-      const limitResponse = await axios.post(
-        "http://localhost:3001/subscription/updatedLimit",
-        {
-          spaceId: parseInt(spaceId),
-          additionalMembers: parseInt(additionalMembers),
-        }
-      );
-      console.log("추가 인원 업데이트 성공:", limitResponse.data);
-
-      alert("구독 업데이트가 성공적으로 처리되었습니다!");
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         console.error("서버 요청 실패:", error.response?.data || error.message);

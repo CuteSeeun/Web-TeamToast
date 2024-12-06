@@ -179,4 +179,107 @@ export const selectSpace = async (req: Request, res: Response): Promise<void> =>
     }
 };
 
+//스페이스 이름 수정
+export const updateSpace = async(req:Request,res:Response):Promise<void> =>{
+    const connection = await pool.getConnection();
+    try {
+        const {uuid} = req.params;
+        const {sname} = req.body;
+        const userEmail = req.user?.email;
+
+        if (!userEmail || !uuid || !sname) {
+            res.status(400).json({ message: '유효하지 않은 요청입니다.' });
+            return;
+        }
+
+        // 해당 스페이스가 유효한지 확인
+        const [spaceCheck]:any = await connection.query(
+            `select * from Space where uuid = ? `,
+            [uuid]
+        )
+
+        if(!spaceCheck.length){
+            res.status(404).json({message:'스페이스를 찾을 수 없습니다.'});
+            return;
+        }
+
+        //스페이스 이름 업데이트
+        const [updateResult]:any = await connection.query(
+            `update Space set sname = ? where uuid = ?`,
+            [sname , uuid]
+        );
+
+        if(updateResult.affectedRows === 0){
+            res.status(400).json({message:'스페이스 이름 수정 실패'});
+            return;
+        }
+
+        res.status(200).json({message:'스페이스 이름 수정 성공'});
+    } catch (error) {
+        console.error('스페이스 이름 수정 실패 : ',error);
+        res.status(500).json({message:'서버 오류'});
+    }finally{
+        connection.release();
+    }
+}
+
+//스페이스 삭제
+export const deleteSpace = async(req:Request , res:Response):Promise<void>=>{
+    const connection = await pool.getConnection();
+    try {
+        const {uuid} = req.params; // uuid 가져옴
+        const userEmail = req.user?.email;
+
+        if (!userEmail || !uuid) {
+            res.status(400).json({ message: '유효하지 않은 요청입니다.' });
+            return;
+        }
+
+        //해당 스페이스가 유효한지 확인
+        const [spaceCheck]:any = await connection.query(
+            `select * from Space where uuid`,[uuid]
+        )
+
+        if (!spaceCheck.length) {
+            res.status(404).json({ message: '스페이스를 찾을 수 없습니다.' });
+            return;
+        }
+
+        //트랜잭션 시작
+        await connection.beginTransaction();
+
+        // 관련된 유저롤 삭제
+        await connection.query(
+            `delete from UserRole where space_id = (select sid from Space where uuid = ?)`,
+            [uuid]
+        )
+        
+        // 관련된 구독 삭제
+        await connection.query(
+            `delete from Subscription where spaceId = (select sid from Space where uuid = ?)`,
+            [uuid]
+        );
+
+        //스페이스 삭제
+        const [deleteResult]:any = await connection.query(
+            `delete from Space where uuid = ?`,
+            [uuid]
+        );
+
+        if(deleteResult.affectedRows === 0){
+            await connection.rollback();
+            res.status(400).json({message:'스페이스 삭제 실패'});
+            return;
+        }
+
+        await connection.commit(); // 저장
+        res.status(200).json({ message: '스페이스 삭제 성공' });
+    } catch (error) {
+        await connection.rollback(); // 오류나면 롤백함
+        console.error('스페이스 삭제 실패 :', error);
+        res.status(500).json({ message: '서버 오류' });
+    }finally {
+        connection.release();
+    }
+}
 

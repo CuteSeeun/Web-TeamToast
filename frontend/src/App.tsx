@@ -9,7 +9,7 @@ import CardChangeFail from "./pages/Payment/CardChangeFail";
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
-import ActiveSprint from './pages/ActiveSprint/ActiveSprint';
+import Agit punt from './pages/ActiveSprint/ActiveSprint';
 import Backlog from './pages/Backlog/Backlog';
 import Chat from './pages/Chat/Chat';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -24,14 +24,14 @@ import SpaceAll from './pages/SpaceList/Space';
 import ProjectList from './pages/ProjectList/ProjectList';
 import OAuthCallback from './pages/Login/KakaoLogin';
 import TeamManagement from "./pages/TeamList/TeamManagement";
+// import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
 import { useAuth } from './hooks/useAuth';
 
-
 const App: React.FC = () => {
-  useAuth(); // 로그인 상태 관리 
+  useAuth(); // 로그인 상태 관리
 
   return (
     <>
