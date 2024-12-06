@@ -297,26 +297,3 @@ export const updateCardInfo = async (
     res.status(500).json({ message: "Failed to update card information" });
   }
 };
-
-export const updateCreditAmount = async (
-  customerKey: string,
-  newAmount: number
-) => {
-  try {
-    const [result]: any = await db.execute(
-      `UPDATE Credit 
-       SET amount = ?, updatedAt = NOW()
-       WHERE customerKey = ? AND status = 'active'`,
-      [newAmount, customerKey]
-    );
-
-    if (result.affectedRows === 0) {
-      console.warn("No credit record found to update amount.");
-    } else {
-      console.log("Credit amount updated successfully:", result);
-    }
-  } catch (error) {
-    console.error("Failed to update Credit amount:", error);
-    throw new Error("Credit amount 업데이트 실패");
-  }
-};
