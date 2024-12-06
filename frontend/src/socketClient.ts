@@ -52,10 +52,14 @@ export const sendMessage = (messageData: Message) => { //{ mid: number; content:
 };
 
 // 메시지 수신 핸들러 등록
-export const onMessage = (callback: (message: any) => void) => {
+export const onMessage = (callback: (message: Message) => void) => {
   if (socket) {
-    socket.on('newMessage', callback);
+    // 기존 리스너 제거
+    socket.off('newMessage'); 
+    socket.on('newMessage', callback);// 새로운 리스너 등록
     console.log('!!!모든 클라이언트들에게 메시지 보내줄게!!!');
+  }else {
+    console.warn('소켓 연결 안됨');
   }
 };
 

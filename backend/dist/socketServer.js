@@ -48,6 +48,7 @@ const initSocket = (httpServer) => {
         cors: {
             origin: 'http://localhost:3000', // 프론트엔드 URL<- 허락해줄 주소
             // methods: ['GET', 'POST'],
+            credentials: true,
         },
     });
     //서버측 : 나한테 연결할 사람~? (매개변수는 연결된 사람)
@@ -58,6 +59,7 @@ const initSocket = (httpServer) => {
         //끊김
         socket.on('disconnect', () => {
             console.log(`User disconnected: ${socket.id}`);
+            console.log('소켓 연결 끊김');
         });
         // 프론트에서 방참가를 들음 : 특정 채널(Room)에 참가
         socket.on('joinRoom', (rid) => __awaiter(void 0, void 0, void 0, function* () {
@@ -72,44 +74,26 @@ const initSocket = (httpServer) => {
         }));
         // 클라이언트로부터 메시지 전송
         socket.on('sendMessage', (messageData) => __awaiter(void 0, void 0, void 0, function* () {
-            const { mid, rid, content, timestamp, user_email, user } = messageData;
+            // const { mid, rid, content, timestamp, user_email, user } = messageData;
             try {
                 // 클라이언트에서 받은 timestamp를 변환
                 const convertedTimestamp = convertToMySQLTimestamp(messageData.timestamp);
-                // 메시지를 데이터베이스에 저장
-                // const savedMessage = await saveMessageToDB({
-                //   mid,
-                //   rid,
-                //   content,
-                //   timestamp,
-                //   user_email,
-                //   user,
-                // });
                 const savedMessage = yield saveMessageToDB(Object.assign(Object.assign({}, messageData), { timestamp: convertedTimestamp }));
                 // Room에 있는 모든 사용자에게 메시지 전송
                 io.to(messageData.rid.toString()).emit('newMessage', savedMessage);
                 console.log('!!서버는 모든 사용자들에게 메시지 전송한다!!!');
+                console.log('서버가 모든 클라이언트들에게 보내주는 메시지:', savedMessage);
             }
             catch (error) {
                 console.error('Error saving message:', error);
             }
         }));
     }));
-    console.log('Socket.IO initialized');
+    return io;
 };
 exports.initSocket = initSocket;
 // 메시지를 데이터베이스에 저장하는 함수
 const saveMessageToDB = (message) => __awaiter(void 0, void 0, void 0, function* () {
-    //   const dbMessage = {
-    //     mid,
-    //  // 클라이언트에서 받은 'user'를 'user_email' 컬럼에 매핑
-    //     content,
-    //     timestamp: new Date().toISOString(),
-    //     user, 
-    //     user_email,
-    //   };
-    // await pool.query('INSERT INTO Message SET ?', message);
-    // return message;
     // message 객체에서 user 필드를 제외한 새로운 객체 생성
     const { mid, user } = message, dbMessage = __rest(message, ["mid", "user"]);
     // dbMessage를 테이블에 삽입

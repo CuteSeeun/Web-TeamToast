@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { ImAttachment, ImSmile, ImCompass } from "react-icons/im";
-import { IoPersonAddOutline, IoNotificationsOutline, IoLogOutOutline } from "react-icons/io5";
+import { IoPersonAddOutline, IoNotificationsOutline, IoNotificationsOffOutline, IoNotificationsCircleOutline, IoNotificationsOffCircleOutline, IoLogOutOutline } from "react-icons/io5";
 import { FcCollaboration } from "react-icons/fc";
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { selectedChannelAtom } from '../../recoil/atoms/selectedChannelAtoms'; // selectedChannelAtom 가져오기
@@ -9,8 +9,11 @@ import { userState } from '../../recoil/atoms/userAtoms';
 import { channelAtom } from '../../recoil/atoms/channelAtoms'; // 전체 채널 상태 관리
 import gif from '../../assets/images/noMessage.gif';
 import chatAlert from '../../assets/images/chatAlert.svg';
-
 import { sendMessage, onMessage, offMessage } from '../../socketClient'; // 소켓 메시지 전송 함수 가져오기
+import ExitModal from './ExitModal';
+import AddFriendModal from './AddFriendModal'; // AddFriendModal 가져오기
+import { Picker } from "@emoji-mart/react";
+// import "emoji-mart/css/emoji-mart.css"; // 최신 스타일 가져오기
 
 const ProfileImage = styled.div`
    width: 30px;
@@ -91,6 +94,7 @@ const InputContainer = styled.div`
 
 const InputField = styled.input`
   flex: 1;
+  /* background: pink; */
   /* padding: 10px; */
   font-size: 14px;
   border: 1px solid #ddd;
@@ -104,6 +108,7 @@ const InputIcon = styled.div`
   position: absolute;
   right: 25px; /* InputField 내부 아이콘 위치 */
   display: flex; /* 아이콘을 가로로 나열 */
+  align-items: center; /* 수직 가운데 정렬 */
   gap: 8px; /* 아이콘 간 간격, 이건 display: flex를 줘야 먹힘 */
   font-size: 18px;
   color: #aaa;
@@ -114,17 +119,36 @@ const InputIcon = styled.div`
   }
 `;
 
-const CompassIcon = styled(ImCompass)`
-  background-color: #038c8c; /* 배경 색상 */
-  color: white; /* 아이콘 색상 */
-  border-radius: 20%; /* 동그랗게 만들기 */
-  padding: 8px; /* 내부 여백 */
-  font-size: 18px; /* 아이콘 크기 */
-  box-sizing: content-box; /* padding 포함 */
+const StyledAttachmentIcon = styled(ImAttachment)`
+  font-size: 18px;
+  color: #aaa;
   cursor: pointer;
 
   &:hover {
-    background-color: #026b6b; /* hover 효과 */
+    color: #007bff; /* 호버 시 색상 변경 */
+  }
+`;
+
+const StyledSmileIcon = styled(ImSmile)`
+  font-size: 18px;
+  color: #aaa;
+  cursor: pointer;
+
+  &:hover {
+    color: #007bff; /* 호버 시 색상 변경 */
+  }
+`;
+
+const StyledCompassIcon = styled(ImCompass)`
+  font-size: 18px;
+  background-color: #038c8c; /* 배경 색상 */
+  color: white; /* 아이콘 색상 */
+  border-radius: 20%; /* 둥글게 */
+  padding: 8px; /* 내부 여백 */
+  cursor: pointer;
+
+  &:hover {
+    background-color: #026b6b; /* 호버 시 배경 색상 변경 */
   }
 `;
 
@@ -160,6 +184,47 @@ const HeaderIcons = styled.div`
   }
 `;
 
+// 임시 아이콘 스타일
+const TemporaryIcon = styled.div<{ fading: boolean }>`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  // border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  z-index: 1000;
+
+  opacity: ${({ fading }) => (fading ? 0 : 1)};
+  ${({ fading }) =>
+    fading &&
+    css`
+      animation: ${fadeOut} 1.5s;
+    `}
+`;
+// 페이드아웃 애니메이션 정의
+const fadeOut = keyframes`
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+`;
+
+const EmojiPickerWrapper = styled.div`
+  position: absolute;
+  bottom: 50px; /* 입력창 위로 띄우기 */
+  right: 20px;
+  z-index: 1000;
+`;
+
 interface Message {
   mid: number;       // 메시지 ID (고유값, UUID 사용 권장)
   rid: number;       // 방 ID
@@ -169,6 +234,7 @@ interface Message {
   user: string; // 보낸 사용자 이메일
 };
 
+
 const ChatContainerComponent: React.FC = () => {
   // const selectedChannel = useRecoilValue(selectedChannelAtom); // 선택된 채널 구독
   // const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom);
@@ -177,8 +243,63 @@ const ChatContainerComponent: React.FC = () => {
   const [newMessages, setNewMessages] = useState<Array<any>>([]); // 추가 메시지 상태
   const [currentInput, setCurrentInput] = useState(''); // 입력 필드 상태
   const [channels, setChannels] = useRecoilState(channelAtom); // 전체 채널 상태 관리
+  const [isExitModalOpen, setExitModalOpen] = useState(false); // 나가기 모달 상태 관리
+  const [isNotificationsOn, setNotificationsOn] = useState(true); // 알림 상태 관리
+  const [temporaryIcon, setTemporaryIcon] = useState<React.ReactNode | null>(null); // 화면 중앙에 표시할 아이콘(알림 설정)
+  const [isFading, setFading] = useState(false); // 페이드아웃 상태 관리
+  const [isFriendModalOpen, setFriendModalOpen] = useState(false); // 대화상대 초대 모달 상태
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 선택기 상태
 
-  
+
+  // 채팅방 퇴장 모달을 열거나 닫는 핸들러
+  const OpenExitModal = () => setExitModalOpen(true);
+  const CloseExitModal = () => setExitModalOpen(false);
+
+  // 채팅방 퇴장 시 실행될 로직
+  const handleLeaveChannel = () => {
+    console.log('채널에서 퇴장했습니다.');
+    setExitModalOpen(false);
+
+    //rid(채팅방번호)에서 로그인한 유저 이메일로 룸멤버테이블에서 해당 레코드 삭제하기
+
+  };
+
+
+  // 알림 토글 핸들러
+  const toggleNotifications = () => {
+    // 알림 상태 변경 및 임시 아이콘 설정
+    if (isNotificationsOn) {
+      setTemporaryIcon(<IoNotificationsOffCircleOutline />);
+    } else {
+      setTemporaryIcon(<IoNotificationsCircleOutline />);
+    }
+    setNotificationsOn((prev) => !prev); // 상태 반전
+    // 페이드아웃 시작 후 1.5초 후 아이콘 제거
+    setTimeout(() => setFading(true), 1000); // 1초 후 페이드아웃 시작
+    setTimeout(() => {
+      setTemporaryIcon(null);
+      setFading(false); // 상태 초기화
+    }, 1500); // 1.5초 후 완전히 제거
+  };
+
+  // 대화상대 초대 모달 열기 및 닫기 핸들러
+  const openFriendModal = () => setFriendModalOpen(true);
+  const closeFriendModal = () => setFriendModalOpen(false);
+
+  // 대화상대 초대 완료 핸들러
+  const handleApplyFriends = (selectedMembers: any[]) => {
+    console.log('선택된 멤버:', selectedMembers);
+    setFriendModalOpen(false);
+    // 여기서 선택된 멤버에 대한 로직을 추가할 수 있음
+  };
+
+  // 이모티콘 추가 핸들러
+  const addEmoji = (emoji: any) => {
+    setCurrentInput((prev) => prev + emoji.native); // 입력창에 이모티콘 추가
+    setShowEmojiPicker(false); // 선택 후 이모티콘 선택기 닫기
+  };
+
+
   // useEffect(() => {
   //   // 새로운 메시지 수신 핸들러 등록
   //   onMessage((newMessage) => {
@@ -215,30 +336,33 @@ const ChatContainerComponent: React.FC = () => {
 
   useEffect(() => {
     onMessage((newMessage) => {
-      console.log('새 메시지 수신:', newMessage);
-  
+      console.log('onMessage 호출됨:', newMessage);
+
       // 선택된 채널에 메시지 추가
       setSelectedChannel((prev) => {
-        if (!prev || prev.rid !== newMessage.rid) return prev; // 다른 채널 메시지는 무시
+        console.log('이전 상태:', prev);
+        console.log('받은 메시지의 rid:', newMessage.rid);
+        if (!prev || prev.rid !== newMessage.rid) {
+          console.log('현재 채널이 아니므로 업데이트 안 함');
+          return prev; // 다른 채널 메시지는 무시
+        }
         return {
           ...prev,
           messages: [...(prev.messages || []), newMessage],
         };
       });
     });
-  
+
     return () => {
-      offMessage();
+      // offMessage();
     };
-  }, [setSelectedChannel]);
-
-
+  }, [selectedChannel]);
 
   // 메시지 전송 핸들러 _ 메시지 추가할 때 selectedChannel상태 업데이트
   const handleSendMessage = () => {
     if (!currentInput.trim() || !selectedChannel) return;
 
-    const newMessage : Message = {
+    const newMessage: Message = {
       mid: new Date().getTime(), // 혹은 UUID 등 고유 ID 생성 로직
       rid: selectedChannel.rid,
       content: currentInput,
@@ -253,35 +377,50 @@ const ChatContainerComponent: React.FC = () => {
     // selectedChannel 업데이트
     setSelectedChannel((prev) => ({
       ...prev,
-      messages: [...prev.messages, newMessage], // 기존메시지에서 새 메시지 추가
+      messages: [...prev.messages], // 기존메시지에서 새 메시지 추가
     }));
 
-    setChannels((prevChannels) =>
-      prevChannels.map((channel) =>
-        channel.rid === selectedChannel.rid
-          ? {
-            ...channel,
-            messages: [...selectedChannel.messages, newMessage], // 배열로 보장
-          }
-          : channel
-      )
-    );
+    // setChannels((prevChannels) =>
+    //   prevChannels.map((channel) =>
+    //     channel.rid === selectedChannel.rid
+    //       ? {
+    //         ...channel,
+    //         messages: [...selectedChannel.messages, newMessage], // 배열로 보장
+    //       }
+    //       : channel
+    //   )
+    // );
 
     // 입력 필드 초기화
-    setCurrentInput(''); 
+    setCurrentInput('');
   };
 
   return (
     <ChatContainer>
-      
+
       <ChatHeaderContainer>
         <HeaderTitle>{selectedChannel?.rname || '대화를 시작해보세요!'}</HeaderTitle>
         {selectedChannel?.rname && (
           <HeaderIcons>
-            <IoPersonAddOutline />
-            <IoNotificationsOutline />
-            <IoLogOutOutline />
+            <IoPersonAddOutline onClick={openFriendModal} />
+            {isNotificationsOn ? (
+              <IoNotificationsOutline onClick={toggleNotifications} />
+            ) : (
+              <IoNotificationsOffOutline onClick={toggleNotifications} />
+            )}
+            <IoLogOutOutline onClick={OpenExitModal} />
           </HeaderIcons>
+
+
+        )}
+
+        {isFriendModalOpen && (
+          <AddFriendModal onClose={closeFriendModal} onApply={handleApplyFriends} />
+        )}
+        {temporaryIcon && <TemporaryIcon fading={isFading}>{temporaryIcon}</TemporaryIcon>}
+        {/* 모달 표시 */}
+        {isExitModalOpen && (
+          <ExitModal onClose={CloseExitModal} onLeave={handleLeaveChannel} />
         )}
       </ChatHeaderContainer>
 
@@ -309,28 +448,42 @@ const ChatContainerComponent: React.FC = () => {
           //   alt="로딩 중"
           //   style={{ width: "300px", margin: "100px auto", display: "block" }}
           // />
-
-          <img 
-      src={chatAlert} 
-      alt="채팅 알림" 
-      style={{ width: "300px", margin: "50px auto", display: "block" }} 
-    />
+          <div style={{ textAlign: "center" }}>
+            <img
+              src={chatAlert}
+              alt="채팅 알림"
+              style={{ width: "300px", margin: "50px auto", display: "block" }}
+            />
+            <p style={{ textAlign: "center", fontSize: "20px", color: "#555" }}>
+              채널을 선택해주세요
+            </p>
+          </div>
 
         )}
       </MessageList>
 
-      {selectedChannel?.rname ? (
-        <InputContainer>
-          <InputField placeholder="메시지 입력" value={currentInput}
-            onChange={(e) => setCurrentInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-          />
-          <InputIcon> <ImAttachment /><ImSmile /><CompassIcon onClick={handleSendMessage} />
-          </InputIcon>
-        </InputContainer>
-      ) : ( <></> )}
+      {
+        selectedChannel?.rname ? (
+          <InputContainer>
+            <InputField placeholder="메시지 입력" value={currentInput}
+              onChange={(e) => setCurrentInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+            />
+            <InputIcon>
+              <StyledSmileIcon onClick={() => setShowEmojiPicker((prev) => !prev)} />
+              <StyledAttachmentIcon />
+              <StyledCompassIcon onClick={handleSendMessage} />
+            </InputIcon>
+            {showEmojiPicker && (
+              <EmojiPickerWrapper>
+                <Picker onEmojiSelect={addEmoji} />
+              </EmojiPickerWrapper>
+            )}
+          </InputContainer>
+        ) : (<></>)
+      }
 
-    </ChatContainer>
+    </ChatContainer >
   );
 };
 

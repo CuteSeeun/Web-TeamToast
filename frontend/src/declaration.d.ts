@@ -10,4 +10,9 @@ declare module '*.svg' {
     const value: string;
     export default value;
   }
+
+  declare module '@emoji-mart/react' {
+    const Picker: any;
+    export {Picker};
+  }
   

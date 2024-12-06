@@ -37,6 +37,7 @@ initSocket(httpServer);
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
+    
 });
 
 // 데이터베이스 연결 확인
