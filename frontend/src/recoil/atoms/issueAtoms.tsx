@@ -12,7 +12,7 @@ export const backlogState = atom<Issue[]>({
   default: [],
 });
 
-// 새로운 atom 추가
+// 새로운 atom 추가 <------ 전체 이슈 저장하는 아톰임
 export const allIssuesState = atom<Issue[]>({
   key: 'allIssuesState',
   default: [],

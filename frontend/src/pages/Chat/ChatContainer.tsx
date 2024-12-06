@@ -12,7 +12,7 @@ import chatAlert from '../../assets/images/chatAlert.svg';
 import { sendMessage, onMessage, offMessage } from '../../socketClient'; // 소켓 메시지 전송 함수 가져오기
 import ExitModal from './ExitModal';
 import AddFriendModal from './AddFriendModal'; // AddFriendModal 가져오기
-import { Picker } from "@emoji-mart/react";
+// import { Picker } from "@emoji-mart/react";
 // import "emoji-mart/css/emoji-mart.css"; // 최신 스타일 가져오기
 
 const ProfileImage = styled.div`
@@ -474,11 +474,11 @@ const ChatContainerComponent: React.FC = () => {
               <StyledAttachmentIcon />
               <StyledCompassIcon onClick={handleSendMessage} />
             </InputIcon>
-            {showEmojiPicker && (
+            {/* {showEmojiPicker && (
               <EmojiPickerWrapper>
                 <Picker onEmojiSelect={addEmoji} />
               </EmojiPickerWrapper>
-            )}
+            )} */}
           </InputContainer>
         ) : (<></>)
       }

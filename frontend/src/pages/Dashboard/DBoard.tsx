@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
 import Draggable from 'react-draggable';
+import { useRecoilValue } from 'recoil';
+import { allIssuesState } from '../../recoil/atoms/issueAtoms';
 
 // 스타일 정의
 const BoardContainer = styled.div`
@@ -38,9 +40,16 @@ const DashboardSection = styled.div`
   gap: 20px;
 `;
 
+const ActiveSprintSection = styled.div`
+display: flex;
+justify-content: space-between;
+margin-top: 20px;
+gap: 20px;
+`;
+
 const ChartContainer = styled.div`
 width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
-  // max-width: 550px; /* 최대 크기를 지정하여 박스 내부에 제한 */
+  max-width: 550px; /* 최대 크기를 지정하여 박스 내부에 제한 */
   width: 48%;
   padding: 20px;
   background: #fff;
@@ -112,58 +121,40 @@ const CustomTimelineBar = styled.div`
   }
 `;
 
-// const CustomXAxis = styled.div`
-//   display: flex;
-//   justify-content: space-between;
-//   margin-top: 10px;
-//   font-size: 14px;
-//   color: #6c757d;
-// `;
+const InfoContainer = styled.div`
+/* width: 48%; */
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+`;
 
-// const CustomTimelineBar = styled.div`
-//   display: flex;
-//   align-items: center;
-//   margin: 10px 0;
+const InfoCard = styled.div`
+/* width: 48%; */
+  flex: 1;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
 
-//   .label {
-//     width: 120px;
-//     text-align: right;
-//     margin-right: 10px;
-//     font-size: 14px;
-//     color: #333;
-//   }
+  h4 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+  }
 
-//   .bar {
-//     height: 30px;
-//     border-radius: 15px;
-//     background-color: #56CCF2;
-//     position: relative;
-//     transition: 0.3s;
+  p {
+    font-size: 16px;
+    color: #555;
+  }
 
-//     &:hover {
-//       background-color: #2F80ED;
-//     }
-
-//     .tooltip {
-//       position: absolute;
-//       top: -30px;
-//       left: 50%;
-//       transform: translateX(-50%);
-//       background: #000;
-//       color: #fff;
-//       padding: 5px 10px;
-//       border-radius: 5px;
-//       font-size: 12px;
-//       opacity: 0;
-//       pointer-events: none;
-//       transition: 0.3s;
-//     }
-
-//     &:hover .tooltip {
-//       opacity: 1;
-//     }
-//   }
-// `;
+  span {
+    font-size: 32px;
+    font-weight: bold;
+    color: #000;
+  }
+`;
 
 
 // 데이터 타입 정의
@@ -174,20 +165,20 @@ type TimelineBar = {
   end: number;
 };
 
-// 차트 데이터
+// 간트차트 스프린트 더미 데이터
 const timelineData: TimelineBar[] = [
   { id: 1, name: '스프린트 1', start: 10, end: 30 },
   { id: 2, name: '스프린트 2', start: 35, end: 70 },
   { id: 3, name: '스프린트 3', start: 80, end: 95 },
 ];
-
+//이슈 진행 상태 더미 데이터 
 const issueProgressData = [
   { name: '백로그', value: 10, color: '#F2994A' },
   { name: '진행 중', value: 20, color: '#56CCF2' },
   { name: '개발 완료', value: 30, color: '#27AE60' },
   { name: 'QA 완료', value: 15, color: '#9B51E0' },
 ];
-
+//팀원별 이슈 현황 상태 
 const teamIssueData = [
   { name: '김정연', backlog: 5, progress: 8, complete: 10, qa: 2 },
   { name: '김현진', backlog: 6, progress: 7, complete: 15, qa: 3 },
@@ -207,12 +198,12 @@ const DBoard: React.FC = () => {
       prevBars.map((bar) =>
         bar.id === id
           ? {
-              ...bar,
-              [isResize]:
-                isResize === 'start'
-                  ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
-                  : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
-            }
+            ...bar,
+            [isResize]:
+              isResize === 'start'
+                ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
+                : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
+          }
           : bar
       )
     );
@@ -226,109 +217,84 @@ const DBoard: React.FC = () => {
         <Breadcrumb>프로젝트 &gt; 중고차 직거래 &gt; 대시보드</Breadcrumb>
       </BoardHeader>
 
-      {/* 타임라인 */}
-      {/* <TimelineContainer>
+      <TimelineContainer>
         <h3>타임라인</h3>
-        <BarChart width={600} height={300} data={timelineData} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" />
-          <YAxis type="category" dataKey="name" />
-          <Tooltip />
-          <Bar dataKey="start" stackId="a" fill="#56CCF2" />
-          <Bar dataKey="end" stackId="a" fill="#2F80ED" />
-        </BarChart>
-      </TimelineContainer> */}
+        {/* 캘린더 그리드 */}
+        <CalendarGrid>
+          {[...Array(totalDays / 10)].map((_, index) => (
+            <Day key={index}>{index * 10}일</Day>
+          ))}
+        </CalendarGrid>
 
-      {/* <TimelineContainer>
-      <h3>타임라인</h3>
-      <div>
-        {timelineData.map((item) => (
-          <CustomTimelineBar key={item.name}>
-            <div className="label">{item.name}</div>
-            <div
-              className="bar"
-              style={{
-                width: `${((item.end - item.start) / totalDays) * 100}%`,
-                marginLeft: `${(item.start / totalDays) * 100}%`,
+        {/* 현재 날짜 라인 */}
+        <TodayLine position={todayPosition} />
+
+        {/* 타임라인 바 */}
+        {bars.map((bar, index) => (
+          <CustomTimelineBar key={bar.id}>
+            <div className="label">{bar.name}</div>
+            <Draggable
+              axis="x"
+              bounds="parent"
+              position={{
+                x: (bar.start / totalDays) * 100,
+                y: 0,
               }}
+              onDrag={(e, data) => handleDrag(e, data, bar.id, 'start')}
             >
-              <span className="tooltip">{`Start: ${item.start}, End: ${item.end}`}</span>
-            </div>
+              <div
+                className="bar"
+                style={{
+                  width: `${((bar.end - bar.start) / totalDays) * 100}%`,
+                  left: `${(bar.start / totalDays) * 100}%`,
+                }}
+              ></div>
+            </Draggable>
+
+            <Draggable
+              axis="x"
+              bounds="parent"
+              position={{
+                x: (bar.end / totalDays) * 100,
+                y: 0,
+              }}
+              onDrag={(e, data) => handleDrag(e, data, bar.id, 'end')}
+            >
+              <div
+                className="bar"
+                style={{
+                  width: '10px',
+                  height: '30px',
+                  backgroundColor: '#333',
+                  position: 'absolute',
+                  right: '-5px',
+                  top: '0',
+                  cursor: 'col-resize',
+                }}
+              ></div>
+            </Draggable>
           </CustomTimelineBar>
         ))}
-      </div>
-      <CustomXAxis>
-        <span>0일</span>
-        <span>100일</span>
-        <span>200일</span>
-        <span>300일</span>
-      </CustomXAxis>
-    </TimelineContainer> */}
+      </TimelineContainer>
 
-
-<TimelineContainer>
-      <h3>타임라인</h3>
-      {/* 캘린더 그리드 */}
-      <CalendarGrid>
-        {[...Array(totalDays / 10)].map((_, index) => (
-          <Day key={index}>{index * 10}일</Day>
-        ))}
-      </CalendarGrid>
-
-      {/* 현재 날짜 라인 */}
-      <TodayLine position={todayPosition} />
-
-      {/* 타임라인 바 */}
-      {bars.map((bar, index) => (
-        <CustomTimelineBar key={bar.id}>
-          <div className="label">{bar.name}</div>
-          <Draggable
-            axis="x"
-            bounds="parent"
-            position={{
-              x: (bar.start / totalDays) * 100,
-              y: 0,
-            }}
-            onDrag={(e, data) => handleDrag(e, data, bar.id, 'start')}
-          >
-            <div
-              className="bar"
-              style={{
-                width: `${((bar.end - bar.start) / totalDays) * 100}%`,
-                left: `${(bar.start / totalDays) * 100}%`,
-              }}
-            ></div>
-          </Draggable>
-
-          <Draggable
-            axis="x"
-            bounds="parent"
-            position={{
-              x: (bar.end / totalDays) * 100,
-              y: 0,
-            }}
-            onDrag={(e, data) => handleDrag(e, data, bar.id, 'end')}
-          >
-            <div
-              className="bar"
-              style={{
-                width: '10px',
-                height: '30px',
-                backgroundColor: '#333',
-                position: 'absolute',
-                right: '-5px',
-                top: '0',
-                cursor: 'col-resize',
-              }}
-            ></div>
-          </Draggable>
-        </CustomTimelineBar>
-      ))}
-    </TimelineContainer>
+      <ActiveSprintSection>
+        <InfoContainer>
+          <InfoCard>
+            <h4>활성 스프린트명 spname</h4>
+            <p>목표 goal</p>
+          </InfoCard>
+          <InfoCard>
+            <h4>남은 기간</h4>
+            <span>enddate-현재</span>
+            <p>전체 기간 들어갈 자리입니다.</p>
+          </InfoCard>
+        </InfoContainer>
+      </ActiveSprintSection>
 
 
       {/* 차트 섹션 */}
       <DashboardSection>
+
         {/* 이슈 진행 상태 */}
         <ChartContainer>
           <h3>이슈 진행 상태</h3>
@@ -365,6 +331,7 @@ const DBoard: React.FC = () => {
             <Bar dataKey="qa" stackId="a" fill="#5ED3E4" />
           </BarChart>
         </ChartContainer>
+
       </DashboardSection>
     </BoardContainer>
   );

@@ -12,7 +12,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-
 exports.updateIssueDetail = exports.updateIssueSprint = exports.getBacklogIssue = exports.getIssue = exports.getIssueById = exports.getIssuesByProjectId = void 0;
 const dbpool_1 = __importDefault(require("../config/dbpool"));
 // 특정 프로젝트의 모든 이슈를 가져오는 컨트롤러
@@ -77,12 +76,12 @@ exports.getIssueById = getIssueById;
 const getIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const sprintId = parseInt(req.params.issueid, 10);
     const projectId = parseInt(req.params.projectid, 10);
-
     try {
         const query = `
             SELECT 
                 Issue.isid, Issue.title, Issue.detail, Issue.type, 
                 Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
+
                 mgr.uname AS manager, crt.uname AS created_by, Issue.file
             FROM Issue
             JOIN User AS mgr ON Issue.manager = mgr.email
@@ -148,7 +147,6 @@ const updateIssueSprint = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateIssueSprint = updateIssueSprint;
-
 const updateIssueDetail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const issueId = Number(req.params.isid);
     if (isNaN(issueId)) {
@@ -191,4 +189,3 @@ const updateIssueDetail = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateIssueDetail = updateIssueDetail;
-
