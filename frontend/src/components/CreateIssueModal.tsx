@@ -3,59 +3,26 @@ import { useRecoilValue } from "recoil";
 import React, { useEffect, useState } from "react";
 import { Issue, Type, Status, Priority } from '../recoil/atoms/issueAtoms';
 import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
-import AccessToken from '../pages/Login/AccessToken';
 
-import { spaceIdState } from "../recoil/atoms/spaceAtoms";
-import { projectIdState } from "../recoil/atoms/projectAtoms";
+import useCurrentProject from '../hooks/useCurrentProject';
 import { sprintState } from "../recoil/atoms/sprintAtoms";
 
 interface IssueModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (issue: Issue, files: File[]) => void;
+  onSubmit: (issue: Issue, files: File[]) => Promise<void>;
 };
 
 export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   => {
-  const projectId = useRecoilValue(projectIdState);
+  const {currentProject} = useCurrentProject();
   const sprints = useRecoilValue(sprintState);
-  const spaceId = useRecoilValue(spaceIdState);
-  const [projectName, setProjectName] = useState<string>('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
 
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const fetchProjectName = async () => {
-      if(!spaceId){
-        console.log(`spaceId가 없습니다. spaceId:${spaceId}`);
-        return;
-      };
-      if (projectId === 0) {
-        setProjectName('프로젝트가 선택되지 않았습니다.');
-        return;
-      };
-
-      try {
-        const { data } = await AccessToken.get(`http://localhost:3001/projects/${spaceId}/${projectId}`);
-
-        if (data && data.length > 0) {
-          setProjectName(data[0].pname); // pname 가져오기
-        } else {
-          setProjectName('프로젝트 이름을 가져오지 못했습니다.');
-        };
-
-      } catch (error) {
-        console.error('프로젝트 데이터를 가져오는 중 에러 발생:', error);
-        setProjectName('프로젝트 이름을 가져오지 못했습니다.');
-      };
-    };
-
-    // `spaceId`가 존재할 때만 호출
-    if (spaceId) {
-      fetchProjectName();
-    }
-  }, [spaceId, projectId]);
+  const projectId = currentProject.pid;
+  const projectName = currentProject.pname;
 
   // 객체 기반 issue 스테이트 작성 (임시)
   const [issue, setIssue] = useState<Issue>({
@@ -77,11 +44,48 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     if (!files) return;
   
     const fileArray = Array.from(files);
-    setSelectedFiles((prev) => [...prev, ...fileArray]) // 선택된 파일 저장
+    console.log("새로 선택된 파일:", fileArray);
+    
+
+    // 기존 선택된 파일과 합쳐 중복 검사
+    const previousFiles = [...selectedFiles]; // 기존 선택된 파일
+    const duplicatedFiles = fileArray.filter((file) =>
+      previousFiles.some(
+        (selectedFile) =>
+          selectedFile.name === file.name &&
+          selectedFile.size === file.size &&
+          selectedFile.lastModified === file.lastModified
+      )
+    );
+
+    if (duplicatedFiles.length > 0) {
+      alert("중복된 파일은 업로드할 수 없습니다.");
+      return;
+    };
+
+    // 중복을 제외한 파일만 추가
+    const uniqueFiles = fileArray.filter(
+    (file) =>
+      !previousFiles.some(
+        (selectedFile) =>
+          selectedFile.name === file.name &&
+          selectedFile.size === file.size &&
+          selectedFile.lastModified === file.lastModified
+      )
+    );
+  
+    console.log("중복 제외 후 추가할 파일:", uniqueFiles);
+
+    setSelectedFiles((prev) => [...prev, ...uniqueFiles]); // 선택된 파일 저장
   
     // 미리보기 URL 생성
-    const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
+    const newPreviews = uniqueFiles.map((file) => URL.createObjectURL(file));
     setPreviews((prev) => [...prev, ...newPreviews]); // 미리보기 상태 업데이트
+  
+    // 파일 입력 필드 초기화
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    };
   };
 
   // 파일 선택 해제
@@ -92,7 +96,7 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     // input 초기화
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
-    }
+    };
   };
 
   // 공통 핸들러
@@ -100,28 +104,67 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
     setIssue((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent): void => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     // 파일 데이터 업로드 준비
     const formData = new FormData();
     selectedFiles.forEach((file) => formData.append("files", file));
-    
-    props.onSubmit(issue, selectedFiles);
-    setIssue({
-      title: '',
-      detail: '',
-      type: Type.process,
-      status: Status.Backlog,
-      sprint_id: null,
-      project_id: projectId,
-      manager: null,
-      created_by: null,
-      file: null,
-      priority: Priority.normal,
-    });
-    setSelectedFiles([]);
-    setPreviews([]); // 미리보기 초기화
+    // 파일 이름 배열 생성
+    const fileNames = selectedFiles.map((file) => file.name);
+
+    if ([(issue.title || '').trim(), issue.type, issue.status, issue.project_id, issue.priority].some((field) => !field)) {
+      alert('필수 데이터가 누락되었습니다.');
+      return;
+    }
+    // issue 객체에 파일 이름 배열 설정
+    const updatedIssue = {
+      ...issue,
+      file: fileNames,
+    };
+
+    try {
+      console.log(
+        `
+        title: ${updatedIssue.title},
+        type: ${updatedIssue.type},
+        status: ${updatedIssue.status},
+        sprint_id: ${updatedIssue.sprint_id},
+        project_id: ${updatedIssue.project_id},
+        file: ${updatedIssue.file},
+        priority: ${updatedIssue.priority}
+        `
+      );
+  
+      // 비동기 작업 완료까지 대기
+      await props.onSubmit(updatedIssue, selectedFiles);
+  
+      // 상태 초기화
+      setIssue({
+        title: '',
+        detail: '',
+        type: Type.process,
+        status: Status.Backlog,
+        sprint_id: null,
+        project_id: projectId,
+        manager: null,
+        created_by: null,
+        file: null,
+        priority: Priority.normal,
+      });
+      setSelectedFiles([]);
+      setPreviews([]); // 미리보기 초기화
+  
+      // 모달 닫기
+      props.onClose();
+    } catch (err) {
+      console.error('이슈 생성 실패:', err);
+    }
   };
+
+  const handleFileReset = () => {
+    setSelectedFiles([]);
+    setPreviews([]);
+  }
 
   // 메모리 누수 방지
   useEffect(() => {
@@ -300,7 +343,12 @@ export const CreateIssueModal = (props :IssueModalProps): JSX.Element | null   =
             </PreviewContainer>
           </div>
           <div className="button-group">
-            <button type="button" onClick={props.onClose}>취소</button>
+            <button 
+              type="button" 
+              onClick={() => {
+                handleFileReset();
+                props.onClose();
+              }}>취소</button>
             <button type="submit">생성</button>
           </div>
         </form>

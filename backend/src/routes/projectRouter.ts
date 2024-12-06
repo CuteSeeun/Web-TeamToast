@@ -2,7 +2,7 @@
 // projectRouter.ts
 
 import express from 'express';
-import { getAllProjects, getProjects, getProject, newProject, modifyProject, deleteProject, getProjectsByUUID } from '../controller/projectController';
+import { getAllProjects, getProjects, getProject, newProject, modifyProject, deleteProject, getProjectsByUUID, getSidByPid } from '../controller/projectController';
 import { validateSid, validatePid } from '../middlewares/idMiddleware.js';
 import { validateProjectFields } from '../middlewares/checkProjectInputs.js';
 import { checkToken } from '../middlewares/authMiddleware.js';
@@ -17,6 +17,7 @@ router.use(checkToken);
 router.get('/all', getAllProjects);
 router.get('/all/:sid', validateSid, getProjects);
 router.get('/:sid/:pid', validatePid, getProject);
+router.get('/find/one/:pid', validatePid, getSidByPid);
 router.post('/new/:sid', validateProjectFields, validateSid, newProject);
 router.put('/modify/:sid/:pid', validateProjectFields, validateSid, validatePid, modifyProject);
 router.delete('/delete/:sid/:pid', validatePid, deleteProject);

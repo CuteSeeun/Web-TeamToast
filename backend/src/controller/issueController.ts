@@ -113,6 +113,7 @@ export const newIssue = async (req: Request, res: Response) => {
       res.status(403).json({ message: `${createdByEmail}는 스페이스 접근 권한이 없습니다.` });
       return;
     };
+
     const issue: Issue = {
       title: req.body.title,
       detail: req.body.detail || null,
@@ -122,7 +123,7 @@ export const newIssue = async (req: Request, res: Response) => {
       project_id: parseInt(req.params.pid, 10),
       manager: req.body.manager || null,
       created_by: req.body.created_by || null,
-      file: JSON.stringify(req.body.file) || null,
+      file: req.body.file ? JSON.stringify(req.body.file) : null,
       priority: req.body.priority,
     };
 

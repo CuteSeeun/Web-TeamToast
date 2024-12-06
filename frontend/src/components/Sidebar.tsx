@@ -1,18 +1,16 @@
 //좌측 사이드바
 //세은
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
 import { CreateIssueModal } from './CreateIssueModal';
-// import { Issue } from '../types/issueTypes';
-import axios from 'axios';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { projectIdState } from '../recoil/atoms/projectAtoms';
-import { spaceIdState } from '../recoil/atoms/spaceAtoms';
+import { useRecoilState } from 'recoil';
 import { issueListState, backlogState, Issue, Type } from '../recoil/atoms/issueAtoms';
 import AccessToken from '../pages/Login/AccessToken';
+import useCurrentProject from '../hooks/useCurrentProject';
+import { sprintState } from '../recoil/atoms/sprintAtoms'; // 임시 추가
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -92,14 +90,84 @@ const MenuItem = styled(Link)<{ active?: boolean }>`
 
 const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
-  const spaceId = useRecoilValue(spaceIdState);
-  const projectId = useRecoilValue(projectIdState);
+  const [sprints, setSprints] = useRecoilState(sprintState);
   const [issues, setIssues] = useRecoilState(issueListState);
   const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
-
+  const {currentProject, isLoading} = useCurrentProject();
   
+  const spaceId = currentProject?.space_id; // `space_id`를 바로 사용
+  const projectId = currentProject?.pid;
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!projectId) {
+      console.error('프로젝트 정보를 알 수 없습니다.');
+      return;
+    };
+    getSprint(projectId); // 임시 추가 (스프린트 목록을 활성스프린트에서 가져온다면 삭제)
+  }, []);
+
+
+  // ====================================================================
+  // 스프린트 가져오는 함수 (스프린트 목록을 활성스프린트에서 가져온다면 삭제)
+  const getSprint = async (pid: number) => {
+    if(!pid) {
+      console.error('pid가 없습니다.');
+      navigate('/space');
+      return;
+    };
+
+    try {
+      const { data } = await AccessToken.get(`http://localhost:3001/sprint/${pid}`);
+      let parsedData = Array.isArray(data) ? data : JSON.parse(data);
+  
+      if (Array.isArray(parsedData)) {
+        setSprints(parsedData); // 상태 업데이트
+      } else {
+        console.error('Parsed data is not an array:', parsedData);
+      }
+    } catch (err) {
+      console.error('Error fetching sprints:', err);
+    }
+  };
+  
+  useEffect(() => {
+    console.log('Updated sprints:', sprints);
+  }, [sprints]);
+  // ====================================================================
+
+
+  // 이슈리스트 확인 함수
+  const issuelist = () => {
+    backlog.forEach(issue => {
+      console.log(`[Backlog] Issue ID: ${issue.isid}, Title: ${issue.title}`);
+    });
+    const keys = Object.keys(issues).map(Number); // 숫자 키 배열 생성
+
+    if (keys.length === 0) {
+      console.log('Issues 객체가 비어 있습니다.');
+      return;
+    };
+
+    for (const key of keys) {
+      const issuelist = issues[key];
+          // 배열인지 확인
+      if (!Array.isArray(issuelist)) {
+        console.warn(`Key ${key}에 대한 데이터가 유효하지 않습니다.`, issuelist);
+        continue; // 반복문 건너뛰기
+      }
+
+      console.log(`Key: ${key}`);
+      for (const issue of issuelist) {
+        console.log(`[${key}] Issue ID: ${issue.isid}, Title: ${issue.title}`);
+      };
+    };
+  };
+
+
   const openModal = () => {
-    console.log(issues);
+    issuelist(); // 이슈 잘 들어왔는지 확인용
     setIsOpen(true);
   };
   const closeModal = () => {
@@ -109,89 +177,55 @@ const Sidebar: React.FC = () => {
   // 자식 컴포넌트에서 props를 받아 서버에 데이터 전송
   const handleSubmit = async (issue: Issue, files: File[]) => {
     try {
-      // 1. 파일 업로드
-      let uploadedFileNames: string[] = [];
-      if (files.length > 0) {
-        const formData = new FormData();
-        files.forEach((file) => formData.append('files', file));
+      const formData = new FormData();
+      files.forEach((file) => formData.append('files', file));
   
-        const uploadResponse = await AccessToken.post('http://localhost:3001/upload/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+      const issuePromise = AccessToken.post(
+        `http://localhost:3001/issues/new/${spaceId}/${projectId}`,
+        issue
+      );
   
-        uploadedFileNames = uploadResponse.data.fileUrls.map((url: string) => url.split('/').pop());
-        console.log('파일 업로드 성공:', uploadedFileNames);
-      }
+      const fileUploadPromise = files.length > 0
+        ? AccessToken.post('http://localhost:3001/upload/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+        : Promise.resolve(); // 파일이 없으면 성공으로 간주
   
-      // 2. 이슈 데이터 전송
-      const sid = spaceId; // 임시로 sid 지정
-      if (!spaceId || projectId === 0) {
-        console.error('유효하지 않은 Space ID 또는 Project ID');
-        return;
-      };
-  
-      const issueForBackend: Issue = {
-        ...issue,
-        file: uploadedFileNames,
-      };
-      const { data } = await AccessToken.post(
-        `http://localhost:3001/issues/new/${sid}/${projectId}`,
-        issueForBackend);
-        
-        if (data) {
-          const issuesData: Issue = {
-            ...data,
-            manager:
-              typeof data.manager === "object" && data.manager !== null
-                ? data.manager.manager
-                : data.manager || "담당자 없음",
-            type: Type[data.type as keyof typeof Type] || "작업",
-          };
-        
-          console.log("원본 데이터:", data);
-          console.log("수정된 데이터:", issuesData);
-        
-          const sprintId = issuesData.sprint_id;
-        
-          if (sprintId === 0 || sprintId === null || sprintId === undefined) {
-            // Backlog로 추가
-            setBacklog((prevBacklog) => [...prevBacklog, issuesData]);
-          } else {
-            // Issues로 추가
-            setIssues((prevIssues) => {
-              const updatedSprintIssues = prevIssues[sprintId]
-                ? [...prevIssues[sprintId], issuesData]
-                : [issuesData];
-        
-              return {
-                ...prevIssues,
-                [sprintId]: updatedSprintIssues,
-              };
-            });
-          }
-        }
+      // 병렬 처리
+      const [issueResponse, fileResponse] = await Promise.all([issuePromise, fileUploadPromise]);
 
-        console.log(`issues: ${issues}`);
-        console.log(`backlog: ${backlog}`);
-        
-        
 
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        if (err.response) {
-          console.error('서버 응답 오류:', err.response.data); // 서버에서 보낸 메시지
-        } else {
-          console.error('네트워크 또는 기타 오류:', err.message);
+      const newIssue: Issue = issueResponse.data;
+  
+      console.log('이슈 생성 성공:', issueResponse.data);
+      if (files.length > 0) console.log('파일 업로드 성공:', fileResponse?.data);
+
+    // 이슈 데이터 업데이트
+    if (newIssue.sprint_id) {
+      // sprint_id가 있는 경우 issues 상태 업데이트
+      setIssues((prevIssues) => {
+        const sprintId = newIssue.sprint_id!;
+        const updatedSprintIssues = prevIssues[sprintId]
+          ? [...prevIssues[sprintId], newIssue]
+          : [newIssue];
+
+        return {
+          ...prevIssues,
+          [sprintId]: updatedSprintIssues,
         };
-      } else {
-        console.error('알 수 없는 오류:', err);
-      };
-    } finally {
-      closeModal();
-    };
+      });
+    } else {
+      // sprint_id가 없는 경우 backlog 상태 업데이트
+      setBacklog((prevBacklog) => [...prevBacklog, newIssue]);
+    }
+    } catch (err) {
+      console.error('이슈 생성 또는 파일 업로드 실패:', err);
+    }
   };
+  
+  if (isLoading) {
+    return <div>로딩 중...</div>; // 상태가 동기화되기 전 로딩 표시
+  }
 
   return (
     <SidebarContainer>
@@ -200,11 +234,11 @@ const Sidebar: React.FC = () => {
         <AddIssueButton onClick={(e) => {openModal()}}><FaPlus />새 이슈</AddIssueButton> {/* 새 이슈 버튼 */}
 
         {/* 메뉴 항목 */}
-        <MenuItem to="/activesprint" active><FaTasks />활성 스프린트</MenuItem>
-        <MenuItem to="/dashboard"><FaChartPie />대시보드</MenuItem>
-        <MenuItem to="/backlog"><FaClipboardList />백로그</MenuItem>
-        <MenuItem to="/issuelist"><FaClipboardList />이슈 목록</MenuItem>
-        <MenuItem to="/chat"><FaComments />채팅</MenuItem>
+        <MenuItem to={`/activesprint/${projectId}`} active><FaTasks />활성 스프린트</MenuItem>
+        <MenuItem to={`/dashboard/${projectId}`}><FaChartPie />대시보드</MenuItem>
+        <MenuItem to={`/backlog/${projectId}`}><FaClipboardList />백로그</MenuItem>
+        <MenuItem to={`/issuelist/${projectId}`}><FaClipboardList />이슈 목록</MenuItem>
+        <MenuItem to={'/chat'}><FaComments />채팅</MenuItem>
 
       </TopSection>
 

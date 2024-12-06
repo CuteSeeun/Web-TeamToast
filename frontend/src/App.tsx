@@ -45,13 +45,13 @@ const App: React.FC = () => {
             <Route path="/join" element={<Join/>}/>
             <Route path="/rate" element={<RatePlan/>}/>
             <Route path="/space" element={<SpaceAll/>}/>
-            <Route path="/projectlist/:uuid" element={<ProjectList/>}/>
+            <Route path="/projectlist/:sid" element={<ProjectList/>}/>
             <Route path="/oauth" element={<OAuthCallback/>}/>
             <Route path="/team" element={<TeamManagement />} /> 
             <Route path="/activesprint/:pid" element={<ActiveSprint/>}/>
-            <Route path="/dashboard" element={<Dashboard/>}/>
-            <Route path="/backlog" element={<Backlog/>}/>
-            <Route path="/issuelist" element={<IssueList/>}/>
+            <Route path="/dashboard/:pid" element={<Dashboard/>}/>
+            <Route path="/backlog/:pid" element={<Backlog/>}/>
+            <Route path="/issuelist/:pid" element={<IssueList/>}/>
             <Route path="/chat" element={<Chat/>}/>
             <Route path="/payment" element={<Payment/>}/>
             <Route path="/spacemanagement" element={<SpaceManagement/>}/>
