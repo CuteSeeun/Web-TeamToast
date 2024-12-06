@@ -1,7 +1,7 @@
 // 2024-11-25 한채경
 // projectController.ts
 
-import { RequestHandler } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { getAllProjectsQuery, getProjectsQuery, getProjectQuery, newProjectQuery, modifyProjectQuery, deleteProjectQuery, getProjectsByUUIDQuery } from '../models/projectModel.js';
 import { ResultSetHeader } from 'mysql2';
 
@@ -33,7 +33,7 @@ export const getProjectsByUUID:RequestHandler = async(req,res):Promise<void>=>{
 
 
 // 모든 프로젝트 가져오기 (admin)
-export const getAllProjects: RequestHandler = async (req, res) => {
+export const getAllProjects = async (req:Request, res:Response) => {
   try {
     // 사이트 관리자만 쓸 수 있음 (로직, 권한 설정 필요)
 
@@ -51,13 +51,11 @@ export const getAllProjects: RequestHandler = async (req, res) => {
 
 // 프로젝트 여러개 가져오기
 // sid와 space_id가 일치하는 모든 프로젝트 반환
-export const getProjects: RequestHandler = async (req, res) => {
+export const getProjects = async (req:Request, res:Response) => {
   try {
     const sid: number = parseInt(req.params.sid, 10);
-    // const user: string = req.userRole.user; // 채경
 
-    // UserRole 테이블에서 권한 검증
-    // if (!(await checkUserInSpace(user, sid))) { // 채경
+    // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
     if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
       res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
       return;
@@ -77,13 +75,11 @@ export const getProjects: RequestHandler = async (req, res) => {
 
 // 프로젝트 하나 가져오기
 // pid와 일치하는 프로젝트를 가져옴
-export const getProject: RequestHandler = async (req, res) => {
+export const getProject = async (req:Request, res:Response) => {
   try {
     const sid: number = parseInt(req.params.sid, 10);
-    // const user: string = req.userRole.user; // 채경
 
-    // UserRole 테이블에서 권한 검증
-    // if (!(await checkUserInSpace(user, sid))) { // 채경
+    // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
     if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
 
       res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
@@ -105,13 +101,11 @@ export const getProject: RequestHandler = async (req, res) => {
 
 // 프로젝트 생성
 // space_id(params), pname, description을 받아서 DB에 새 프로젝트 데이터 생성, space_id와 pname이 모두 일치하는 데이터(&&)는 생성 불가.
-export const newProject: RequestHandler = async (req, res) => {
+export const newProject = async (req:Request, res:Response) => {
   try {
   const sid: number = parseInt(req.params.sid, 10);
-  // const user: string = req.userRole.user; // 채경
 
-  // UserRole 테이블에서 권한 검증
-  // if (!(await checkUserInSpace(user, sid))) { // 채경
+  // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
   if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
     res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
     return;
@@ -142,18 +136,14 @@ export const newProject: RequestHandler = async (req, res) => {
 // PUT
 // 프로젝트 정보 수정
 //  pid와 일치하는 데이터의 pname과 desc값을 수정, space 안에 중복되는 pname이 있다면 수정 불가
-export const modifyProject: RequestHandler = async (req, res) => {
+export const modifyProject = async (req:Request, res:Response) => {
   try {
     const sid: number = parseInt(req.params.sid, 10);
     const pid: number = parseInt(req.params.pid, 10);
     const pname: string = req.body.pname;
     const desc: string = req.body.description;
 
-    // const user: string = req.userRole.user; // 채경
-    
-    // UserRole 테이블에서 권한 검증
-
-    // if (!(await checkUserInSpace(user, sid))) { // 채경
+    // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
     if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) {
 
       res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
@@ -182,15 +172,11 @@ export const modifyProject: RequestHandler = async (req, res) => {
 // DELETE
 // 프로젝트 삭제
 // pid와 일치하는 프로젝트 데이터 삭제
-export const deleteProject: RequestHandler = async (req, res) => {
+export const deleteProject = async (req:Request, res:Response) => {
   try {
     const sid: number = parseInt(req.params.sid, 10);
 
-    // const user: string = req.userRole.user; // 채경
-    
-    // UserRole 테이블에서 권한 검증
-
-    // if (!(await checkUserInSpace(user, sid))) { // 채경
+    // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
     if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
       
       res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
