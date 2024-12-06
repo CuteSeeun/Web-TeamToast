@@ -6,39 +6,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // server.ts
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const billingRouter_1 = __importDefault(require("./routes/billingRouter")); //빌링키 발급 api 요청
 const subscriptionRouter_1 = __importDefault(require("./routes/subscriptionRouter")); //빌링키 발급 api 요청
-const scheduledPayment_1 = require("./scheduledPayment");
+const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 const teamRouter_1 = __importDefault(require("./routes/teamRouter"));
 const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
 const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
 const spaceRouter_1 = __importDefault(require("./routes/spaceRouter"));
+const uploadRouter_1 = __importDefault(require("./routes/uploadRouter"));
+// 2024-11-28 조하영
 const SissueRouter_1 = __importDefault(require("./routes/SissueRouter"));
 const BIssueRouter_1 = __importDefault(require("./routes/BIssueRouter"));
 const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
+const scheduledPayment_1 = require("./scheduledPayment");
 // 미들웨어 설정
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-// app.use(cors({
-//     origin: 'http://localhost:3000', // 프론트엔드 주소
-//     credentials: true, // 쿠키 포함
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     allowedHeaders: ['Content-Type', 'Authorization']
-// }));
 // 정적 파일 서빙 설정
 app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
+//스케쥴링 작업 시작
+(0, scheduledPayment_1.scheduledRecurringPayments)();
+// // 정적 파일 제공
+// app.use(express.static(path.join(__dirname, 'public')));
 app.use("/billing", billingRouter_1.default);
 app.use("/subscription", subscriptionRouter_1.default);
 app.use("/team", teamRouter_1.default);
-//스케쥴링 작업 시작
-(0, scheduledPayment_1.scheduledRecurringPayments)();
-// 정적 파일 제공
-app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 // 라우터 설정
 app.use('/sprint', sprintRouter_1.default); //스프린트 관련 CRUD
 app.use('/issue', SissueRouter_1.default);
@@ -46,6 +42,7 @@ app.use('/sissue', BIssueRouter_1.default);
 app.use('/user', BuserRouter_1.default);
 app.use('/projects', projectRouter_1.default);
 app.use('/issues', issueRouter_1.default);
+app.use('/upload', uploadRouter_1.default);
 app.use('/editUser', userRouter_1.default); // 로그인 회원가입 
 app.use('/space', spaceRouter_1.default);
 const PORT = process.env.PORT || 3001;
