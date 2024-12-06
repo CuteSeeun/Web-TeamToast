@@ -5,8 +5,9 @@ import SpaceModal from './SpaceModal';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccessToken from '../Login/AccessToken';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
+import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 interface SpaceItem {
     spaceId : number;
@@ -30,6 +31,10 @@ const SpaceAll:React.FC = () => {
     const [loading,setLoading] = useState<boolean>(false);
     const [error , setError] = useState<string>('');
     const navgate = useNavigate();
+    
+    const spaceId = useSetRecoilState(spaceIdState);
+
+    
     
     const userName = useRecoilValue(userState);
 
@@ -61,6 +66,7 @@ const SpaceAll:React.FC = () => {
             if(selectSpace){
                 localStorage.setItem('currentSpaceUuid', uuid);
                 localStorage.setItem('userRole',selectSpace.role);
+                spaceId(String(selectSpace.spaceId)); 
                 // 스토리지 이벤트 강제 발생
                 // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.
                 window.dispatchEvent(new Event('storage'));

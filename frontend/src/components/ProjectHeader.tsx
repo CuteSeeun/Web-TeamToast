@@ -6,9 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
-
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
 import { IoSettingsOutline } from "react-icons/io5";
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
@@ -18,9 +16,8 @@ import PJheaderBell from './PJheaderBell';
 const ProjectHeader = () => {
     const user = useRecoilValue(userState);
     const setUser = useSetRecoilState(userState);
-
-    const setSpaceId = useSetRecoilState(spaceIdState); // 안쓰지만 일단 넣었음 *
-
+    const space = useRecoilValue(spaceIdState);
+    // const setSpaceId = useSetRecoilState(spaceIdState); // 안쓰지만 일단 넣었음 *
     const [userRole,setUserRole] = useState(localStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
    
@@ -36,35 +33,38 @@ const ProjectHeader = () => {
         }
     }
 
-    useEffect(() => {
-        const currentSpace = async () => {
-          try {
-            const storedUuid = localStorage.getItem('currentSpaceUuid');
-            if (storedUuid) {
-              // Recoil 상태에 저장
-              setSpaceId(storedUuid);
-            } else {
-              const response = await AccessToken.get('/space/current-space');
-              if (response.data.spaceId) {
-                setSpaceId(response.data.spaceId);
-                localStorage.setItem('currentSpaceUuid', response.data.uuid); // UUID 저장
-              } else {
-                console.warn('현재 선택된 스페이스가 없습니다.');
-              }
-            }
-          } catch (error) {
-            console.error('현재 스페이스 복구 실패:', error);
-          }
-        };
-        currentSpace();
-      }, [setSpaceId]);
+    useEffect(()=>{
+        console.log('프로젝트헤더 스페이스값',space);
+    },[])
+
+    // useEffect(() => {
+    //     const currentSpace = async () => {
+    //       try {
+    //         const storedUuid = localStorage.getItem('currentSpaceUuid');
+    //         if (storedUuid) {
+    //           // Recoil 상태에 저장
+    //           setSpaceId(storedUuid);
+    //         } else {
+    //           const response = await AccessToken.get('/space/current-space');
+    //           if (response.data.spaceId) {
+    //             setSpaceId(response.data.spaceId);
+    //             localStorage.setItem('currentSpaceUuid', response.data.uuid); // UUID 저장
+    //           } else {
+    //             console.warn('현재 선택된 스페이스가 없습니다.');
+    //           }
+    //         }
+    //       } catch (error) {
+    //         console.error('현재 스페이스 복구 실패:', error);
+    //       }
+    //     };
+    //     currentSpace();
+    //   }, [setSpaceId]);
 
       useEffect(() => {
         const syncRole = () => {
           const role = localStorage.getItem('userRole');
           setUserRole(role);
         };
-
         // storage 이벤트 감지
         window.addEventListener('storage', syncRole);
         // 초기 로드 시 동기화
@@ -100,6 +100,8 @@ const ProjectHeader = () => {
             navigate('/space');
         }
     };
+
+
     
     return (
         <ProjectHeaderWrap>

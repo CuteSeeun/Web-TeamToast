@@ -43,7 +43,7 @@ const App: React.FC = () => {
             <Route path="/join" element={<Join/>}/>
             <Route path="/rate" element={<RatePlan/>}/>
             <Route path="/space" element={<SpaceAll/>}/>
-            <Route path="/projectlist/:sid" element={<ProjectList/>}/>
+            <Route path="/projectlist/:uuid" element={<ProjectList/>}/>
             <Route path="/oauth" element={<OAuthCallback/>}/>
             <Route path="/team" element={<TeamManagement />} /> 
             <Route path="/activesprint/:pid" element={<ActiveSprint/>}/>
