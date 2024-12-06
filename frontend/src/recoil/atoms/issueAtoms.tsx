@@ -11,24 +11,30 @@ export const backlogState = atom<Issue[]>({
   default: [],
 });
 
+// 새로운 atom 추가 <------ 전체 이슈 저장하는 아톰임
+export const allIssuesState = atom<Issue[]>({
+  key: "allIssuesState",
+  default: [],
+});
+
 export interface Issue {
   isid: number;
   title: string;
-  detail?: string | null;
-  type: Type;
-  status: Status;
+  detail: string;
+  type: string;
+  status: string;
+  priority: string;
+  manager: string;
   sprint_id: number | null;
   project_id: number;
-  manager?: string | null;
-  created_by?: string | null;
-  file?: string | null;
-  priority: Priority;
+  created_by: string;
+  file: string | null;
 }
 
 // Status ENUM 속성 지정
 export enum Status {
   Backlog = "백로그",
-  Working = "작업중",
+  Working = " 작업중",
   Dev = "개발완료",
   QA = "QA완료",
 }

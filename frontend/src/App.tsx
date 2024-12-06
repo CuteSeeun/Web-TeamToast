@@ -46,6 +46,7 @@ const App: React.FC = () => {
             <Route path="/projectlist/:uuid" element={<ProjectList />} />
             <Route path="/oauth" element={<OAuthCallback />} />
             <Route path="/team" element={<TeamManagement />} />
+
             <Route path="/activesprint" element={<ActiveSprint />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/backlog" element={<Backlog />} />

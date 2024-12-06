@@ -4,9 +4,10 @@ import { FormRow, FormGroup, Label, Input, Head, ButtonGroup } from './ModalStyl
 
 interface ModalProps {
     onClose: () => void;
+    onSprintCreated: () => void;
 }
 
-const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
+const SprintCreate: React.FC<ModalProps> = ({ onClose, onSprintCreated }) => {
     const [Sprint, setSprint] = useState({
         spname: '',
         startDate: '',
@@ -56,6 +57,7 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose }) => {
             });
             if (response.data.success) {
                 alert('스프린트가 생성되었습니다');
+                onSprintCreated(); // 스프린트 생성 후 상태 업데이트 콜백 호출
                 onClose(); // 모달 닫기
             } else {
                 alert(`${response.data.message}`);

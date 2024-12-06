@@ -79,10 +79,11 @@ export const Tag = styled.div`
 `;
 
 export const Avatar = styled.div`
-  display: inline-block;
-  align-items: center;
-  gap: 10px;
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
 `;
+
 
 export const AvatarImage = styled.div`
   width: 30px;
@@ -91,10 +92,13 @@ export const AvatarImage = styled.div`
   background-color: #ddd;
   font-size: 14px;
   font-weight: bold;
-  display: inline-block;
-  align-items: center;
-  justify-content: center;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  flex-shrink: 0; 
 `;
+
+
 
 export const Description = styled.textarea`
   width: 80%;
@@ -245,4 +249,50 @@ export const PageContainer = styled.div`
 export const ContentContainer = styled.div`
   display: flex;
   flex: 1;
+`;
+
+export const SelectLabel = styled.div`
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  min-width: 80px;
+  margin-right: 20px;
+  cursor: pointer;
+  position: relative; /* 부모 요소에 상대 위치 지정 */
+  &:hover {
+    background-color: #f1f1f1;
+  }
+`;
+
+export const DropdownContainer = styled.div`
+  position: relative;
+`;
+
+export const DropdownLabel = styled(SelectLabel)`
+  cursor: pointer;
+  &:hover {
+    background-color: lightgrey;
+  }
+`;
+
+export const DropdownList = styled.ul`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  z-index: 1000;
+`;
+
+export const DropdownItem = styled.li`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background-color: lightgrey;
+  }
 `;
