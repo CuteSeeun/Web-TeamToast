@@ -13,7 +13,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "@aws-sdk/s3-request-presigner": "^3.703.0",
+=======
+    "@aws-sdk/client-s3": "^3.705.0",
+    "@aws-sdk/s3-request-presigner": "^3.705.0",
+>>>>>>> develop
     "aws-sdk": "^2.1692.0",
     "axios": "^1.7.8",
     "base-64": "^1.0.0",
@@ -39,6 +44,7 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/morgan": "^1.9.9",
+    "@types/multer-s3": "^3.0.3",
     "@types/node": "^22.10.1",
     "@types/uuid": "^10.0.0",
     "@types/socket.io": "^3.0.1",
@@ -46,5 +52,11 @@
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
+<<<<<<< HEAD
   }
 }
+=======
+  },
+  "description": ""
+}
+>>>>>>> develop

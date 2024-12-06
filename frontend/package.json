@@ -11,8 +11,11 @@
     "axios": "^1.7.7",
     "base-64": "^1.0.0",
     "express": "^4.21.1",
+<<<<<<< HEAD
     "emoji-mart": "^5.6.0",
     "giphy-js-sdk-core": "^1.0.6",
+=======
+>>>>>>> develop
     "jdenticon": "^3.3.0",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
@@ -27,8 +30,13 @@
     "react-scripts": "5.0.1",
     "recharts": "^2.13.3",
     "recoil": "^0.7.7",
+<<<<<<< HEAD
     "recoil-persist": "^5.1.0",
     "socket.io-client": "^4.8.1",
+=======
+    "socket.io-client": "^4.8.1",
+    "recoil-persist": "^5.1.0",
+>>>>>>> develop
     "styled-components": "^6.1.13",
     "web-vitals": "^2.1.4"
   },

@@ -1,11 +1,3 @@
-import Payment from "./pages/Payment/Payment";
-import Success from "./pages/Payment/Success";
-import Fail from "./pages/Payment/Fail";
-import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
-import CardChangeFail from "./pages/Payment/CardChangeFail";
-
-
-
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
@@ -24,11 +16,17 @@ import SpaceAll from './pages/SpaceList/Space';
 import ProjectList from './pages/ProjectList/ProjectList';
 import OAuthCallback from './pages/Login/KakaoLogin';
 import TeamManagement from "./pages/TeamList/TeamManagement";
-// import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
+import Payment from "./pages/Payment/Payment";
+import Success from "./pages/Payment/Success";
+import Fail from "./pages/Payment/Fail";
+import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
+import CardChangeFail from "./pages/Payment/CardChangeFail";
+
 import { useAuth } from './hooks/useAuth';
+
 
 const App: React.FC = () => {
   useAuth(); // 로그인 상태 관리 
@@ -39,6 +37,7 @@ const App: React.FC = () => {
       {/* <ActiveSprint /> */}
       <Router>
         <Routes>
+<<<<<<< HEAD
           <Route path="/" element={<Layout />}>
             <Route index element={<Intro />} />
             <Route path="/login" element={<Login />} />
@@ -59,6 +58,27 @@ const App: React.FC = () => {
             <Route path="/issue/:id" element={<IssueDetail />} />
             <Route path="/plan" element={<Plan />} />
             {/* <Route path="/payment" element={<Payment />} /> */}
+=======
+          <Route path="/" element={<Layout/>}>
+            <Route index element={<Intro/>}/>
+            <Route path="/login" element={<Login/>}/>
+            <Route path="/join" element={<Join/>}/>
+            <Route path="/rate" element={<RatePlan/>}/>
+            <Route path="/space" element={<SpaceAll/>}/>
+            <Route path="/projectlist/:uuid" element={<ProjectList/>}/>
+            <Route path="/oauth" element={<OAuthCallback/>}/>
+            <Route path="/team" element={<TeamManagement />} /> 
+            <Route path="/activesprint/:pid" element={<ActiveSprint/>}/>
+            <Route path="/dashboard" element={<Dashboard/>}/>
+            <Route path="/backlog" element={<Backlog/>}/>
+            <Route path="/issuelist" element={<IssueList/>}/>
+            <Route path="/chat" element={<Chat/>}/>
+            <Route path="/payment" element={<Payment/>}/>
+            <Route path="/spacemanagement" element={<SpaceManagement/>}/>
+            <Route path="/profile" element={<Profile/>}/>
+            <Route path="/issue/:id" element={<IssueDetail/>}/>
+            <Route path="/plan" element={<Plan/>}/>
+>>>>>>> develop
             <Route path="/card-change-success" element={<CardChangeSuccess />} />
             <Route path="/card-change-fail" element={<CardChangeFail />} />
             <Route path="/success" element={<Success />} />
