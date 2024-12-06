@@ -1,3 +1,4 @@
+// sprintController.ts
 import { Request, Response } from 'express';
 import pool from '../config/dbpool';
 
@@ -12,6 +13,22 @@ interface Sprint {
     startdate: Date;
     project_id: number;
 }
+
+// 스프린트 전체 호출 컨트롤러
+export const getAllSprints = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const [rows]: [any[], any] = await pool.query('SELECT * FROM Sprint');
+        const sprints: Sprint[] = rows as Sprint[];
+        res.json(sprints);
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error('오류:', error.message);
+        } else {
+            console.error('알 수 없는 오류가 발생했습니다:', error);
+        }
+    }
+};
+
 
 // 스프린트 호출 컨트롤러
 export const getSprint = async (req: Request, res: Response): Promise<void> => {

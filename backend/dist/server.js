@@ -4,8 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // server.ts
+// server.ts
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 const path_1 = __importDefault(require("path"));
 const dbpool_1 = __importDefault(require("./config/dbpool"));
 const billingRouter_1 = __importDefault(require("./routes/billingRouter")); //빌링키 발급 api 요청
@@ -16,8 +18,6 @@ const projectRouter_1 = __importDefault(require("./routes/projectRouter"));
 const issueRouter_1 = __importDefault(require("./routes/issueRouter"));
 const userRouter_1 = __importDefault(require("./routes/userRouter"));
 const spaceRouter_1 = __importDefault(require("./routes/spaceRouter"));
-// 2024-11-28 조하영
-const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 const SissueRouter_1 = __importDefault(require("./routes/SissueRouter"));
 const BIssueRouter_1 = __importDefault(require("./routes/BIssueRouter"));
 const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
@@ -25,12 +25,6 @@ const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-// app.use(cors({
-//     origin: 'http://localhost:3000', // 프론트엔드 주소
-//     credentials: true, // 쿠키 포함
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     allowedHeaders: ['Content-Type', 'Authorization']
-// }));
 // 정적 파일 서빙 설정
 app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 app.use("/billing", billingRouter_1.default);
@@ -42,8 +36,8 @@ app.use("/team", teamRouter_1.default);
 app.use(express_1.default.static(path_1.default.join(__dirname, 'public')));
 // 라우터 설정
 app.use('/sprint', sprintRouter_1.default); //스프린트 관련 CRUD
-app.use('/issue', SissueRouter_1.default);
-app.use('/sissue', BIssueRouter_1.default);
+app.use('/issue', SissueRouter_1.default); // 올바른 라우트 설정
+app.use('/sissue', BIssueRouter_1.default); // 올바른 라우트 설정
 app.use('/user', BuserRouter_1.default);
 app.use('/projects', projectRouter_1.default);
 app.use('/issues', issueRouter_1.default);

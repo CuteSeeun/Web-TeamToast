@@ -1,9 +1,12 @@
+// sprintAtoms
 import { atom, selector } from 'recoil';
 
 // 스프린트 상태 ENUM 타입 정의
 export type SprintStatus = 'disabled' | 'enabled' | 'end';
 
 export interface Sprint {
+    created_by: any;
+    manager: any;
     spid: number;
     spname: string;
     status: SprintStatus;

@@ -12,8 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleteSprint = exports.ModifiySprint = exports.InsertSprint = exports.updateSprintStatus = exports.getSprint = void 0;
+exports.DeleteSprint = exports.ModifiySprint = exports.InsertSprint = exports.updateSprintStatus = exports.getSprint = exports.getAllSprints = void 0;
 const dbpool_1 = __importDefault(require("../config/dbpool"));
+// 스프린트 전체 호출 컨트롤러
+const getAllSprints = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const [rows] = yield dbpool_1.default.query('SELECT * FROM Sprint');
+        const sprints = rows;
+        res.json(sprints);
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            console.error('오류:', error.message);
+        }
+        else {
+            console.error('알 수 없는 오류가 발생했습니다:', error);
+        }
+    }
+});
+exports.getAllSprints = getAllSprints;
 // 스프린트 호출 컨트롤러
 const getSprint = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const projectId = Number(req.params.projectid);
