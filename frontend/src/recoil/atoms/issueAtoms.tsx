@@ -1,4 +1,9 @@
+<<<<<<< HEAD
+
+import { atom, selector } from 'recoil';
+=======
 import { atom, selectorFamily } from "recoil";
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 
 // 이슈 상태를 객체로 관리
 export const issueListState = atom<{ [key: number]: Issue[] }>({
@@ -47,25 +52,25 @@ export enum Type {
 
 // Priority ENUM 속성 지정
 export enum Priority {
+<<<<<<< HEAD
+  high = '높음',
+  normal = '보통',
+  low = '낮음',
+}
+
+// 모든 이슈를 가져오는 selector
+export const allIssuesSelector = selector({
+  key: 'allIssuesSelector',
+  get: ({ get }) => {
+    const issueList = get(allIssuesState);
+    console.log('All Issues in Selector:', issueList); // 추가한 로그
+    return issueList;
+  }
+});
+=======
   high = "높음",
   normal = "보통",
   low = "낮음",
 }
+>>>>>>> 60b810c480184059f38355d5fa263ecfb709de9c
 
-// 특정 이슈를 가져오는 selector
-export const issueState = selectorFamily<Issue | undefined, number>({
-  key: "issueState",
-  get:
-    (isid) =>
-    ({ get }) => {
-      const issueList = get(issueListState);
-      for (const sprintId in issueList) {
-        const issues = issueList[sprintId];
-        if (Array.isArray(issues)) {
-          const issue = issues.find((issue) => issue.isid === isid);
-          if (issue) return issue;
-        }
-      }
-      return undefined;
-    },
-});

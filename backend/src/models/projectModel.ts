@@ -38,7 +38,7 @@ export const getProjectQuery = async (pid: number) => {
     const projects: Project[] = rows as Project[];
     return projects;
   });
-}
+};
 
 // 프로젝트 생성
 export const newProjectQuery = async (pname: string, desc: string, sid: number) => {
