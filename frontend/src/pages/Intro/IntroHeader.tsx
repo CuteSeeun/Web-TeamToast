@@ -24,12 +24,12 @@ const IntroHeader = () => {
                 localStorage.removeItem('accessToken');
                 // uuid 삭제
                 localStorage.removeItem('currentSpaceUuid');
-                // 혹시 모를 유저롤 삭제
-                localStorage.removeItem('userRole');
                 // 리코일 초기화
                 setUser(null);
                 // 인트로 이동
                 navigate('/');
+                // 새로고침
+                window.location.reload();
             }
         } catch (error) {
             console.error('로그아웃 중 에러 발생:', error);

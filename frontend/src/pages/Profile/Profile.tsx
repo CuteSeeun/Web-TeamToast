@@ -61,7 +61,7 @@ const Profile:React.FC = () => {
                     email: response.data.user.email,
                     isLoggedIn: true,  
                     token: token || '',  
-                    // role: user?.role || 'member'  
+                    role: user?.role || 'member'  
                 });
 
                 alert('수정 완료');
