@@ -24,17 +24,6 @@ const ActiveSprint: React.FC = () => {
   const [allIssues, setAllIssues] = useRecoilState(allIssuesState);
   const [allSprint, setSprints] = useRecoilState(sprintState);
 
-
-  console.log('수정');
-  console.log('수정');
-  console.log('수정');
-  console.log('수정');
-  console.log('수정');
-  console.log('수정');
-  console.log('수정');
-  console.log('수정');
-  
-
   useEffect(() => {
     const fetchAllData = async () => {
       try {

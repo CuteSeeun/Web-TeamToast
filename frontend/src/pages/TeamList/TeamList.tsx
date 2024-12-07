@@ -22,6 +22,8 @@ const TeamList: React.FC<TeamListProps> = ({
   onReload,
   spaceId,
 }) => {
+
+  
   // 권한 변경 API 호출
   const handleRoleChange = async (email: string, role: string) => {
     try {

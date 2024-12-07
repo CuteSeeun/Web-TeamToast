@@ -81,12 +81,10 @@ const getIssue = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             SELECT 
                 Issue.isid, Issue.title, Issue.detail, Issue.type, 
                 Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
-
                 mgr.uname AS manager, crt.uname AS created_by, Issue.file
             FROM Issue
             JOIN User AS mgr ON Issue.manager = mgr.email
             JOIN User AS crt ON Issue.created_by = crt.email
-
             WHERE Issue.project_id = ? AND Issue.sprint_id = ?;
         `;
         const [rows] = yield dbpool_1.default.query(query, [projectId, sprintId]); // 타입 지정

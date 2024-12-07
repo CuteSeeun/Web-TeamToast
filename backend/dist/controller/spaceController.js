@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.selectSpace = exports.getCurrentSpace = exports.getMySpaces = exports.createSpace = exports.getSpaceByUuid = void 0;
+exports.deleteSpace = exports.updateSpace = exports.selectSpace = exports.getCurrentSpace = exports.getMySpaces = exports.createSpace = exports.getSpaceByUuid = void 0;
 const dbpool_1 = __importDefault(require("../config/dbpool"));
 const uuid_1 = require("uuid");
 // 프로젝트헤더에서도  값 불러옴
@@ -161,3 +161,81 @@ const selectSpace = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.selectSpace = selectSpace;
+//스페이스 이름 수정
+const updateSpace = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const connection = yield dbpool_1.default.getConnection();
+    try {
+        const { uuid } = req.params;
+        const { sname } = req.body;
+        const userEmail = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email;
+        if (!userEmail || !uuid || !sname) {
+            res.status(400).json({ message: '유효하지 않은 요청입니다.' });
+            return;
+        }
+        // 해당 스페이스가 유효한지 확인
+        const [spaceCheck] = yield connection.query(`select * from Space where uuid = ? `, [uuid]);
+        if (!spaceCheck.length) {
+            res.status(404).json({ message: '스페이스를 찾을 수 없습니다.' });
+            return;
+        }
+        //스페이스 이름 업데이트
+        const [updateResult] = yield connection.query(`update Space set sname = ? where uuid = ?`, [sname, uuid]);
+        if (updateResult.affectedRows === 0) {
+            res.status(400).json({ message: '스페이스 이름 수정 실패' });
+            return;
+        }
+        res.status(200).json({ message: '스페이스 이름 수정 성공' });
+    }
+    catch (error) {
+        console.error('스페이스 이름 수정 실패 : ', error);
+        res.status(500).json({ message: '서버 오류' });
+    }
+    finally {
+        connection.release();
+    }
+});
+exports.updateSpace = updateSpace;
+//스페이스 삭제
+const deleteSpace = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const connection = yield dbpool_1.default.getConnection();
+    try {
+        const { uuid } = req.params; // uuid 가져옴
+        const userEmail = (_a = req.user) === null || _a === void 0 ? void 0 : _a.email;
+        if (!userEmail || !uuid) {
+            res.status(400).json({ message: '유효하지 않은 요청입니다.' });
+            return;
+        }
+        //해당 스페이스가 유효한지 확인
+        const [spaceCheck] = yield connection.query(`select * from Space where uuid`, [uuid]);
+        if (!spaceCheck.length) {
+            res.status(404).json({ message: '스페이스를 찾을 수 없습니다.' });
+            return;
+        }
+        //트랜잭션 시작
+        yield connection.beginTransaction();
+        // 관련된 유저롤 삭제
+        yield connection.query(`delete from UserRole where space_id = (select sid from Space where uuid = ?)`, [uuid]);
+        // 관련된 구독 삭제
+        yield connection.query(`delete from Subscription where spaceId = (select sid from Space where uuid = ?)`, [uuid]);
+        //스페이스 삭제
+        const [deleteResult] = yield connection.query(`delete from Space where uuid = ?`, [uuid]);
+        if (deleteResult.affectedRows === 0) {
+            yield connection.rollback();
+            res.status(400).json({ message: '스페이스 삭제 실패' });
+            return;
+        }
+        yield connection.commit(); // 저장
+        res.status(200).json({ message: '스페이스 삭제 성공' });
+    }
+    catch (error) {
+        yield connection.rollback(); // 오류나면 롤백함
+        console.error('스페이스 삭제 실패 :', error);
+        res.status(500).json({ message: '서버 오류' });
+    }
+    finally {
+        connection.release();
+    }
+});
+exports.deleteSpace = deleteSpace;

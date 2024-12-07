@@ -34,14 +34,6 @@ const SpaceAll:React.FC = () => {
     
     const spaceId = useSetRecoilState(spaceIdState);
 
-    console.log('sadsadsada');
-    console.log('sadsadsada');
-    console.log('sadsadsada');
-    console.log('sadsadsada');
-    console.log('sadsadsada');
-    console.log('sadsadsada');
-    console.log('sadsadsada');
-    
     
     
     const userName = useRecoilValue(userState);
