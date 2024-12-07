@@ -22,6 +22,7 @@ import SissueRouter from './routes/SissueRouter';
 import singleIssueRouter from './routes/BIssueRouter';
 import BuserRouter from './routes/BuserRouter';
 import MessageRouter from './routes/MessageRouter';
+import uploadRouter from './routes/uploadRouter';
 
 
 // 미들웨어 설정
@@ -49,6 +50,7 @@ app.use('/editUser', userRouter); // 로그인 회원가입
 app.use('/channel', ChatTapMenuRouter);
 app.use('/space', spaceRouter);
 app.use('/messages', MessageRouter);
+app.use('/upload', uploadRouter);
 
 // HTTP 서버 생성
 const httpServer = createServer(app);

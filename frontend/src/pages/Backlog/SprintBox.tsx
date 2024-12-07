@@ -11,7 +11,6 @@ import SprintModify from './sprintModal/SprintModifiy';
 import SprintDelete from './sprintModal/SprintDelete'; // SprintDelete 컴포넌트 임포트
 import axios from 'axios';
 
-
 interface SprintProps {
     sprint: Sprint;
     onDrop: (issue: Issue, newSprintId: number | null) => void;
@@ -60,9 +59,9 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
     };
 
     const shouldHideButton = activeSprint !== null && activeSprint.spid !== sprint.spid;
+
     const filteredIssues = allIssues.filter(issue =>
         issue.sprint_id === sprint.spid &&
-
         (!filter.manager || issue.manager === filter.manager) &&
         (!filter.status || issue.status === filter.status) &&
         (!filter.priority || issue.priority === filter.priority)
@@ -92,7 +91,6 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
         setShowMenu(false);
     };
 
-
     return (
         <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
             <SprintHeader>
@@ -106,13 +104,11 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                             {sprint.status === 'disabled' ? '스프린트 활성' : sprint.status === 'enabled' ? '스프린트 완료' : '스프린트 종료됨'}
                         </button>
                     )}
-
                     <BsThreeDots className="menu-icon" onClick={toggleMenu} />
                     <DropdownMenu show={showMenu}>
                         <MenuItem onClick={openModifyModal}>스프린트 수정</MenuItem>
                         <MenuItem onClick={openDeleteModal}>스프린트 삭제</MenuItem>
                     </DropdownMenu>
-
                 </SprintControls>
             </SprintHeader>
             <IssueTable>
@@ -126,14 +122,12 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                 </thead>
                 <tbody>
                     {loading ? (
-
                         <tr>
                             <td colSpan={4} style={{ textAlign: 'center', color: '#6c757d' }}>
                                 로딩 중...
                             </td>
                         </tr>
                     ) : (
-
                         filteredIssues.length === 0 ? (
                             <tr>
                                 <td colSpan={4} style={{ textAlign: 'center', color: '#6c757d', userSelect: 'none' }}>
@@ -145,11 +139,12 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                                 <DragItem key={issue.isid} issue={issue} />
                             ))
                         )
-
                     )}
                 </tbody>
             </IssueTable>
+
             <AddIssueLink>+ 이슈 추가하기</AddIssueLink>
+
             {modifyModalOpen && (
                 <ModalOverlay>
                     <ModalContent>
@@ -165,7 +160,6 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                     </ModalContent>
                 </ModalOverlay>
             )}
-
         </StyledSprintBox>
     );
 };

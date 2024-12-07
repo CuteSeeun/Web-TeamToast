@@ -1,16 +1,12 @@
-
 // BissueController.ts
 import { Request, Response } from 'express';
 import pool from '../config/dbpool';
 import { RowDataPacket } from 'mysql2';
 
-
 type IssueStatus = 'Backlog' | 'Working' | 'Dev' | 'QA';
 type IssuePriority = 'high' | 'normal' | 'low';
 
-
 interface Issue extends RowDataPacket {
-
     isid: number;
     title: string;
     detail: string;
@@ -19,13 +15,10 @@ interface Issue extends RowDataPacket {
     priority: IssuePriority;
     sprint_id: number;
     project_id: number;
-
     manager: string;
-
     created_by: string;
     file: string;
 }
-
 
 // 특정 프로젝트의 모든 이슈를 가져오는 컨트롤러
 export const getIssuesByProjectId = async (req: Request, res: Response): Promise<void> => {
@@ -90,18 +83,15 @@ export const getIssue = async (req: Request, res: Response): Promise<void> => {
     const sprintId = parseInt(req.params.issueid, 10);
     const projectId = parseInt(req.params.projectid, 10);
 
-
     try {
         const query = `
             SELECT 
                 Issue.isid, Issue.title, Issue.detail, Issue.type, 
                 Issue.status, Issue.priority, Issue.sprint_id, Issue.project_id, 
-
                 mgr.uname AS manager, crt.uname AS created_by, Issue.file
             FROM Issue
             JOIN User AS mgr ON Issue.manager = mgr.email
             JOIN User AS crt ON Issue.created_by = crt.email
-
             WHERE Issue.project_id = ? AND Issue.sprint_id = ?;
         `;
         const [rows] = await pool.query<Issue[]>(query, [projectId, sprintId]); // 타입 지정
@@ -161,7 +151,6 @@ export const updateIssueSprint = async (req: Request, res: Response): Promise<vo
     }
 };
 
-
 export const updateIssueDetail = async (req: Request, res: Response): Promise<void> => {
     const issueId: number = Number(req.params.isid);
 
@@ -209,6 +198,5 @@ export const updateIssueDetail = async (req: Request, res: Response): Promise<vo
         res.status(500).json({ message: 'Error updating issue', error });
     }
 }
-
 
 
