@@ -32,19 +32,25 @@ const ActiveSprint: React.FC = () => {
         // 프로젝트 ID가 1인 전체 이슈 정보 가져오기
         const issuesResponse = await axios.get(`/sissue/project/${projectId}`);
         setAllIssues(issuesResponse.data);
-        console.log('Fetched Issues:', issuesResponse.data); // 추가한 로그
+        console.log('가져온 이슈 데이터:', issuesResponse.data); // 추가한 로그
 
         // 프로젝트 ID가 1인 전체 스프린트 정보 가져오기
         const sprintsResponse = await axios.get(`/sprint/project/${projectId}`);
         setSprints(sprintsResponse.data);
-        console.log('Fetched Sprints:', sprintsResponse.data); // 추가한 로그
+        console.log('가져온 스프린트 데이터:', sprintsResponse.data); // 추가한 로그
 
       } catch (error) {
         console.error('Error fetching all data:', error);
       }
     };
     fetchAllData();
-  }, [allIssues ,setAllIssues, allSprint ,setSprints]);
+  }, [allIssues, allSprint]);
+
+  // Recoil 상태값 콘솔로 확인
+useEffect(() => {
+  console.log('이슈 아톰 업데이트됨:', allIssues);
+  console.log('스프린트 아톰 업데이트됨:', allSprint);
+}, [allIssues, allSprint]); // allIssues 또는 allSprint가 업데이트될 때 실행
 
   return (
     <PageContainer>

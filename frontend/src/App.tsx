@@ -3,9 +3,6 @@ import Success from "./pages/Payment/Success";
 import Fail from "./pages/Payment/Fail";
 import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
 import CardChangeFail from "./pages/Payment/CardChangeFail";
-
-
-
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';

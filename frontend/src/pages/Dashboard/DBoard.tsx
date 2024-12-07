@@ -192,22 +192,90 @@ const DBoard: React.FC = () => {
   const totalDays = 100; // 캘린더 총 기간
   const todayPosition = 50; // 현재 날짜 위치 (%)
 
+  // **Recoil에서 이슈 데이터 가져오기**
+  const allIssues = useRecoilValue(allIssuesState);
+
+  // 상태별 데이터 계산 함수
+  const calculateStatusData = () => {
+    const statusCount: { [key: string]: number } = {
+      Backlog: 0,
+      Working: 0,
+      Dev: 0,
+      QA: 0,
+    };
+
+    // 상태별 이슈 개수 계산
+    allIssues.forEach((issue) => {
+      if (statusCount[issue.status] !== undefined) {
+        statusCount[issue.status] += 1;
+      }
+    });
+
+    const totalIssues = allIssues.length;
+
+    // 상태별 백분율 계산
+    const statusPercentage = Object.entries(statusCount).map(([status, count]) => ({
+      name: status,
+      value: totalIssues > 0 ? (count / totalIssues) * 100 : 0,
+      color: getStatusColor(status), // 상태에 따른 색상 매핑
+    }));
+
+    return statusPercentage;
+  };
+
+  // 상태별 색상 반환 함수
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Backlog':
+        return '#F2994A';
+      case 'Working':
+        return '#56CCF2';
+      case 'Dev':
+        return '#27AE60';
+      case 'QA':
+        return '#9B51E0';
+      default:
+        return '#ccc';
+    }
+  };
+
+  // **PieChart 데이터 생성**
+  const pieChartData = calculateStatusData();
+
+  // 드래그 핸들러
+  // const handleDrag = (e: any, data: any, id: number, isResize: 'start' | 'end') => {
+  //   setBars((prevBars) =>
+  //     prevBars.map((bar) =>
+  //       bar.id === id
+  //         ? {
+  //           ...bar,
+  //           [isResize]:
+  //             isResize === 'start'
+  //               ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
+  //               : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
+  //         }
+  //         : bar
+  //     )
+  //   );
+  // };
+
   // 드래그 핸들러
   const handleDrag = (e: any, data: any, id: number, isResize: 'start' | 'end') => {
     setBars((prevBars) =>
       prevBars.map((bar) =>
         bar.id === id
           ? {
-            ...bar,
-            [isResize]:
-              isResize === 'start'
-                ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
-                : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
-          }
+              ...bar,
+              [isResize]:
+                isResize === 'start'
+                  ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
+                  : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
+            }
           : bar
       )
     );
   };
+
 
   return (
     <BoardContainer>
@@ -300,14 +368,14 @@ const DBoard: React.FC = () => {
           <h3>이슈 진행 상태</h3>
           <PieChart width={300} height={300}>
             <Pie
-              data={issueProgressData}
+              data={pieChartData}
               dataKey="value"
               nameKey="name"
               cx="50%"
               cy="50%"
               outerRadius={100}
             >
-              {issueProgressData.map((entry, index) => (
+              {pieChartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>

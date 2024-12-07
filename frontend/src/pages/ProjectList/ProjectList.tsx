@@ -62,35 +62,6 @@ const ProjectList = () => {
 }, [uuid,navigate]); // spaceId가 변경될 때마다 실행
 
 
-  // 프로젝트 데이터 가져오기
-  // useEffect(() => {
-    
-  //   const getProjList = async () => {
-  //     if (!currentSpaceId) {
-  //       console.error("Space ID가 유효하지 않습니다.");
-  //       return;
-  //     }
-  //     try {
-  //       const response  = await AccessToken.get(`/projects/all/${currentSpaceId}`,{
-          
-  //         // headers:{
-  //         //   Authorization:`Bearer ${localStorage.getItem('accessToken')}`
-  //         // }
-  //       }); 
-  //       setProjects(response.data);
-  //     } catch (err) {
-  //       console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
-        
-  //     }
-  //   };
-  //   // getProjList();
-
-  //   if (currentSpaceId) {
-  //     getProjList();
-  //   }
-
-  // }, [currentSpaceId]); 
-
     // 프로젝트 이미지 자동 생성 함수 (입력한 데이터에 따라 자동 생성되며, 같은 값을 입력한다면 이미지가 바뀌지 않음)
     const projImage = (project: Project) => {
       // 다른 스페이스에 같은 이름의 프로젝트가 있을 경우 이미지가 겹치는 것을 방지
@@ -232,27 +203,27 @@ const ProjectList = () => {
     };
 
     // 클릭한 프로젝트의 이슈 목록 저장하기
-    const saveIssuesData = async ( pid: number ) => {
-      // projects에서 해당하는 프로젝트 찾기
-      const selectedProject = projects.find((project) => project.pid === pid);
+    // const saveIssuesData = async ( pid: number ) => {
+    //   // projects에서 해당하는 프로젝트 찾기
+    //   const selectedProject = projects.find((project) => project.pid === pid);
 
-      // 프로젝트가 없으면 return
-      if (!selectedProject) {
-        console.error(`프로젝트를 찾을 수 없습니다: ${pid}`);
-        return;
-      };
+    //   // 프로젝트가 없으면 return
+    //   if (!selectedProject) {
+    //     console.error(`프로젝트를 찾을 수 없습니다: ${pid}`);
+    //     return;
+    //   };
 
-      try {
-        // 이슈 데이터 get 요청
-        const { data } = await axios.get(`http://localhost:3001/issues/all/${pid}`);
-        if (data) {
-          // issueList에 받아온 이슈 데이터 넣기
-          setIssueList(data);
-        };
-      } catch (err) {
-        console.error(`이슈를 받아오는 중 에러 발생: ${err}`);
-      };
-    };
+    //   try {
+    //     // 이슈 데이터 get 요청
+    //     const { data } = await axios.get(`http://localhost:3001/issues/all/${pid}`);
+    //     if (data) {
+    //       // issueList에 받아온 이슈 데이터 넣기
+    //       setIssueList(data);
+    //     };
+    //   } catch (err) {
+    //     console.error(`이슈를 받아오는 중 에러 발생: ${err}`);
+    //   };
+    // };
     
     // 프로젝트 이름 목록 (중복 체크용)
     const existingNames = projects.map(p => p.pname);
@@ -287,7 +258,6 @@ const ProjectList = () => {
                     <td>
                       <Link to='/activesprint' onClick={(e) => {
                         saveProjectData(project.pid);
-                        saveIssuesData(project.pid);
                         }}>
                         <div className="project-info">
                           {projImage(project)}
