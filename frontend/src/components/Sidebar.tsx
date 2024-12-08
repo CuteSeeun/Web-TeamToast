@@ -94,11 +94,11 @@ const Sidebar: React.FC = () => {
   const pid = sessionStorage.getItem('pid'); // 세션에서 pid 가져오기
   const sid = sessionStorage.getItem('sid'); // 세션에서 sid 가져오기
 
-  if(pid){alert('pid를 가져옴');}
-  else{alert('세션에 pid 없는듯?');}
+  if(pid){console.log('pid를 가져옴');}
+  else{console.log('세션에 pid 없는듯?');}
 
-  if(sid){alert('sid를 가져옴');}
-  else{alert('세션에 sid없는듯?');}
+  if(sid){console.log('sid를 가져옴');}
+  else{console.log('세션에 sid없는듯?');}
 
   // if (pid) {
   //   setProjectId(pid); // 상태에 저장

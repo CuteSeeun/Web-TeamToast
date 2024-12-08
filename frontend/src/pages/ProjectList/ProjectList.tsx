@@ -198,6 +198,7 @@ const ProjectList = () => {
     const selectedProject = projects.find((project) => project.pid === pid);
     if (selectedProject) {
       setCurrentProject(selectedProject); // Recoil 상태 업데이트
+      sessionStorage.setItem('pid', pid.toString()); // 세션 스토리지에 pid 저장
     } else {
       console.log(`${pid}에 해당하는 프로젝트를 프로젝트 목록에서 찾을 수 없습니다.`);
     };

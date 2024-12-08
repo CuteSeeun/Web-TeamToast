@@ -49,7 +49,7 @@ const App: React.FC = () => {
             <Route element={<SidebarLayout />}>
               <Route path="/activesprint/:pid" element={<ActiveSprint />} />
               <Route path="/backlog/:pid" element={<Backlog />} />
-              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat/:sid" element={<Chat />} />
               <Route path="/dashboard/:pid" element={<Dashboard />} />
               <Route path="/issuelist/:pid" element={<IssueList />} />
               <Route path="/issue/:id" element={<IssueDetail />} />
