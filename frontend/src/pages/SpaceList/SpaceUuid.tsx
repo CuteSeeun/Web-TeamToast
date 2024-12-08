@@ -5,14 +5,15 @@ import SpaceModal from './SpaceModal';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccessToken from '../Login/AccessToken';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
+import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 interface SpaceItem {
-    spaceId : string;
+    spaceId : number;
     spaceName:string;
     role:string;
-    // uuid:string;
+    uuid:string;
 }
 
 const PASTEL_COLORS = [
@@ -31,16 +32,18 @@ const SpaceAll:React.FC = () => {
     const [error , setError] = useState<string>('');
     const navgate = useNavigate();
     
+    const spaceId = useSetRecoilState(spaceIdState);
+
+    
+    
     const userName = useRecoilValue(userState);
 
-    //스페이스 목록
+    //현재 로그인한 유저 정보
+    
     useEffect(() => {
         const fetchSpace = async () => {
             try {
                  // 하나의 API 호출만 유지
-                 // 서버에서 해당 로그인 유저의 이메일을 가져와서
-                 // 유저롤과 유저 의 이메일 같은걸 찾고 유저롤에서 
-                 // 같은 이메일의 
                  const response = await AccessToken.get('/space/my-spaces');
                  setSpaces(response.data.space || []);
             } catch (error) {
@@ -50,25 +53,27 @@ const SpaceAll:React.FC = () => {
                     localStorage.removeItem('accessToken');
                     navgate('/login');
                 }
-            }
+            } 
         };
         fetchSpace();
     }, [navgate]);
 
   // 선택된 스페이스 저장
-    const handleSelectSpace = async(spaceId:string) => {
+    const handleSelectSpace = async(uuid:string) => {
         try {
-                await AccessToken.post('/space/select-space',{spaceId});
-                sessionStorage.setItem('sid',spaceId);
-                console.log(sessionStorage.getItem('sid'));
-                
-            const selectSpace = spaces.find(space=>space.spaceId === spaceId);
+            await AccessToken.post('/space/select-space',{uuid});
+            const selectSpace = spaces.find(space=>space.uuid === uuid);
             if(selectSpace){
-                sessionStorage.setItem('userRole',selectSpace.role);
-              }
-              // 스토리지 이벤트 강제 발생
-              // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.
-              window.dispatchEvent(new Event('storage'));
+                localStorage.setItem('currentSpaceUuid', uuid);
+                localStorage.setItem('userRole',selectSpace.role);
+                spaceId(String(selectSpace.spaceId)); 
+                console.log('uuid 체크',uuid);
+                
+
+                // 스토리지 이벤트 강제 발생
+                // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.
+                window.dispatchEvent(new Event('storage'));
+            }
         } catch (error) {
             console.error("Error selecting space:", error);
         }
@@ -92,27 +97,21 @@ const SpaceAll:React.FC = () => {
                 sname: spaceName,
                 uname:userName?.uname,
             });
-            if (response.data.spaceId) {
+            if (response.data.spaceUuid) {
                 setSpaces((prev) => [
                     ...prev,
                     {
                         spaceId: response.data.spaceId,
                         spaceName: spaceName,
                         role: 'top_manager',
-                        // uuid: response.data.spaceUuid,
+                        uuid: response.data.spaceUuid,
                     },
                 ]);
+                setShowModal(false);
             }
-            await alert('스페이스가 생성되었습니다.');
-            await setShowModal(false);
-           
         } catch (error) {
-            if (axios.isAxiosError(error) && error.response?.status === 400) {
-                alert(error.response.data.message); // 중복된 경우의 에러 메시지 표시
-            } else {
-                console.error('스페이스 생성 에러:', error);
-                alert('스페이스 생성에 실패했습니다.');
-            }
+            console.error('스페이스 생성 에러:', error);
+            alert('스페이스 생성에 실패했습니다.');
         }
     };
 
@@ -126,7 +125,33 @@ const SpaceAll:React.FC = () => {
             </div>
 
             <div className="space-list">
-          
+            {/* {loading ? (
+              <p className="centered-message">로딩 중...</p>
+            ) : error ? (
+              <p className="centered-message">{error}</p>
+            ) : spaces.length === 0 ? (
+              // 중앙 배치된 메시지
+              <p className="centered-message">생성된 스페이스가 없습니다.</p>
+            ) : (
+      // 기존 스페이스 렌더링 로직
+      spaces.map((space, idx) => (
+        <Link
+          to={`/projectlist/${space.spaceId}`} // sid값 라우팅위한값
+          onClick={()=>handleSelectSpace(space.uuid)} // uuid 로컬 저장값
+          key={space.spaceId}
+          className="space-item"
+        >
+          <div
+            className="color-box"
+            style={{ backgroundColor: RandomColor(idx) }}
+          />
+          <div className="space-info">
+            <h3>{space.spaceName}</h3>
+          </div>
+        </Link>
+      ))
+    )} */}
+
             {spaces.length === 0 ? (
               <p className="centered-message">생성된 스페이스가 없습니다.</p>
             ) : (
@@ -134,7 +159,7 @@ const SpaceAll:React.FC = () => {
       spaces.map((space, idx) => (
         <Link
           to={`/projectlist/${space.spaceId}`} // sid값 라우팅위한값
-          onClick={()=>handleSelectSpace(space.spaceId)} // uuid 로컬 저장값
+          onClick={()=>handleSelectSpace(space.uuid)} // uuid 로컬 저장값
           key={space.spaceId}
           className="space-item"
         >

@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
 import { IoSettingsOutline } from "react-icons/io5";
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
@@ -22,11 +22,11 @@ const ProjectHeader = ({
   }) => {
     const user = useRecoilValue(userState);
     const setUser = useSetRecoilState(userState);
-    const spaceId = useRecoilValue(spaceIdState);
     const setTeamMembers = useSetRecoilState(teamMembersState); 
-    // const setSpaceId = useSetRecoilState(spaceIdState); // 안쓰지만 일단 넣었음 *
-    const [userRole,setUserRole] = useState(localStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
+    const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
+
+    const sid = sessionStorage.getItem('sid');
    
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
@@ -40,17 +40,16 @@ const ProjectHeader = ({
         }
     };
 
-    
   // 팀 멤버 데이터를 가져오는 함수
   useEffect(() => {
     const fetchTeamMembers = async () => {
-      if (!spaceId) {
+      if (!sid) {
         console.error("spaceId가 설정되지 않았습니다.");
         return;
       }
       try {
         const response = await axios.get("http://localhost:3001/team/members", {
-          params: { spaceId },
+          params: { spaceId : sid },
         });
         setTeamMembers(response.data); // 팀 멤버 상태 갱신
       } catch (error) {
@@ -59,47 +58,42 @@ const ProjectHeader = ({
     };
 
     fetchTeamMembers(); // 컴포넌트 로드 시 호출
-    onFetchTeamMembers?.(); // prop으로 전달된 함수가 있을 경우 호출
-  }, [spaceId, setTeamMembers, onFetchTeamMembers]);
+    // onFetchTeamMembers?.(); // prop으로 전달된 함수가 있을 경우 호출
+//   }, [sid, setTeamMembers, onFetchTeamMembers]);
+  }, [sid, setTeamMembers]);
 
 
-  // 애는 나중에 삭제 ////////////////////////////
-    useEffect(()=>{
-        console.log('프로젝트헤더 스페이스값',spaceId);
-    },[])
-    /////////////////////////////
-
-      useEffect(() => {
-        const syncRole = () => {
-          const role = localStorage.getItem('userRole');
-          setUserRole(role);
-        };
-        // storage 이벤트 감지
-        window.addEventListener('storage', syncRole);
-        // 초기 로드 시 동기화
-        syncRole();
-        return () => {
-          window.removeEventListener('storage', syncRole);
-        };
-      }, []);
+     useEffect(() => {
+       const syncRole = () => {
+         const role = sessionStorage.getItem('userRole');
+         setUserRole(role);
+       };
+       // storage 이벤트 감지
+       window.addEventListener('storage', syncRole);
+       // 초기 로드 시 동기화
+       syncRole();
+       return () => {
+         window.removeEventListener('storage', syncRole);
+       };
+     }, []);
 
 
      // 유저롤 권한 체크
      const Admin = userRole === 'normal';
 
      const handleProjectGo = async () => {
-        const currentSpaceUuid = localStorage.getItem('currentSpaceUuid');
-        if (!currentSpaceUuid) {
+        if (!sid) {
             console.error('현재 선택된 스페이스가 없습니다.');
             navigate('/space');
             return;
         }
         try {
             // uuid로 해당 스페이스의 정보를 가져옴
-            const response = await AccessToken.get(`/space/get-space/${currentSpaceUuid}`);
-            if (response.data && response.data.spaceId) {
+            // const response = await AccessToken.get(`/space/get-space/${currentSpaceUuid}`);
+            // if (response.data && response.data.spaceId) {
+            if (sid) {
                 // spaceId를 이용해서 프로젝트 리스트 페이지로 이동
-                navigate(`/projectlist/${response.data.spaceId}`);
+                navigate(`/projectlist/${sid}`);
             } else {
                 console.error('스페이스 정보를 찾을 수 없습니다.');
                 navigate('/space');
@@ -145,23 +139,12 @@ const ProjectHeader = ({
                         <IoSettingsOutline className='icon-wrap' style={{cursor:'pointer'}} />
                         <ul className="sub-menu">
                         {!Admin ? (
-                               <li onClick={(e) => {
-                                e.preventDefault();
-                                const currentRole = localStorage.getItem('userRole');
-                                if(currentRole === 'normal') {
-                                    alert('관리자만 접근할 수 있습니다.');
-                                    return;
-                                }
-                                navigate('/spacemanagement');
-                            }}>
+                               <li onClick={()=> navigate('/spacemanagement')}>
                                 스페이스관리
                             </li>
                         ) : (
                             <li 
-                                style={{ 
-                                    color: '#999',
-                                    cursor: 'not-allowed'
-                                }}
+                                style={{  color: '#999', cursor: 'not-allowed' }}
                                 onClick={(e) => {
                                     e.preventDefault();
                                     alert('관리자만 접근할 수 있습니다.');

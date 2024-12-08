@@ -60,7 +60,7 @@ const Profile:React.FC = () => {
                     uname: response.data.user.uname,
                     email: response.data.user.email,
                     isLoggedIn: true,  
-                    token: token || '',  
+                    // token: token || '',  
                     // role: user?.role || 'member'  
                 });
 

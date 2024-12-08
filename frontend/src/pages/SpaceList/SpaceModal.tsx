@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SpaceModalWrap } from '../../components/SpaceStyle';
+import { useNavigate } from 'react-router-dom';
 
 interface SpaceModalProps {
     onClose: () => void;
@@ -9,12 +10,14 @@ interface SpaceModalProps {
 const SpaceModal: React.FC<SpaceModalProps> = ({ onClose, onConfirm }) => {
 
     const [spaceName , setSpaceName] = useState<string>('');
+    const navigate = useNavigate();
 
     const clickSubmit = (e:React.MouseEvent) =>{
         e.preventDefault();
         if(spaceName.trim()){
             onConfirm(spaceName);
         }
+        navigate('/space')
     };
 
     return (

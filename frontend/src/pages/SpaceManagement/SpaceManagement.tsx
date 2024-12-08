@@ -14,15 +14,15 @@ const SpaceManagement = () => {
     const [validationMsg, setValidationMsg] = useState<ValidationMessage | null>(null); // 검증 메시지
     const [showDeleteModal, setShowDeleteModal] = useState(false); // 삭제 확인 모달
     const [activeTab, setActiveTab] = useState<'space' | 'plan'>('space'); // 탭 상태
-    // const [updateSuccess, setUpdateSuccess] = useState(false);
+    const currentSid = sessionStorage.getItem('sid')
     const navi = useNavigate();
 
 
 
     useEffect(() => {
         // 로컬에서 uuid 가져옴
-        const currentUuid = localStorage.getItem('currentSpaceUuid');
-        if(!currentUuid){
+        // const currentUuid = localStorage.getItem('currentSpaceUuid');
+        if(!currentSid){
             alert('스페이스 정보가 없습니다.');
             navi('/space')
             return;
@@ -31,7 +31,7 @@ const SpaceManagement = () => {
         // 스페이스 이름 가져오기
         const fetchSpaceName = async() =>{
             try {
-                const response = await AccessToken.get(`/space/get-space/${currentUuid}`); // uuid 기반으로 스페이스 이름 조회함
+                const response = await AccessToken.get(`/space/get-space/${currentSid}`); // 
                 setSpaceName(response.data.spaceName);
             } catch (error) {
                 console.error('스페이스 정보를 가져오는 데 실패함',error);
@@ -71,10 +71,10 @@ const SpaceManagement = () => {
 
     // 스페이스 이름 수정 요청
     const handleUpdate = async () => {
-       const currentUuid = localStorage.getItem('currentSpaceUuid');
-       if(!currentUuid) return;
+    //    const currentUuid = localStorage.getItem('currentSpaceUuid');
+       if(!currentSid) return;
        try {
-           await AccessToken.put(`/space/update-space/${currentUuid}`,{sname:spaceName});
+           await AccessToken.put(`/space/update-space/${currentSid}`,{sname:spaceName , sid:currentSid});
            alert('스페이스 이름이 수정되었습니다.');
         } catch (error) {
             console.error('스페이스 이름 수정 실패 : ',error);
@@ -93,11 +93,11 @@ const SpaceManagement = () => {
 
     // 스페이스 삭제 요청
     const confirmDelete = async () => {
-        const currentUuid = localStorage.getItem('currentSpaceUuid');
-       if(!currentUuid) return;
+        // const currentUuid = localStorage.getItem('currentSpaceUuid');
+       if(!currentSid) return;
        try {
-           await AccessToken.delete(`/space/delete-space/${currentUuid}`);
-           alert('스페이스가 삭제되었습니다.');
+           await AccessToken.delete(`/space/delete-space/${currentSid}`);
+        //    alert('스페이스가 삭제되었습니다.');
            setShowDeleteModal(false);
            navi('/space');
         } catch (error) {

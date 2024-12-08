@@ -97,7 +97,11 @@ const Sidebar: React.FC = () => {
   if(pid){console.log('pid를 가져옴');}
   else{console.log('세션에 pid 없는듯?');}
 
+
   if(sid){console.log('sid를 가져옴');} 
+
+  if(sid){console.log('sid를 가져옴');}
+
   else{console.log('세션에 sid없는듯?');}
 
   // if (pid) {

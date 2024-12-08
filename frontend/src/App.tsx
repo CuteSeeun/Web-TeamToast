@@ -45,17 +45,15 @@ const App: React.FC = () => {
             <Route path="/projectlist/:sid" element={<ProjectList />} />
             <Route path="/oauth" element={<OAuthCallback />} />
             <Route path="/team" element={<TeamManagement />} />
-
             {/* SidebarLayout을 사용하는 라우트 */}
             <Route element={<SidebarLayout />}>
               <Route path="/activesprint/:pid" element={<ActiveSprint />} />
               <Route path="/backlog/:pid" element={<Backlog />} />
-              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat/:sid" element={<Chat />} />
               <Route path="/dashboard/:pid" element={<Dashboard />} />
               <Route path="/issuelist/:pid" element={<IssueList />} />
               <Route path="/issue/:id" element={<IssueDetail />} />
             </Route>
-
             <Route path="/payment" element={<Payment />} />
             <Route path="/spacemanagement" element={<SpaceManagement />} />
             <Route path="/profile" element={<Profile />} />
