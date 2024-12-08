@@ -1,84 +1,90 @@
 
 import styled from 'styled-components';
 
-// export const RatePlanWrap = styled.div`
-//  background-color: #f9f9f9;
-//    display: flex;
-//    flex-direction: column;
-//    align-items: center;
-//    padding: 20px;
-//    margin-top: 100px;
-
-//    .maincontainer {
-//        display: flex;
-//        gap: 40px;
-//        justify-content: center;
-//        width: 100%;
-//        max-width: 1200px;
-//    }
-
-// `
 export const PriceCard = styled.div`
-border: 1px solid #ccc;
-   border-radius: 12px;
-   width: 350px;
-   height: 500px;
-   margin-top: 50px;
-   background-color: #fff;
-   padding: 20px;
-   text-align: center;
+  border: 1px solid #ccc;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    margin-top: 50px;
+    background-color: #fff;
+    padding: 20px;
+    text-align: center;
+    box-sizing: border-box;
 
-   h2 {
-       font-size: 28px;
-       margin-bottom: 15px;
-       font-weight: bold;
-   }
+    h2 {
+        font-size: 28px;
+        margin-bottom: 15px;
+        font-weight: bold;
+    }
 
-   button {
-       height: 45px;
-       width: 80%;
-       margin-top: 15px;
-       border-radius: 8px;
-       border: none;
-       cursor: pointer;
-       font-size: 18px;
-       font-weight: bold;
-       color: #fff;
-       margin-bottom: 40px;
-       background-color: #007bff;
-   }
+    button {
+        height: 45px;
+        width: 80%;
+        margin-top: 15px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 40px;
+        background-color: #007bff;
+    }
 
-   .freebtn {
-       background-color: #00597d;
-       cursor: default;
-   }
+    .freebtn {
+        background-color: #038c8c;
+        cursor: default;
+    }
 
-   .teambtn {
-       background-color: #05a6a6;
+    .teambtn {
+        background-color: #05a6a6;
 
-       &:hover {
-           background-color: #038c8c;
-       }
-   }
+        &:hover {
+            background-color: #038c8c;
+        }
+    }
 
-   p {
-       margin-top: 15px;
-       font-size: 16px;
-       color: #333;
-       text-align: left;
-       padding-left: 30px;
+    p {
+        margin-top: 15px;
+        font-size: 16px;
+        color: #333;
+        text-align: left;
+        padding-left: 15px;
+        line-height: 1.5;
 
-       span {
-           font-weight: 600;
-       }
-   }
+        span {
+            font-weight: 600;
+        }
+    }
 
-   .description {
-       margin-top: 20px;
-       font-size: 15px;
-       color: #555;
-   }
+    ul {
+        margin-top: 10px;
+        padding-left: 30px;
+        list-style: none;
 
+        li {
+            margin-bottom: 10px;
+            display: flex; /* 플렉스 컨테이너로 변경 */
+            align-items: center; /* 텍스트와 * 정렬 */
+            line-height: 1.5;
+
+            &:before {
+                content: '•';
+                color: #038c8c;
+                font-weight: bold;
+                margin-right: 8px; /* 텍스트와 기호 간격 */
+                flex-shrink: 0; /* 크기 고정 */
+            }
+        }
+    }
+
+    .description {
+        margin-top: 20px;
+        font-size: 15px;
+        color: #555;
+    }
 `
 
 export const PaymentWrap = styled.div`

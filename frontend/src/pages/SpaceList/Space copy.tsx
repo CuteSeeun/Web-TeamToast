@@ -10,7 +10,7 @@ import { userState } from '../../recoil/atoms/userAtoms';
 import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 interface SpaceItem {
-    spaceId : string;
+    spaceId : number;
     spaceName:string;
     role:string;
     // uuid:string;
@@ -32,7 +32,7 @@ const SpaceAll:React.FC = () => {
     const [error , setError] = useState<string>('');
     const navgate = useNavigate();
     
-    const setSpaceId = useSetRecoilState(spaceIdState);
+    // const setSpaceId = useSetRecoilState(spaceIdState);
 
     const userName = useRecoilValue(userState);
 
@@ -59,10 +59,10 @@ const SpaceAll:React.FC = () => {
     }, [navgate]);
 
   // 선택된 스페이스 저장
-    const handleSelectSpace = async(spaceId:string) => {
+    const handleSelectSpace = async(spaceId:number) => {
         try {
           const response = await AccessToken.post('/space/select-space',{spaceId});
-            sessionStorage.setItem('spaceId',spaceId);
+            // sessionStorage.setItem('spaceId',spaceId);
 
             const selectSpace = spaces.find(space=>space.spaceId === spaceId);
             if(selectSpace){

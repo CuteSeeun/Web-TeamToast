@@ -6,7 +6,7 @@ import { getAllProjectsQuery, getProjectsQuery, getProjectQuery, newProjectQuery
 import { ResultSetHeader } from 'mysql2';
 
 import { Project } from '../types/projectTypes'; // 프로젝트 타입 인터페이스
-import { checkUserInSpace } from '../utils/dbHelpers.js'; // UserRole 테이블에서 리퀘스트를 요청한 user가 sid에 권한이 있는지 확인하기 위한 헬퍼함수
+// import { checkUserInSpace } from '../utils/dbHelpers.js'; // UserRole 테이블에서 리퀘스트를 요청한 user가 sid에 권한이 있는지 확인하기 위한 헬퍼함수
 
 
 
@@ -56,10 +56,10 @@ export const getProjects = async (req:Request, res:Response) => {
     const sid: number = parseInt(req.params.sid, 10);
 
     // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
-    if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
-      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
-      return;
-    };
+    // if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
+    //   res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+    //   return;
+    // };
 
     const projects: Project[] = await getProjectsQuery(sid);
     if (projects.length === 0) {
@@ -99,11 +99,11 @@ export const getProject = async (req:Request, res:Response) => {
     const sid: number = parseInt(req.params.sid, 10);
 
     // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
-    if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
+    // if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
 
-      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
-      return;
-    };
+    //   res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+    //   return;
+    // };
 
     const pid: number = parseInt(req.params.pid, 10);
     const projects: Project[] = (await getProjectQuery(pid)) as Project[];
@@ -127,10 +127,10 @@ export const newProject = async (req:Request, res:Response) => {
   const sid: number = parseInt(req.params.sid, 10);
 
   // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
-  if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
-    res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
-    return;
-  };
+  // if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { 
+  //   res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+  //   return;
+  // };
 
   const pname: string = req.body.pname;
   const desc: string = req.body.description;
@@ -165,11 +165,11 @@ export const modifyProject = async (req:Request, res:Response) => {
     const desc: string = req.body.description;
 
     // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
-    if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) {
+    // if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) {
 
-      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
-      return;
-    };
+    //   res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+    //   return;
+    // };
 
     const result: ResultSetHeader = (await modifyProjectQuery(pname, desc, pid, sid)) as ResultSetHeader;
 
@@ -198,11 +198,11 @@ export const deleteProject = async (req:Request, res:Response) => {
     const sid: number = parseInt(req.params.sid, 10);
 
     // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
-    if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
+    // if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
       
-      res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
-      return;
-    };
+    //   res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
+    //   return;
+    // };
     
     const pid: number = parseInt(req.params.pid, 10);
     const result: ResultSetHeader = (await deleteProjectQuery(pid)) as ResultSetHeader;

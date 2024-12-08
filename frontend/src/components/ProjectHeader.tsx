@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
 import { IoSettingsOutline } from "react-icons/io5";
 import { spaceIdState } from '../recoil/atoms/spaceAtoms';
@@ -28,6 +28,13 @@ const ProjectHeader = ({
     const [userRole,setUserRole] = useState(localStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
    
+    const { sid } = useParams<{ sid: string }>() || { sid: '' };
+
+    console.log(sid);
+    
+    // console.log('프로젝트 헤더 리코일값',spaceId);
+    
+
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
         if(confirmed){

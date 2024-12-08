@@ -44,7 +44,7 @@ export const useAuth = () =>{
                   uname: response.data.user.uname,
                   email: response.data.user.email,
                   isLoggedIn: true,
-                  token: localStorage.getItem('accessToken') || undefined,
+                  // token: localStorage.getItem('accessToken') || undefined,
                   // role: 'member'
                 });
               } 

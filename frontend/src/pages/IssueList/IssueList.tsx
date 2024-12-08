@@ -19,13 +19,15 @@ const ContentContainer = styled.div`
 
 const ActiveSprint: React.FC = () => {
   return (
-    <PageContainer>
-      <Header />
+    <>
+    {/* <PageContainer> */}
+      {/* <Header /> */}
       <ContentContainer>
         <Sidebar />
         <IBoard />
       </ContentContainer>
-    </PageContainer>
+    {/* </PageContainer> */}
+    </>
   );
   // return (
   //   <Layout>

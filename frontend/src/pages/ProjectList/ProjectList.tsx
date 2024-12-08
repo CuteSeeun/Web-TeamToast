@@ -9,12 +9,13 @@ import ProjectModal from './ProjectModal';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toSvg } from "jdenticon";
 import { Project } from '../../types/projectTypes';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { projectListState, currentProjectState } from '../../recoil/atoms/projectAtoms';
 import { issueListState, backlogState, Issue, Type, Status, Priority } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as ProjectAlert } from '../../assets/images/proejctAlert.svg';
 import AccessToken from '../Login/AccessToken';
 import { Sprint, sprintState } from '../../recoil/atoms/sprintAtoms';
+import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 interface ModalState {
     isOpen: boolean;
@@ -33,9 +34,15 @@ const ProjectList = () => {
   const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
   const [sprints, setSprints] = useRecoilState(sprintState);
   const [isReady, setIsReady] = useState(false);
+  const spaceId = useRecoilValue(spaceIdState);
+
 
   const navigate = useNavigate();
   const { sid } = useParams<{ sid: string }>() || { sid: '' };
+
+  console.log('프로젝트 리스트 스아',sid);
+  console.log('프로젝트 리스트 스아(리코일)',spaceId);
+  
 
   useEffect(() => {
     // sid가 정의되지 않은 상태일 경우 아무 작업도 하지 않음
