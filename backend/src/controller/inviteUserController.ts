@@ -111,7 +111,9 @@ export const inviteUser = async (
       [role, email, spaceId, uname]
     );
 
-    res.status(200).json({ message: "사용자가 성공적으로 초대되었습니다." });
+    res.status(200).json({ message: "사용자가 성공적으로 초대되었습니다." ,
+      member :{name:uname,email,role},
+    });
   } catch (error) {
     if (error instanceof Error) {
       console.error("초대 처리 중 오류 발생:", error.message);
@@ -121,3 +123,11 @@ export const inviteUser = async (
     res.status(500).json({ message: "사용자 초대 중 오류가 발생했습니다." });
   }
 };
+
+// // 이메일 가져와서 이름 끄집어냄
+// export const checkName = async(req:Request , res:Response) =>{
+//   const {email} = req.body;
+
+
+
+// }

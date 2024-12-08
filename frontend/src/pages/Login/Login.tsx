@@ -4,7 +4,6 @@ import { RiKakaoTalkFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import AccessToken from './AccessToken';
 
 const Login:React.FC = () => {
     const [useremail , setUseremail] = useState<string>('');

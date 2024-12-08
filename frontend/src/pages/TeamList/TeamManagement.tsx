@@ -5,24 +5,31 @@ import { spaceIdState } from "../../recoil/atoms/spaceAtoms";
 import TeamList from "./TeamList";
 import TeamInviteModal from "./TeamInvite";
 import axios from "axios";
+import { response } from "express";
 
 const TeamManagement: React.FC = () => {
-  const teamMembers = useRecoilValue(teamMembersState); // Recoil에서 팀 멤버 데이터 가져오기
+  const setTeamMembers = useSetRecoilState(teamMembersState); // Recoil에서 팀 멤버 데이터 가져오기
   // const spaceId = useRecoilValue(spaceIdState); // Recoil에서 현재 스페이스 ID 가져오기
   const spaceId = sessionStorage.getItem('sid');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null); // 에러 메시지 상태 추가
 
+
+
   // 초대 API 호출
   const handleInvite = async (email: string, role: string) => {
     try {
-      await axios.post("http://localhost:3001/team/invite", {
+     const response = await axios.post("http://localhost:3001/team/invite", {
         space_id: Number(spaceId),
         email,
         role,
       });
+      const newMember = response.data.member; // 반환된 새 멤버 데이터값
+      setTeamMembers((plus)=> [...plus , newMember]); // 리코일에 바로추가
+
       setInviteError(null); // 초대 성공 시 에러 메시지 초기화
       // 갱신은 ProjectHeader의 fetchTeamMembers가 수행
+      alert('초대가 성공적으로 완료되었습니다.')
     } catch (error: any) {
       if (error.response?.status === 409) {
         const errorMessage = error.response.data.message;

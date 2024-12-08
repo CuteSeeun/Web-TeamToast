@@ -9,8 +9,6 @@ const OAuthCallback = () => {
     const navi = useNavigate();
     const setUser = useSetRecoilState(userState);
 
-
-
     //카카오 소셜 로그인
     useEffect(()=>{
         //url 에서 인증코드 가져옴

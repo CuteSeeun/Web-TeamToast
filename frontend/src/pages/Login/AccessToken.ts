@@ -26,7 +26,6 @@ AccessToken.interceptors.request.use(
 
         //accessToken이 필요하면 요청 헤더 추가
         if (accessToken) {
-            // console.log('Sending token:', accessToken);
 
              // Authorization 헤더 추가
                 config.headers.Authorization = `Bearer ${accessToken}`;
@@ -36,7 +35,7 @@ AccessToken.interceptors.request.use(
 
             // console.log('토큰 만료까지 남은 시간:', exp - now, '초');
 
-            // 토큰 만료 30초전에 갱신
+            // 토큰 만료 90초전에 갱신
             if (exp - now <= 90 && !isRefreshing) {
                 isRefreshing = true;
 
