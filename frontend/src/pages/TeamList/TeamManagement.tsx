@@ -8,7 +8,8 @@ import axios from "axios";
 
 const TeamManagement: React.FC = () => {
   const teamMembers = useRecoilValue(teamMembersState); // Recoil에서 팀 멤버 데이터 가져오기
-  const spaceId = useRecoilValue(spaceIdState); // Recoil에서 현재 스페이스 ID 가져오기
+  // const spaceId = useRecoilValue(spaceIdState); // Recoil에서 현재 스페이스 ID 가져오기
+  const spaceId = sessionStorage.getItem('sid');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null); // 에러 메시지 상태 추가
 
@@ -16,7 +17,7 @@ const TeamManagement: React.FC = () => {
   const handleInvite = async (email: string, role: string) => {
     try {
       await axios.post("http://localhost:3001/team/invite", {
-        space_id: spaceId,
+        space_id: Number(spaceId),
         email,
         role,
       });
@@ -54,15 +55,10 @@ const TeamManagement: React.FC = () => {
     <div>
       {/* TeamList 컴포넌트 */}
       <TeamList
-        teamMembers={teamMembers} // Recoil에서 가져온 데이터를 전달
+        // teamMembers={teamMembers} // Recoil에서 가져온 데이터를 전달
         onOpenInviteModal={() => {
           setInviteError(null); // 모달 열릴 때 에러 메시지 초기화
           setIsInviteModalOpen(true);
-        }}
-        onReload={() => {
-          // 새로고침 동작 정의
-          // 예: ProjectHeader에서 fetchTeamMembers 호출
-          window.location.reload(); // 간단히 페이지를 새로고침하거나 상태를 업데이트하는 동작 추가
         }}
         spaceId={spaceId ? Number(spaceId) : 0} // spaceId가 null일 경우 기본값 0 설정
       />

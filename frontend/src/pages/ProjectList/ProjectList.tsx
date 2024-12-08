@@ -40,9 +40,6 @@ const ProjectList = () => {
   const navigate = useNavigate();
   const { sid } = useParams<{ sid: string }>() || { sid: '' };
 
-  console.log('프로젝트 리스트 스아',sid);
-  console.log('프로젝트 리스트 스아(리코일)',spaceId);
-  
 
   useEffect(() => {
     // sid가 정의되지 않은 상태일 경우 아무 작업도 하지 않음
@@ -64,7 +61,7 @@ const ProjectList = () => {
         } catch (err) {
             console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
         } finally {
-          setIsReady(true); // 로딩 완료
+          setIsReady(true); 
         }
     };
     getProjList();
@@ -302,6 +299,7 @@ const ProjectList = () => {
                     {isAdmin && <th>작업</th>}
                 </tr>
               </thead>
+              
               <tbody>
                 {currentItems.map((project) => (
                   <tr key={project.pid}>

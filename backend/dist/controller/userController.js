@@ -102,6 +102,14 @@ const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.logout = logout;
 //--------------------------------------------------------------------------------
 // 사용자 정보 조회 (토큰 검증) 함수 // 새로고침
+/*
+요청 받은 헤더의 Authorization에서 토큰을 추출하고
+토큰이 없으면 리턴시킴
+
+토큰 검증 및 디코딩을함 (jwt.verify로 토큰 유효성 검사)
+디코딩 된 uid로 db에서 uid uname email 값을 가져옴
+
+*/
 const getInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
@@ -111,7 +119,11 @@ const getInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
-        const [rows] = yield dbpool_1.default.query('SELECT uid, uname, email FROM User WHERE uid = ?', [decoded.uid]);
+        const [rows] = yield dbpool_1.default.query('SELECT uid, uname, email FROM User WHERE uid = ?', [decoded.uid]
+        /* 토큰에는 최소한의 정보만 담아서 사용함 보통 uid만 씀
+          토큰에서 먼저 uid만 추출하고 그 uid로 나머지를 조회하는게 안전함
+        */
+        );
         if (rows.length === 0) {
             res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
             return;

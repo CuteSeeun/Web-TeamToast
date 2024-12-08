@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import db from "../config/dbpool";
 
 export const getTeamMembers = async (req: Request, res: Response) => {
-  const { spaceId } = req.query;
+  const spaceId  = Number(req.query.spaceId);
 
   if (!spaceId) {
     res.status(400).json({ message: "Missing spaceId" });
@@ -11,7 +11,7 @@ export const getTeamMembers = async (req: Request, res: Response) => {
 
   try {
     const [members]: any = await db.execute(
-      `SELECT ur.urid AS id, u.uname AS name, u.email, ur.role
+      `SELECT u.uname AS name, u.email, ur.role
        FROM UserRole ur
        JOIN User u ON ur.user = u.email
        WHERE ur.space_id = ?`,

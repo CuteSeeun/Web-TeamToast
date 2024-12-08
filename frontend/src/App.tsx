@@ -21,7 +21,6 @@ import SpaceAll from './pages/SpaceList/Space';
 import ProjectList from './pages/ProjectList/ProjectList';
 import OAuthCallback from './pages/Login/KakaoLogin';
 import TeamManagement from "./pages/TeamList/TeamManagement";
-// import Payment from './pages/Payment/Payment';
 import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
@@ -50,12 +49,11 @@ const App: React.FC = () => {
             <Route path="/backlog" element={<Backlog />} />
             <Route path="/issuelist" element={<IssueList />} />
             <Route path="/chat" element={<Chat />} />
-            <Route path="/payment" element={<Payment />} />
             <Route path="/spacemanagement" element={<SpaceManagement />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/issue/:id" element={<IssueDetail />} />
             <Route path="/plan" element={<Plan />} />
-            {/* <Route path="/payment" element={<Payment />} /> */}
+            <Route path="/payment" element={<Payment />} />
             <Route path="/card-change-success" element={<CardChangeSuccess />} />
             <Route path="/card-change-fail" element={<CardChangeFail />} />
             <Route path="/success" element={<Success />} />
