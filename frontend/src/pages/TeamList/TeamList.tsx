@@ -5,43 +5,33 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { teamMembersState } from "../../recoil/atoms/memberAtoms";
 import { userState } from "../../recoil/atoms/userAtoms";
 
-interface TeamMember {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
-
 interface TeamListProps {
-  // teamMembers: TeamMember[];
   onOpenInviteModal: () => void; // 초대 모달 열기 함수
   spaceId: number; // 현재 Space ID
 }
 
 const TeamList: React.FC<TeamListProps> = ({
-  // teamMembers,
   onOpenInviteModal,
   spaceId,
 }) => {
 
     const [teamMembers,setTeamMembers] = useRecoilState(teamMembersState);
     const currentUserEmail = useRecoilValue(userState);
-    // const [currentRole,setCurrentRole] = useState(sessionStorage.getItem('userRole') || "normal");
+    const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole'));
 
-    // const isAdmin = currentRole !== 'normal';
-    const isAdmin = sessionStorage.getItem('userRole') === 'normal';
+    const isAdmin = userRole === 'normal';
 
-    // useEffect(()=>{
-    //   // 세션에서 role 바뀌면
-    //   const changeRole = () =>{
-    //     const role = sessionStorage.getItem('userRole') || "normal";
-    //     setCurrentRole(role);
-    //   };
-    //   window.addEventListener("storage",changeRole);
-    //   return() =>{
-    //     window.removeEventListener("storage",changeRole);
-    //   }
-    // },[]);
+    useEffect(()=>{
+      // 세션에서 role 바뀌면
+      const changeRole = () =>{
+        const role = sessionStorage.getItem('userRole') || "normal";
+        setUserRole(role);
+      };
+      window.addEventListener("storage",changeRole);
+      return() =>{
+        window.removeEventListener("storage",changeRole);
+      }
+    },[]);
 
   
   // 권한 변경 API 호출
@@ -58,10 +48,14 @@ const TeamList: React.FC<TeamListProps> = ({
         )
       );
 
-      // 작업중
-      // if(email === currentUserEmail?.email) {
-      //   const response = await axios.get('http://localhost:3001/user')
-      // }
+      if(email === currentUserEmail?.email) {
+        const response = await axios.get('http://localhost:3001/team/user-role',{
+          params:{email}, // 현재 로그인한사람의 이메일 보냄
+        })
+        const updateRole = response.data.role; // 서버에서 변경된 role 가져옴
+        sessionStorage.setItem("userRole",updateRole); // 세션에 변경된 role 넣음
+        window.dispatchEvent(new Event('storage')); // 스토리지 이벤트 강제 트리거
+      }
 
       alert("권한이 성공적으로 변경되었습니다.");
     } catch (error) {

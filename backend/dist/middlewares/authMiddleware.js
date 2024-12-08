@@ -8,15 +8,15 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const checkToken = (req, res, next) => {
     var _a;
     const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-    console.log("Authorization Header Received:", req.headers.authorization);
-    console.log('Extracted token:', token);
+    // console.log("Authorization Header Received:", req.headers.authorization);
+    // console.log('Extracted token:', token);
     if (!token) {
         res.status(401).json({ message: '토큰이 없습니다.' });
         return;
     }
     try {
         const decoded = jsonwebtoken_1.default.verify(token, 'accessSecretKey');
-        console.log('Decoded token:', decoded);
+        // console.log('Decoded token:', decoded);
         //req.user 에 토큰에서 가져온 정보 저장함
         req.user = {
             uid: decoded.uid,

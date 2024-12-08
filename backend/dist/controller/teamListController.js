@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeMember = exports.updateRole = exports.getTeamMembers = void 0;
+exports.getUserRole = exports.removeMember = exports.updateRole = exports.getTeamMembers = void 0;
 const dbpool_1 = __importDefault(require("../config/dbpool"));
 const getTeamMembers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const spaceId = Number(req.query.spaceId);
@@ -73,3 +73,26 @@ const removeMember = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.removeMember = removeMember;
+// 권한 변경 후 롤 다시 가져오는 로직
+const getUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.query;
+    if (!email) {
+        res.status(400).json({ message: '이메일이 없습니다.' });
+        return;
+    }
+    try {
+        // query =< execute 같은 기능 인데 execute가 상위호환느낌이다.
+        // 앞으로 execute만 쓰자
+        const [result] = yield dbpool_1.default.execute(`select role from UserRole where user = ? and space_id = (select sid from Space order by last_accessed_at desc limit 1)`, [email]);
+        if (!result.length) {
+            res.status(404).json({ message: "Role not found for the user" });
+            return;
+        }
+        res.status(200).json({ role: result[0].role });
+    }
+    catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "롤 가져오기 실패" });
+    }
+});
+exports.getUserRole = getUserRole;

@@ -16,7 +16,6 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
   onClose,
   spaceId,
   onInvite,
-  onInviteSuccess,
   errorMessage, // props로 에러 메시지 전달
 }) => {
   const [email, setEmail] = useState("");
@@ -44,7 +43,12 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
       alert("이메일을 입력하세요.");
       return;
     }
-    await onInvite(email, role);
+    try {
+      await onInvite(email, role);
+      onClose(); // 초대되면 모달 닫음
+    } catch (error) {
+      console.error('초대 오류',error);
+    }
   };
 
   useEffect(() => {

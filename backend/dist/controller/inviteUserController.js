@@ -86,7 +86,9 @@ const inviteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         // UserRole 테이블에 데이터 삽입 (uname 포함)
         yield dbpool_1.default.execute("INSERT INTO `UserRole` (`role`, `user`, `space_id`, `uname`) VALUES (?, ?, ?, ?)", [role, email, spaceId, uname]);
-        res.status(200).json({ message: "사용자가 성공적으로 초대되었습니다." });
+        res.status(200).json({ message: "사용자가 성공적으로 초대되었습니다.",
+            member: { name: uname, email, role },
+        });
     }
     catch (error) {
         if (error instanceof Error) {
@@ -99,3 +101,7 @@ const inviteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.inviteUser = inviteUser;
+// // 이메일 가져와서 이름 끄집어냄
+// export const checkName = async(req:Request , res:Response) =>{
+//   const {email} = req.body;
+// }

@@ -7,12 +7,12 @@ import { getIssuesQuery, newIssueQuery } from '../models/issueModel';
 
 // 유틸 / 헬퍼 함수
 import { validateAndMap } from '../utils/helpers';
-import {
-  checkProjectExists,
-  checkSprintExists,
-  checkUserInSpace,
-  checkUserInProjectAndSpace,
-} from '../utils/dbHelpers';
+// import {
+//   checkProjectExists,
+//   checkSprintExists,
+//   checkUserInSpace,
+//   checkUserInProjectAndSpace,
+// } from '../utils/dbHelpers';
 
 // DB에 데이터를 보내기 위한 타입 선언
 import { Issue } from '../types/issueTypes';
@@ -54,18 +54,18 @@ export const newIssue = async (req: Request & { userRole: { user: string; role: 
 
   try {
     // 프로젝트 존재 여부 확인
-    const projectExists = await checkProjectExists(pid);
-    if (!projectExists) {
-      res.status(400).json({ error: `Project ID ${pid}는 존재하지 않습니다.` });
-      return;
-    };
+    // const projectExists = await checkProjectExists(pid);
+    // if (!projectExists) {
+    //   res.status(400).json({ error: `Project ID ${pid}는 존재하지 않습니다.` });
+    //   return;
+    // };
 
     // UserRole에서 user가 해당 스페이스에 권한이 있는지, 해당 프로젝트가 존재하는지 검증
     const user = req.userRole.user; // UserRole에 저장된 user(email 형식)
-    if (!(await checkUserInProjectAndSpace(user, pid))) {
-      res.status(403).json({ error: `사용자 ${user}가 해당 프로젝트에 권한이 없습니다.` });
-      return;
-    };
+    // if (!(await checkUserInProjectAndSpace(user, pid))) {
+    //   res.status(403).json({ error: `사용자 ${user}가 해당 프로젝트에 권한이 없습니다.` });
+    //   return;
+    // };
 
     // Status 값 검증 및 변환
     type ValidMapping<T> = Record<string, T>;
@@ -95,25 +95,25 @@ export const newIssue = async (req: Request & { userRole: { user: string; role: 
 
     // Sprint ID 처리
     const sprintId = req.body.sprint_id ?? null;
-    const sprintExists = await checkSprintExists(sprintId);
-    if (!sprintExists) {
-      res.status(400).json({ error: `Sprint ID ${sprintId}는 유효하지 않습니다.` });
-      return;
-    };
+    // const sprintExists = await checkSprintExists(sprintId);
+    // if (!sprintExists) {
+    //   res.status(400).json({ error: `Sprint ID ${sprintId}는 유효하지 않습니다.` });
+    //   return;
+    // };
 
     // Manager가 해당 space에 소속해 있는지 UserRole에서 검증
     const managerEmail = req.body.manager;
-    if (!(await checkUserInSpace(managerEmail, URSid))) {
-      res.status(403).json({ message: `${managerEmail}는 스페이스 접근 권한이 없습니다.` });
-      return;
-    };
+    // if (!(await checkUserInSpace(managerEmail, URSid))) {
+    //   res.status(403).json({ message: `${managerEmail}는 스페이스 접근 권한이 없습니다.` });
+    //   return;
+    // };
 
-    // Created by가 해당 space에 소속해 있는지 UserRole에서 검증
-    const createdByEmail = req.body.created_by;
-    if (!(await checkUserInSpace(createdByEmail, URSid))) {
-      res.status(403).json({ message: `${createdByEmail}는 스페이스 접근 권한이 없습니다.` });
-      return;
-    };
+    // // Created by가 해당 space에 소속해 있는지 UserRole에서 검증
+    // const createdByEmail = req.body.created_by;
+    // if (!(await checkUserInSpace(createdByEmail, URSid))) {
+    //   res.status(403).json({ message: `${createdByEmail}는 스페이스 접근 권한이 없습니다.` });
+    //   return;
+    // };
 
     const issue: Issue = {
       title: req.body.title,
@@ -123,7 +123,7 @@ export const newIssue = async (req: Request & { userRole: { user: string; role: 
       sprint_id: sprintId,
       project_id: pid,
       manager: managerEmail || null,
-      created_by: createdByEmail || null,
+      // created_by: createdByEmail || null,
       file: req.body.file ? JSON.stringify(req.body.file) : null,
       priority: priority || Priority.normal,
     };
