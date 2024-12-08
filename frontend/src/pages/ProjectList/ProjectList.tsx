@@ -24,9 +24,8 @@ const ProjectList = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지 번호를 저장
   const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null }); // 생성 수정 삭제 모달을 열거나 닫을때
   const [projects, setProjects] = useRecoilState<Project[]>(projectListState); // 현재 스페이스의 프로젝트 리스트를 저장
-  const setCurrentProject = useSetRecoilState(currentProjectState); //선택한 프로젝트 이름 ,설명
   const [isReady, setIsReady] = useState(false);//api로 데이터 가져오는 동안 "로딩중"메시지 표시
-  const { sid } = useParams<{ sid: string }>() || { sid: '' };//url의 sid를 가져옴
+  const setCurrentProject = useSetRecoilState(currentProjectState); //선택한 프로젝트 이름 ,설명
   const itemsPerPage = 10; // 한 페이지에 들어갈 아이템 개수
   // 페이지네이션 계산
   const totalPages = Math.ceil(projects.length / itemsPerPage);
@@ -36,31 +35,36 @@ const ProjectList = () => {
   // 프로젝트 이름 목록 (중복 체크용)
   const existingNames = projects.map(p => p.pname);//프로젝트 이름 리스트를 저장
   const navigate = useNavigate();
+  const { sid } = useParams<{ sid: string }>() || { sid: '' };//url의 sid를 가져옴
+  const [hasError, setHasError] = useState(false); // 에러 상태 관리
 
   //세션스토리지에서 userRole가져오기
   useEffect(() => {
     const userRole = sessionStorage.getItem('userRole'); // 로컬 스토리지에서 사용자 역할 가져오기
     if (userRole === 'top_manager' || userRole === 'manager') {
       setIsAdmin(true); // 관리자라면 true로 설정
-    }else {
+    } else {
       setIsAdmin(false); // 관리자가 아니면 false로 설정 (안전 처리)
     }
   }, []);
 
+
+
   //sid로 프로젝트 pid, pname, 설명 가져옴   <- url에서 sid가져와서 pid,pname을 가져오는 것인가?
   useEffect(() => {
-
     if (!sid) {
       alert('스페이스 id가 없음');
     };
-
     const getProjList = async () => {
       try {
         const { data } = await AccessToken.get(`/projects/all/${sid}`);
         console.log("Response from API:", data);
         setProjects(data || []);
+        setHasError(false); // 에러 상태 설정
       } catch (err) {
         console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
+        renderProjectAlert(isAdmin, openModal); // 바로 경고 메시지 반환
+        setHasError(true); // 에러 상태 설정
       } finally {
         setIsReady(true); // 로딩 완료
       }
@@ -68,9 +72,6 @@ const ProjectList = () => {
     getProjList();
   }, [sid, navigate]); // spaceId가 변경될 때마다 실행
 
-  if (!isReady) {
-    return <div>로딩 중...</div>;
-  };
 
   // 프로젝트 이미지 자동 생성 함수 (입력한 데이터에 따라 자동 생성되며, 같은 값을 입력한다면 이미지가 바뀌지 않음)
   const projImage = (project: Project) => {
@@ -114,12 +115,11 @@ const ProjectList = () => {
       setModal({ isOpen: true, type });
     }
   };
-
   const closeModal = () => {
     setModal({ isOpen: false, type: null });
   };
 
-  // 생성 / 수정 모달
+  // 생성,수정 모달
   const handleSubmit = async (name: string, description: string) => {
     try {
       if (modal.type === 'create') {
@@ -178,7 +178,7 @@ const ProjectList = () => {
     closeModal();
   };
 
-  // 현재 편집중인 프로젝트 데이터 가져오기
+  // 클릭한 스페이스의 프로젝트의 pname과 description 가져오기. projects 상태에 업데이트
   const getProjectData = () => {
     if (modal.projectId) {
       const proj = projects.find(p => p.pid === modal.projectId);
@@ -199,18 +199,45 @@ const ProjectList = () => {
     if (selectedProject) {
       setCurrentProject(selectedProject); // Recoil 상태 업데이트
       sessionStorage.setItem('pid', pid.toString()); // 세션 스토리지에 pid 저장
+
+      //클릭한 프로젝트의 pname을 세션에 저장
+
     } else {
       console.log(`${pid}에 해당하는 프로젝트를 프로젝트 목록에서 찾을 수 없습니다.`);
     };
   };
+
+  //클릭한 스페이스의 프로젝트 목록이 없다면
+  const renderProjectAlert = (isAdmin: boolean, openModal: (type: 'create' | 'edit' | 'delete') => void) => {
+    return (
+      <ProjectListWrap>
+      <div className='project-alert-container'>
+        <div className='project-alert-wrap'>
+          <ProjectAlert className='alert-svg' />
+          {isAdmin ? (
+            <p>현재 생성된 프로젝트가 없습니다. <br /> 새 프로젝트를 생성해 주세요.</p>
+          ) : (
+            <p>현재 생성된 프로젝트가 없습니다. <br /> 관리자에게 문의해 주세요.</p>
+          )}
+          <button className="create-btn" onClick={() => openModal('create')}>
+            <GoPlus /> 새 프로젝트 생성
+          </button>
+        </div>
+      </div>
+      </ProjectListWrap>
+    );
+  };
+
+  if (hasError) {
+    return renderProjectAlert(isAdmin, openModal);
+  }
 
 
   return (
     <ProjectListWrap>
       <div className="project-header">
         <h2>프로젝트</h2>
-      </div>
-      {projects.length !== 0 && <div className="table-container">
+      </div> {projects.length !== 0 && <div className="table-container">
         {isAdmin && (
           <button className="create-btn" onClick={() => openModal('create')}>
             <GoPlus /> 새 프로젝트 생성
@@ -272,24 +299,25 @@ const ProjectList = () => {
             </button>
           </div>
         </>) : (
-        <>
-          <div className='project-alert-container'>
-            <div className='project-alert-wrap'>
-              <ProjectAlert className='alert-svg' />
-              {isAdmin ? <p>현재 생성된 프로젝트가 없습니다. <br /> 새 프로젝트를 생성해 주세요.</p> : <p>현재 생성된 프로젝트가 없습니다. <br /> 관리자에게 문의해 주세요.</p>}
-              <button className="create-btn" onClick={() => openModal('create')}>
-                <GoPlus /> 새 프로젝트 생성
-              </button>
-            </div>
-          </div>
-        </>
+        // <>
+        //   <div className='project-alert-container'>
+        //     <div className='project-alert-wrap'>
+        //       <ProjectAlert className='alert-svg' />
+        //       {isAdmin ? <p>현재 생성된 프로젝트가 없습니다. <br /> 새 프로젝트를 생성해 주세요.</p> : <p>현재 생성된 프로젝트가 없습니다. <br /> 관리자에게 문의해 주세요.</p>}
+        //       <button className="create-btn" onClick={() => openModal('create')}>
+        //         <GoPlus /> 새 프로젝트 생성
+        //       </button>
+        //     </div>
+        //   </div>
+        // </>
+        renderProjectAlert(isAdmin, openModal)
       )
       }
 
       <ProjectModal type={modal.type || 'create'} isOpen={modal.isOpen}
-                    onClose={closeModal}          onSubmit={handleSubmit}
-                    onDelete={handleDelete}       projectData={getProjectData()}
-                    existingNames={existingNames}
+        onClose={closeModal} onSubmit={handleSubmit}
+        onDelete={handleDelete} projectData={getProjectData()}
+        existingNames={existingNames}
       />
     </ProjectListWrap>
   );

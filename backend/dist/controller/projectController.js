@@ -1,6 +1,4 @@
 "use strict";
-// 2024-11-25 한채경
-// projectController.ts
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -13,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProject = exports.modifyProject = exports.newProject = exports.getProject = exports.getSidByPid = exports.getProjects = exports.getAllProjects = exports.getProjectsByUUID = void 0;
 const projectModel_js_1 = require("../models/projectModel.js");
-// import { checkUserInSpace } from '../utils/dbHelpers.js'; // UserRole 테이블에서 리퀘스트를 요청한 user가 sid에 권한이 있는지 확인하기 위한 헬퍼함수
 const getProjectsByUUID = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { uuid } = req.params;
     try {
@@ -54,11 +51,6 @@ exports.getAllProjects = getAllProjects;
 const getProjects = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const sid = parseInt(req.params.sid, 10);
-        // User가 해당 Space에 접근 권한이 있는지 UserRole에서 확인
-        // if (!(await checkUserInSpace(req.user!.uid.toString(), sid))) { // 현진
-        //   res.status(403).json({ message: '해당 스페이스의 접근 권한이 없습니다.' });
-        //   return;
-        // };
         const projects = yield (0, projectModel_js_1.getProjectsQuery)(sid);
         if (projects.length === 0) {
             res.status(404).json({ error: '해당 space_id의 프로젝트가 없습니다.' });
