@@ -1,17 +1,18 @@
 import { atom, selector } from 'recoil';
 
-// 이슈 상태를 객체로 관리
+//스프린트별 이슈 목록(객체 형태) : 특정 스프린트에 속한 이슈만 필터링
 export const issueListState = atom<{ [key: number]: Issue[] }>({
   key: 'issueListState',
   default: {},
 });
 
+//스프린트에 포함되지 않은 이슈
 export const backlogState = atom<Issue[]>({
   key: 'backlogState',
   default: [],
 });
 
-// 새로운 atom 추가
+//모든 이슈
 export const allIssuesState = atom<Issue[]>({
   key: 'allIssuesState',
   default: [],
@@ -27,7 +28,7 @@ export interface Issue {
   project_id: number;
   manager?: string | null;
   created_by?: string | null;
-  file?: string | null;
+  file: string[];
   priority: Priority;
 }
 
@@ -52,7 +53,10 @@ export enum Priority {
   low = '낮음',
 }
 
-// 모든 이슈를 가져오는 selector
+//-----------------------------------------------------------
+//셀렉터
+
+// allIssuesState의 데이터를 가져오는 셀렉터
 export const allIssuesSelector = selector({
   key: 'allIssuesSelector',
   get: ({ get }) => {

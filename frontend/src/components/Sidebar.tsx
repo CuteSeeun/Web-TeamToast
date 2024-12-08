@@ -1,10 +1,12 @@
-//좌측 사이드바
-//세은
-
-import React from 'react';
+//프로젝트 사이드바
+import React, { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
+import CreateIssueModal from './CreateIssueModal';
+import AccessToken from '../pages/Login/AccessToken';
+import { issueListState, backlogState, Issue, Type } from '../recoil/atoms/issueAtoms';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -54,7 +56,7 @@ const AddIssueButton = styled.button`
   }
 `;
 
-const MenuItem = styled(Link)<{ active?: boolean }>`
+const MenuItem = styled(Link) <{ active?: boolean }>`
   display: flex;
   align-items: center;
   padding: 10px 0;
@@ -82,25 +84,105 @@ const MenuItem = styled(Link)<{ active?: boolean }>`
 `;
 
 const Sidebar: React.FC = () => {
+  const [projectId, setProjectId] = useState<string | null>(null); // pid 상태
+  const [spaceId, setSpaceId] = useState<string | null>(null); // sid 상태
+  const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
+  const [issues, setIssues] = useRecoilState(issueListState);
+  const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
+
+  // 세션에서 pid,sid 가져오기
+  const pid = sessionStorage.getItem('pid'); // 세션에서 pid 가져오기
+  const sid = sessionStorage.getItem('sid'); // 세션에서 sid 가져오기
+
+  if(pid){alert('pid를 가져옴');}
+  else{alert('세션에 pid 없는듯?');}
+
+  if(sid){alert('sid를 가져옴');}
+  else{alert('세션에 sid없는듯?');}
+
+  // if (pid) {
+  //   setProjectId(pid); // 상태에 저장
+  // } else {
+  //   alert('세션에 저장된 pid가 없습니다.'); // pid가 없을 경우 경고
+  // }
+
+  // if (sid) {
+  //   setSpaceId(sid); // sid 상태에 저장
+  // } else {
+  //   alert('세션에 저장된 sid가 없습니다.'); // sid가 없을 경우 경고
+  // }
+
+  const openModal = () => { setIsOpen(true); };
+  const closeModal = () => { setIsOpen(false); };
+
+  // 자식 컴포넌트에서 props를 받아 서버에 데이터 전송
+  const handleSubmit = async (issue: Issue, files: File[]) => {
+    try {
+      const formData = new FormData();
+      files.forEach((file) => formData.append('files', file));
+
+      const issuePromise = AccessToken.post(
+        `http://localhost:3001/issues/new/${spaceId}/${projectId}`, //sid 삭제해야함
+        issue
+      );
+
+      const fileUploadPromise = files.length > 0
+        ? AccessToken.post('http://localhost:3001/upload/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        : Promise.resolve(); // 파일이 없으면 성공으로 간주
+
+      // 병렬 처리
+      const [issueResponse, fileResponse] = await Promise.all([issuePromise, fileUploadPromise]);
+      const newIssue: Issue = issueResponse.data;
+
+      console.log('이슈 생성 성공:', issueResponse.data);
+      if (files.length > 0) console.log('파일 업로드 성공:', fileResponse?.data);
+
+      // 이슈 데이터 업데이트
+      if (newIssue.sprint_id) {
+        // sprint_id가 있는 경우 issues 상태 업데이트
+        setIssues((prevIssues) => {
+          const sprintId = newIssue.sprint_id!;
+          const updatedSprintIssues = prevIssues[sprintId]
+            ? [...prevIssues[sprintId], newIssue]
+            : [newIssue];
+
+          return {
+            ...prevIssues,
+            [sprintId]: updatedSprintIssues,
+          };
+        });
+      } else {
+        // sprint_id가 없는 경우 backlog 상태 업데이트
+        setBacklog((prevBacklog) => [...prevBacklog, newIssue]);
+      }
+    } catch (err) {
+      console.error('이슈 생성 또는 파일 업로드 실패:', err);
+    }
+  };
+
   return (
     <SidebarContainer>
 
       <TopSection>{/* 상단 메뉴 */}
-        <AddIssueButton><FaPlus />새 이슈</AddIssueButton> {/* 새 이슈 버튼 */}
+        <AddIssueButton onClick={(e) => { openModal() }}><FaPlus />새 이슈</AddIssueButton> {/* 새 이슈 버튼 */}
 
         {/* 메뉴 항목 */}
-        <MenuItem to="/activesprint" active><FaTasks />활성 스프린트</MenuItem>
-        <MenuItem to="/dashboard"><FaChartPie />대시보드</MenuItem>
-        <MenuItem to="/backlog"><FaClipboardList />백로그</MenuItem>
-        <MenuItem to="/issuelist"><FaClipboardList />이슈 목록</MenuItem>
-        <MenuItem to="/chat"><FaComments />채팅</MenuItem>
+        <MenuItem to={`/activesprint/${pid}`} active><FaTasks />활성 스프린트</MenuItem>
+        <MenuItem to={`/dashboard/${pid}`}><FaChartPie />대시보드</MenuItem>
+        <MenuItem to={`/backlog/${pid}`}><FaClipboardList />백로그</MenuItem>
+        <MenuItem to={`/issuelist/${pid}`}><FaClipboardList />이슈 목록</MenuItem>
+        <MenuItem to={`/chat/${sid}`}><FaComments />채팅</MenuItem>
 
       </TopSection>
 
       {/* 하단 메뉴 */}
       <BottomSection>
-        <MenuItem to="/invite"><FaUsers />팀원 초대하기</MenuItem>
+        <MenuItem to={`/invite/${spaceId}`}><FaUsers />팀원 초대하기</MenuItem>
       </BottomSection>
+
+      <CreateIssueModal isOpen={isOpen} onClose={closeModal} onSubmit={handleSubmit} pid={pid}/>
 
     </SidebarContainer>
   );

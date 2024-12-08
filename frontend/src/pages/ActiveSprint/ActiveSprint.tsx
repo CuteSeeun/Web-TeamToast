@@ -1,26 +1,15 @@
 // pages/ActiveSprint.tsx
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import Sidebar from '../../components/Sidebar';
 import SBoard from './SBoard';
 import axios from 'axios';
 import { useRecoilState } from 'recoil';
 import { allIssuesState } from '../../recoil/atoms/issueAtoms';
 import { sprintState } from '../../recoil/atoms/sprintAtoms';
 
-const PageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-`;
-
-const ContentContainer = styled.div`
-  display: flex;
-  flex: 1;
-`;
 
 const ActiveSprint: React.FC = () => {
 
+  //이슈와 스프린트 데이터 DB에서 불러오기
   const [allIssues, setAllIssues] = useRecoilState(allIssuesState);
   const [allSprint, setSprints] = useRecoilState(sprintState);
 
@@ -47,12 +36,7 @@ const ActiveSprint: React.FC = () => {
   }, [allIssues ,setAllIssues, allSprint ,setSprints]);
 
   return (
-    <PageContainer>
-      <ContentContainer>
-        <Sidebar />
         <SBoard />
-      </ContentContainer>
-    </PageContainer>
   );
 };
 

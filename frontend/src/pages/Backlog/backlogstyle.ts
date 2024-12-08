@@ -8,6 +8,11 @@ export const PageContainer = styled.div`
   /* flex: 1; */
 `;
 
+export const ContentContainer = styled.div`
+  display: flex;
+  flex: 1;
+`;
+
 export const BoardContainer = styled.div`
   position: relative;
   display: flex;
