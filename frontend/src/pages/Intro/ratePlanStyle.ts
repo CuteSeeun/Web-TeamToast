@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
 export const RatePlanWrap = styled.div`
- background-color: #f9f9f9;
+   background-color: #f9f9f9;
    display: flex;
    flex-direction: column;
    align-items: center;
    padding: 20px;
-   margin-top: 100px;
+   height: 100%;
 
    .maincontainer {
        display: flex;

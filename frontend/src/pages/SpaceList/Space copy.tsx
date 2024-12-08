@@ -5,11 +5,12 @@ import SpaceModal from './SpaceModal';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AccessToken from '../Login/AccessToken';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
+import { spaceIdState } from '../../recoil/atoms/spaceAtoms';
 
 interface SpaceItem {
-    spaceId : string;
+    spaceId : number;
     spaceName:string;
     role:string;
     // uuid:string;
@@ -31,6 +32,8 @@ const SpaceAll:React.FC = () => {
     const [error , setError] = useState<string>('');
     const navgate = useNavigate();
     
+    // const setSpaceId = useSetRecoilState(spaceIdState);
+
     const userName = useRecoilValue(userState);
 
     //스페이스 목록
@@ -56,12 +59,11 @@ const SpaceAll:React.FC = () => {
     }, [navgate]);
 
   // 선택된 스페이스 저장
-    const handleSelectSpace = async(spaceId:string) => {
+    const handleSelectSpace = async(spaceId:number) => {
         try {
-                await AccessToken.post('/space/select-space',{spaceId});
-                sessionStorage.setItem('sid',spaceId);
-                console.log(sessionStorage.getItem('sid'));
-                
+          const response = await AccessToken.post('/space/select-space',{spaceId});
+            // sessionStorage.setItem('spaceId',spaceId);
+
             const selectSpace = spaces.find(space=>space.spaceId === spaceId);
             if(selectSpace){
                 sessionStorage.setItem('userRole',selectSpace.role);
@@ -92,7 +94,7 @@ const SpaceAll:React.FC = () => {
                 sname: spaceName,
                 uname:userName?.uname,
             });
-            if (response.data.spaceId) {
+            if (response.data.spaceUuid) {
                 setSpaces((prev) => [
                     ...prev,
                     {
@@ -102,17 +104,11 @@ const SpaceAll:React.FC = () => {
                         // uuid: response.data.spaceUuid,
                     },
                 ]);
+                setShowModal(false);
             }
-            await alert('스페이스가 생성되었습니다.');
-            await setShowModal(false);
-           
         } catch (error) {
-            if (axios.isAxiosError(error) && error.response?.status === 400) {
-                alert(error.response.data.message); // 중복된 경우의 에러 메시지 표시
-            } else {
-                console.error('스페이스 생성 에러:', error);
-                alert('스페이스 생성에 실패했습니다.');
-            }
+            console.error('스페이스 생성 에러:', error);
+            alert('스페이스 생성에 실패했습니다.');
         }
     };
 

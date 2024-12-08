@@ -3,22 +3,6 @@
 import Header from './MainHeader';
 import { Outlet } from 'react-router-dom';
 
-// const LayoutContainer = styled.div`
-//   display: flex;
-//   height: 100vh;
-// `;
-
-// const MainContent = styled.div`
-//   flex: 1;
-//   display: flex;
-//   flex-direction: column;
-//   overflow: auto;
-// `;
-
-// interface LayoutProps {
-//     children: React.ReactNode;
-// }
-
 const Layout= () => {
     return (
         <div>

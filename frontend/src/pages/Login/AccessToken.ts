@@ -26,7 +26,7 @@ AccessToken.interceptors.request.use(
 
         //accessToken이 필요하면 요청 헤더 추가
         if (accessToken) {
-            console.log('Sending token:', accessToken);
+            // console.log('Sending token:', accessToken);
 
              // Authorization 헤더 추가
                 config.headers.Authorization = `Bearer ${accessToken}`;
@@ -34,7 +34,7 @@ AccessToken.interceptors.request.use(
             const { exp,uid } = jwtDecode<JwtPayload>(accessToken);
             const now = Date.now() / 1000;
 
-            console.log('토큰 만료까지 남은 시간:', exp - now, '초');
+            // console.log('토큰 만료까지 남은 시간:', exp - now, '초');
 
             // 토큰 만료 30초전에 갱신
             if (exp - now <= 90 && !isRefreshing) {

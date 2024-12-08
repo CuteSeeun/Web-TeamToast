@@ -15,13 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeMember = exports.updateRole = exports.getTeamMembers = void 0;
 const dbpool_1 = __importDefault(require("../config/dbpool"));
 const getTeamMembers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { spaceId } = req.query;
+    const spaceId = Number(req.query.spaceId);
     if (!spaceId) {
         res.status(400).json({ message: "Missing spaceId" });
         return;
     }
     try {
-        const [members] = yield dbpool_1.default.execute(`SELECT ur.urid AS id, u.uname AS name, u.email, ur.role
+        const [members] = yield dbpool_1.default.execute(`SELECT u.uname AS name, u.email, ur.role
        FROM UserRole ur
        JOIN User u ON ur.user = u.email
        WHERE ur.space_id = ?`, [spaceId]);

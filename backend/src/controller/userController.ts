@@ -144,6 +144,17 @@ export const logout = async (req:Request , res:Response):Promise<void> =>{
 
 //--------------------------------------------------------------------------------
 // 사용자 정보 조회 (토큰 검증) 함수 // 새로고침
+
+/* 
+요청 받은 헤더의 Authorization에서 토큰을 추출하고
+토큰이 없으면 리턴시킴
+
+토큰 검증 및 디코딩을함 (jwt.verify로 토큰 유효성 검사)
+디코딩 된 uid로 db에서 uid uname email 값을 가져옴
+
+*/
+
+
 export const getInfo = async (req: Request, res: Response): Promise<void> => {
   const token = req.headers.authorization?.split(' ')[1];
 
@@ -158,6 +169,9 @@ export const getInfo = async (req: Request, res: Response): Promise<void> => {
     const [rows] = await pool.query<UserRow[]>(
       'SELECT uid, uname, email FROM User WHERE uid = ?',
       [decoded.uid]
+      /* 토큰에는 최소한의 정보만 담아서 사용함 보통 uid만 씀
+        토큰에서 먼저 uid만 추출하고 그 uid로 나머지를 조회하는게 안전함
+      */
     );
 
     if (rows.length === 0) {
