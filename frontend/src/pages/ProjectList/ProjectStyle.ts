@@ -1,6 +1,3 @@
-// 2024-11-25 한채경 수정, 11-28 마지막 수정
-// ProjectStyle.ts
-
 import styled from "styled-components";
 
 // 프로젝트 페이지 스타일
@@ -9,7 +6,7 @@ export const ProjectListWrap = styled.div`
   margin: 0 auto;
   padding: 20px;
 
-  // 헤더 스타일
+  /* 헤더 스타일 */
   .project-header {
     text-align: center;
 
@@ -21,9 +18,9 @@ export const ProjectListWrap = styled.div`
       margin-bottom: 50px;
     }
   }
-  // ============
+  /* ============ */
 
-  // 생성 버튼 스타일
+  /* 생성 버튼 스타일 */
   .create-btn {
     display: flex;
     align-items: center;
@@ -46,7 +43,7 @@ export const ProjectListWrap = styled.div`
     }
   }
 
-  // 버튼 컨테이너 스타일
+  /* 버튼 컨테이너 스타일 */
   .table-container {
     margin-bottom: 40px;
     display: flex;
@@ -54,9 +51,9 @@ export const ProjectListWrap = styled.div`
 
 
   }
-  // ============
+  /* ============ */
 
-  // 테이블 스타일
+  /* 테이블 스타일 */
   .project-table {
     width: 100%;
     border-collapse: collapse;
@@ -113,9 +110,9 @@ export const ProjectListWrap = styled.div`
       }
     }
   }
-  // ============
+  /* ============ */
 
-  // 페이지네이션 스타일
+  /* 페이지네이션 스타일 */
   .pagination {
     display: flex;
     justify-content: center;
@@ -146,9 +143,9 @@ export const ProjectListWrap = styled.div`
       }
     }
   }
-  // ============
+  /* ============ */
 
-  // 프로젝트 없을 시 띄우는 알림 스타일
+  /* 프로젝트 없을 시 띄우는 알림 스타일 */
   .project-alert-container {
     margin: 0 auto;
     text-align: center;
@@ -281,7 +278,7 @@ export const ProjectModalWrap = styled.div`
    }
  }
 
- // 삭제 모달 특화 스타일
+ /* 삭제 모달 특화 스타일 */
  .modal.delete {
    max-width: 360px;
    

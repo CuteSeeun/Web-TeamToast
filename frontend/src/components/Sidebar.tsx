@@ -1,12 +1,14 @@
 //프로젝트 사이드바
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
 import CreateIssueModal from './CreateIssueModal';
 import AccessToken from '../pages/Login/AccessToken';
 import { issueListState, backlogState, Issue, Type } from '../recoil/atoms/issueAtoms';
+import axios from 'axios';
+import { loadingAtoms } from '../recoil/atoms/loadingAtoms';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -89,32 +91,21 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
   const [issues, setIssues] = useRecoilState(issueListState);
   const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
+  const [allIssues, setAllIssues] = useState<Issue[]>([]);
+  const [sprints, setSprints] = useState<any[]>([]); // sprints에 적합한 타입을 지정하세요
+
+  // const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
+  const setLoading = useSetRecoilState(loadingAtoms);
 
   // 세션에서 pid,sid 가져오기
   const pid = sessionStorage.getItem('pid'); // 세션에서 pid 가져오기
   const sid = sessionStorage.getItem('sid'); // 세션에서 sid 가져오기
 
-  if(pid){console.log('pid를 가져옴');}
-  else{console.log('세션에 pid 없는듯?');}
+  if (pid) { console.log('pid를 가져옴'); }
+  else { console.log('세션에 pid 없는듯?'); }
 
-
-  if(sid){console.log('sid를 가져옴');} 
-
-  if(sid){console.log('sid를 가져옴');}
-
-  else{console.log('세션에 sid없는듯?');}
-
-  // if (pid) {
-  //   setProjectId(pid); // 상태에 저장
-  // } else {
-  //   alert('세션에 저장된 pid가 없습니다.'); // pid가 없을 경우 경고
-  // }
-
-  // if (sid) {
-  //   setSpaceId(sid); // sid 상태에 저장
-  // } else {
-  //   alert('세션에 저장된 sid가 없습니다.'); // sid가 없을 경우 경고
-  // }
+  if (sid) { console.log('sid를 가져옴'); }
+  else { console.log('세션에 sid없는듯?'); }
 
   const openModal = () => { setIsOpen(true); };
   const closeModal = () => { setIsOpen(false); };
@@ -166,27 +157,59 @@ const Sidebar: React.FC = () => {
     }
   };
 
+  // Fetch all issues and sprints
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+
+        setLoading(true);
+
+        if (!pid) {
+          console.error('프로젝트 ID가 세션에 없습니다.');
+          return;
+        }
+        const issuesResponse = await axios.get(`/sissue/project/${pid}`);
+        setAllIssues(issuesResponse.data);
+        console.log('가져온 이슈 레코드:', issuesResponse.data);
+
+        const sprintsResponse = await axios.get(`/sprint/project/${pid}`);
+        setSprints(sprintsResponse.data);
+        console.log('가져온 스프린트 레코드:', sprintsResponse.data);
+
+        // setIsLoading(false); // 데이터 로딩 완료
+        setLoading(false);
+
+      } catch (error) {
+        console.error('Error fetching all data:', error);
+        // setIsLoading(false); // 에러 시에도 로딩 종료
+        setLoading(false);
+      }
+    };
+    fetchAllData();
+  }, [pid]);
+
+  // if (isLoading) {
+  //   return <div>로딩 중...</div>; // 로딩 중 상태 표시
+  // }
+
   return (
     <SidebarContainer>
 
       <TopSection>{/* 상단 메뉴 */}
         <AddIssueButton onClick={(e) => { openModal() }}><FaPlus />새 이슈</AddIssueButton> {/* 새 이슈 버튼 */}
-
-        {/* 메뉴 항목 */}
         <MenuItem to={`/activesprint/${pid}`} active><FaTasks />활성 스프린트</MenuItem>
         <MenuItem to={`/dashboard/${pid}`}><FaChartPie />대시보드</MenuItem>
         <MenuItem to={`/backlog/${pid}`}><FaClipboardList />백로그</MenuItem>
         <MenuItem to={`/issuelist/${pid}`}><FaClipboardList />이슈 목록</MenuItem>
         <MenuItem to={`/chat/${sid}`}><FaComments />채팅</MenuItem>
-
       </TopSection>
 
       {/* 하단 메뉴 */}
       <BottomSection>
-        <MenuItem to={`/invite/${spaceId}`}><FaUsers />팀원 초대하기</MenuItem>
+        <MenuItem to={`/invite/${sid}`}><FaUsers />팀원 초대하기</MenuItem>
       </BottomSection>
 
-      <CreateIssueModal isOpen={isOpen} onClose={closeModal} onSubmit={handleSubmit} pid={pid}/>
+      <CreateIssueModal isOpen={isOpen} onClose={closeModal} onSubmit={handleSubmit} pid={pid} />
 
     </SidebarContainer>
   );

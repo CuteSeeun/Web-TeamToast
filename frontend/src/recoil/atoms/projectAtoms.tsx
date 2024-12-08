@@ -4,6 +4,7 @@
 import { atom } from 'recoil';
 import { Project } from '../../types/projectTypes';
 
+//프로젝트 목록을 저장
 export const projectListState = atom<Project[]>({
   key: 'projectListState',
   default: [],

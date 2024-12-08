@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(checkToken);
 
 router.get('/all', getAllProjects);
-router.get('/all/:sid', validateSid, getProjects);
+router.get('/all/:sid', validateSid, getProjects); //특정 sid와 연결된 모든 프로젝트 데이터를 가져오는 api
 router.get('/:sid/:pid', validatePid, getProject);
 router.get('/find/one/:pid', validatePid, getSidByPid);
 router.post('/new/:sid', validateProjectFields, validateSid, newProject);

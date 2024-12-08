@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; // URL에서 값을 가져오기 위해 import
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { AddSprint, BoardContainer, BoardHeader, BoardTitle, Breadcrumb, Filters, Div, StyledSprintBox, SprintHeader, SprintName, IssueTable } from './backlogstyle';
 import SprintBox from './SprintBox';
@@ -21,16 +22,24 @@ const BBoard: React.FC = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    //url에서 pid 가져오기
+    const { pid } = useParams<{ pid: string }>(); // URL에서 `pid` 가져오기
+
     // 초기 백로그 설정
     useEffect(() => {
-        const projectId = 1; // 프로젝트 ID를 1로 설정
+        if (!pid) {
+            console.error('URL에서 pid를 가져오지 못했습니다.');
+            return;
+        }
+        const projectId = parseInt(pid); // `pid`를 정수로 변환
         const projectIssues = allIssues.filter(i => i.project_id === projectId && i.sprint_id === null);
         setBacklog(projectIssues);
-    }, [allIssues, setBacklog]);
+    }, [pid, allIssues, setBacklog]);
 
     const fetchSprints = async () => {
+        if (!pid) console.log('pid없는데?');
         try {
-            const response = await axios.get(`/sprint/project/1`);
+            const response = await axios.get(`/sprint/project/${pid}`);
             setSprints(response.data);
         } catch (error) {
             console.error('Error fetching sprints:', error);
@@ -39,7 +48,12 @@ const BBoard: React.FC = () => {
 
     // 드롭 핸들러 함수
     const onDrop = async (issue: Issue, newSprintId: number | null) => {
+        if (!pid) {
+            console.error('pid가 undefined입니다.');
+            return;
+        }
         try {
+            const projectId = parseInt(pid); // 여기서 undefined를 처리
             await axios.put(`/issue/${issue.isid}`, { sprint_id: newSprintId });
 
             const updatedIssues = allIssues.map((i) => {
@@ -50,7 +64,7 @@ const BBoard: React.FC = () => {
             });
 
             setIssues(updatedIssues); // 업데이트된 이슈로 전체 상태를 업데이트
-            setBacklog(updatedIssues.filter(i => i.project_id === 1 && i.sprint_id === null)); // 백로그 상태 업데이트
+            setBacklog(updatedIssues.filter(i => i.project_id === projectId && i.sprint_id === null)); // 백로그 상태 업데이트
         } catch (error) {
             console.error(`이슈 업데이트 오류: ${issue.isid} sprint_id:`, error);
         }
@@ -87,7 +101,7 @@ const BBoard: React.FC = () => {
                                     onChange={e => setFilter({ ...filter, manager: e.target.value })}
                                 >
                                     <option value="">담당자</option>
-                                    {Array.from(new Set(allIssues.filter(i => i.project_id === 1).map(i => i.manager))).map((manager, index) => (
+                                    {Array.from(new Set(allIssues.filter(i => i.project_id === parseInt(pid || '0')).map(i => i.manager))).map((manager, index) => (
                                         <option key={index} value={manager || ''}>{manager}</option>
                                     ))}
                                 </select>
@@ -98,7 +112,7 @@ const BBoard: React.FC = () => {
                                     onChange={e => setFilter({ ...filter, status: e.target.value })}
                                 >
                                     <option value="">상태</option>
-                                    {Array.from(new Set(allIssues.filter(i => i.project_id === 1).map(i => i.status))).map((status, index) => (
+                                    {Array.from(new Set(allIssues.filter(i => i.project_id === parseInt(pid || '0')).map(i => i.status))).map((status, index) => (
                                         <option key={index} value={status || ''}>{status}</option>
                                     ))}
                                 </select>
@@ -109,7 +123,7 @@ const BBoard: React.FC = () => {
                                     onChange={e => setFilter({ ...filter, priority: e.target.value })}
                                 >
                                     <option value="">우선순위</option>
-                                    {Array.from(new Set(allIssues.filter(i => i.project_id === 1).map(i => i.priority))).map((priority, index) => (
+                                    {Array.from(new Set(allIssues.filter(i => i.project_id === parseInt(pid || '0')).map(i => i.priority))).map((priority, index) => (
                                         <option key={index} value={priority || ''}>{priority}</option>
                                     ))}
                                 </select>
@@ -117,7 +131,7 @@ const BBoard: React.FC = () => {
                         </Filters>
                     </BoardHeader>
 
-                    {sortedSprints.filter(sprint => sprint.project_id === 1 && sprint.status !== 'end').map(sprint => (
+                    {sortedSprints.filter(sprint => sprint.project_id === parseInt(pid || '0') && sprint.status !== 'end').map(sprint => (
                         <SprintBox key={sprint.spid} sprint={sprint} onDrop={onDrop} />
                     ))}
 
