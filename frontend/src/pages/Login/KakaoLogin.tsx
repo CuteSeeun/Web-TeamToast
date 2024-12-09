@@ -15,22 +15,22 @@ const OAuthCallback = () => {
         const code = new URLSearchParams(location.search).get('code');
         if(code){
             // 서버에 인증 코드 전송해서 토큰 발급
-            // axios.post('http://localhost:3001/editUser/kakao-token',{code},
-            axios.post('/editUser/kakao-token',{code},
-                {
-                     baseURL: 'http://localhost:8080'
-                }
+            axios.post('http://localhost:3001/editUser/kakao-token',{code},
+            // axios.post('/editUser/kakao-token',{code},
+                // {
+                //      baseURL: 'http://localhost:8080'
+                // }
             )
             .then(response => {
+                console.log("response data:", response.data);
                 const {token,user} = response.data;
                 localStorage.setItem('accessToken',token);
-                setUser(user)
-
+                setUser(user);
                 navi('/');
             })
             .catch(error=>{
                 console.error('카카오 오류:',error);
-                navi('/login');
+                navi('/');
             })
         }
     },[location,navi,setUser])

@@ -4,6 +4,7 @@ import { RiKakaoTalkFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AccessToken from './AccessToken';
 
 const Login:React.FC = () => {
     const [useremail , setUseremail] = useState<string>('');
@@ -69,9 +70,13 @@ const Login:React.FC = () => {
     // 서버로부터 카카오 로그인 url 받아와서 리다이렉트
     const getKakao = async() =>{
         try {
-            // const response = await axios.get('http://localhost:3001/editUser/kakao-login');
-            const response = await axios.get('/editUser/kakao-login');
+            const response = await axios.get('http://localhost:3001/editUser/kakao-login');
+            // const response = await AccessToken.get('/editUser/kakao-login');
+            console.log('카카오 로그인 redirectUrl:', response.data);
             const {redirectUrl} = response.data;
+            if (!redirectUrl) {
+                throw new Error('redirectUrl 값이 없습니다.');
+            }
             window.location.href = redirectUrl;
         } catch (error) {
             console.log(error);

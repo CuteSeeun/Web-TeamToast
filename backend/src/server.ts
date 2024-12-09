@@ -2,7 +2,8 @@
 import express, { Application } from 'express';
 import cors from 'cors';
 import sprintRouter from "./routes/sprintRouter";
-require("dotenv").config();
+// require("dotenv").config();
+require('dotenv').config({ path: './backend/.env' }); // 현진 실험용
 import { createServer } from 'http'; // HTTP 서버 생성
 import { initSocket } from './socketServer'; // 분리된 Socket.IO 코드 import
 
@@ -30,7 +31,13 @@ const app: Application = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:8080',
+    methods: ['GET', 'POST'],
+    credentials: true,
+}));
+
 app.use(express.static(path.join(__dirname, "public")));
 
 //스케쥴링 작업 시작

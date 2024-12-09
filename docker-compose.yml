@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   frontend:
     build:
@@ -15,28 +16,36 @@ services:
       context: ./backend
     ports:
       - "3001:3001"
+    depends_on:
+    - database
     
     # docker에서 모든 환경변수를 백 env에서 가져와서 사용함 따로 지정안해도되니 매우 편리함
     # 근대 싹다 가져옴 (필요없는것도 다)
-    # env_file:
-    #   - ./backend/.env
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_PORT: ${DB_PORT}
-      DB_DATABASE: ${DB_DATABASE}
-      DB_CONNECTION_LIMIT: ${DB_CONNECTION_LIMIT}
+    
+    env_file:
+      - ./backend/.env
+
+    # environment:
+    #   DB_HOST: database
+    #   DB_USER: ${DB_USER}
+    #   DB_PASSWORD: ${DB_PASSWORD}
+    #   DB_PORT: ${DB_PORT}
+    #   DB_DATABASE: ${DB_DATABASE}
+    #   DB_CONNECTION_LIMIT: ${DB_CONNECTION_LIMIT}
 
   database:
     image: mysql:8
     ports:
       - "3307:3306"
+    env_file:
+      - ./backend/.env
     environment:
       MYSQL_ROOT_PASSWORD: "teampassword"
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: "teampassword"
+    #   MYSQL_DATABASE: ${DB_DATABASE}
+    #   MYSQL_USER: ${DB_USER}
+    #   MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
 
