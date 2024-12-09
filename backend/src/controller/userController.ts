@@ -52,20 +52,14 @@ export const join = async (req: Request, res: Response): Promise<void> => {
 // 로그인 함수
 export const login = async (req: Request, res: Response): Promise<void> => {
   
-  console.log('Login request received:', req.body); 
-
   const { useremail, userpw } = req.body;
 
   try {
-
-    console.log('Querying user:', useremail); 
 
     const [rows] = await pool.query<UserRow[]>(
       'SELECT * FROM User WHERE email = ?',
       [useremail]
     );
-
-    console.log('Query result:', rows[0]);  
 
     if (rows.length === 0) {
       res.status(401).json({ message: '사용자 없음' });
@@ -73,10 +67,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const user = rows[0];
-    console.log('DB에서 가져온 사용자:', user);
 
+    // bcrypt.compare은 평문 비밀번호와 해시화된 비밀번호를 비교해서 두 값이 동일한지
+    // 확인해주는 역할을 한다
+    /* 
+    userpw = 입력받은 비밀번호
+    user.passwd = db에있는 해시화된 비밀번호
+    비교해서 동일하면 true 틀리면 false 반환
+    */
     const isPw = await bcrypt.compare(userpw, user.passwd);
-    console.log('Password check:', isPw);
 
     if (!isPw) {
       res.status(401).json({ message: '비밀번호 틀림' });
@@ -93,13 +92,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     );
 
      // 기존 리프레시 토큰 삭제
+     /* 로그인 할때마다 리프레시 토큰 초기화하는식으로 삭제후 재생성 */
      await pool.query(
       'DELETE FROM RefreshTokens WHERE user_id = ?',
       [user.uid]
     );
 
     const refreshToken = jwt.sign(
-      {},
+      {}, // 빈 객체 전달
       'refreshSecretKey',
       { expiresIn: '15d' }
   );
@@ -112,7 +112,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.json({
       message: '로그인 성공',
       accessToken,
-      refreshToken,
+      // refreshToken,
       user: {
         uid: user.uid,
         uname: user.uname,

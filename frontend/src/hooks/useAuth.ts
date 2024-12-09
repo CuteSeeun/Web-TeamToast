@@ -26,22 +26,6 @@ export const useAuth = () =>{
           if (accessToken) {
             try {
 
-              // const { exp } = jwtDecode<{ exp: number }>(accessToken);
-              // const now = Date.now() / 1000;
-
-              // // 토큰이 만료되었거나 만료 임박한 경우
-              // if (exp - now <= 90) {
-              //     // 토큰 재발급 시도
-              //     const { uid } = jwtDecode<{ uid: number }>(accessToken);
-              //     const response = await AccessToken.post('/editUser/refresh/token', 
-              //         { uid },
-              //     );
-                  
-              //     if (response.data.accessToken) {
-              //         localStorage.setItem('accessToken', response.data.accessToken);
-              //     }
-              // }
-
               const response = await AccessToken.get('/editUser/me');                
               
               //서버에서 유저정보 보낸게 있으면 리코일에 유저정보 저장

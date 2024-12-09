@@ -14,13 +14,6 @@ const pool = createPool({
     connectionLimit: Number(process.env.DB_CONNECTION_LIMIT),
     queueLimit: 0
 });
-console.log('ENV:', {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    port: process.env.DB_PORT,
-});
 
 // 데이터베이스 연결 확인
 pool.getConnection()

@@ -28,7 +28,7 @@ import Plan from './pages/Plan/Plan';
 import { useAuth } from './hooks/useAuth';
 
 const App: React.FC = () => {
-  useAuth(); // 로그인 상태 관리 
+  // useAuth(); // 로그인 상태 관리 
 
   return (
     <>

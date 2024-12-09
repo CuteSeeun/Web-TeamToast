@@ -16,96 +16,91 @@ exports.kakaoTokenHandler = exports.kakaoLogin = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const axios_1 = __importDefault(require("axios"));
 const dbpool_1 = __importDefault(require("../config/dbpool"));
-//카카오 로그인 url 생성 및 반환
+// 카카오 로그인 URL 생성
 const kakaoLogin = (req, res) => {
-    // 환경변수에서 설정값 가져옴
-    const redirectUri = process.env.KAKAO_REDIRECT_URI;
-    const clientId = process.env.KAKAO_REST_API_KEY;
-    // 카카오 인증 url 생성
+    const redirectUri = 'http://localhost:8080/oauth';
+    const clientId = 'd0c9831346ea3272b1d4e3fc11176c97';
+    if (!redirectUri || !clientId) {
+        console.error('환경 변수 확인:', { redirectUri, clientId });
+        res.status(500).json({ message: 'KAKAO 환경 변수가 설정되지 않았습니다.' });
+        return;
+    }
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
+    console.log('Kakao 로그인 redirectUrl:', kakaoAuthUrl);
     res.json({ redirectUrl: kakaoAuthUrl });
 };
 exports.kakaoLogin = kakaoLogin;
 // 카카오 토큰 처리 및 사용자 정보 저장
 const kakaoTokenHandler = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     const { code } = req.body;
-    console.log('Received kakao code:', req.body.code);
+    console.log('Received kakao code:', code);
     try {
-        //카카오 액세스 토큰 저장
+        const clientId = 'd0c9831346ea3272b1d4e3fc11176c97';
+        const redirectUri = 'http://localhost:8080/oauth';
+        console.log('카카오 액세스 토큰 요청 시작');
         const tokenResponse = yield axios_1.default.post('https://kauth.kakao.com/oauth/token', null, {
-            params: {
-                grant_type: 'authorization_code',
-                client_id: process.env.KAKAO_REST_API_KEY,
-                redirect_uri: process.env.KAKAO_REDIRECT_URI,
-                code,
-            },
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            params: { grant_type: 'authorization_code', client_id: clientId, redirect_uri: redirectUri, code },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         });
         const { access_token } = tokenResponse.data;
-        // 카카오 사용자 정보 저장
+        console.log('카카오 액세스 토큰:', access_token);
+        console.log('카카오 사용자 정보 요청 시작');
         const userResponse = yield axios_1.default.get('https://kapi.kakao.com/v2/user/me', {
-            headers: {
-                Authorization: `Bearer ${access_token}`,
-            },
+            headers: { Authorization: `Bearer ${access_token}` },
         });
         const kakaoUser = userResponse.data;
         const { id: social_id, kakao_account } = kakaoUser;
         const { email, profile } = kakao_account;
-        // DB에서 기존 사용자 확인
-        const [existingUser] = yield dbpool_1.default.query('SELECT * FROM User WHERE email = ? AND social_id = ?', [email, social_id.toString()]);
+        console.log('카카오 사용자 데이터:', {
+            id: social_id,
+            email,
+            nickname: profile.nickname,
+        });
+        if (!email || !(profile === null || profile === void 0 ? void 0 : profile.nickname)) {
+            throw new Error('필수 사용자 정보 누락: 이메일 또는 닉네임 없음');
+        }
+        console.log('DB에서 사용자 조회 시작');
+        const [rows] = yield dbpool_1.default.query('SELECT * FROM User WHERE email = ? AND social_id = ?', [email, social_id.toString()]);
+        const existingUser = rows;
+        console.log('DB 조회 결과:', existingUser);
         let userData;
-        //신규 사용자면 db에 저장
         if (existingUser.length === 0) {
-            //새 사용자 생성
+            console.log('신규 사용자, DB에 추가 시작');
             const [result] = yield dbpool_1.default.query('INSERT INTO User(uname, email, social_id, login_type, provider) VALUES (?, ?, ?, ?, ?)', [profile.nickname, email, social_id.toString(), 'social', 'kakao']);
+            console.log('INSERT 결과:', result);
             userData = {
-                id: result.insertId,
-                name: profile.nickname,
-                email
+                uid: result.insertId,
+                uname: profile.nickname,
+                email,
             };
         }
         else {
-            //기존 사용자 데이터 사용
+            console.log('기존 사용자, 데이터 반환');
             userData = {
-                id: existingUser[0].id,
-                name: existingUser[0].name,
-                email: existingUser[0].email
+                uid: existingUser[0].uid,
+                uname: existingUser[0].uname,
+                email: existingUser[0].email,
             };
         }
-        // 데이터 유효성 검사
-        if (!userData.id || !userData.name) {
+        console.log('생성된 사용자 데이터:', userData);
+        if (!userData.uid || !userData.uname) {
             throw new Error('Invalid User data');
         }
-        //jwt 토큰 생성
-        const token = jsonwebtoken_1.default.sign({ id: userData.id, name: userData.name }, process.env.JWT_SECRET_KEY || 'accessSecretKey', { expiresIn: '1h' });
+        console.log('JWT 토큰 생성');
+        const token = jsonwebtoken_1.default.sign({ uid: userData.uid, uname: userData.uname }, 'accessSecretKey', { expiresIn: '1h' });
         res.json({ message: '카카오 로그인 성공', token, user: userData });
     }
     catch (error) {
-        console.error("카카오 로그인 오류:", error);
+        console.error('카카오 로그인 오류:', error);
         if (error.response) {
-            // 카카오 API 응답 에러
-            console.error("카카오 API 응답 에러:", {
-                data: error.response.data,
-                status: error.response.status,
-                headers: error.response.headers
-            });
+            console.error('카카오 API 응답 에러:', error.response.data);
         }
         else if (error.request) {
-            // 요청은 보냈지만 응답을 받지 못한 경우
-            console.error("카카오 API 요청 에러:", error.request);
+            console.error('카카오 API 요청 에러:', error.request);
         }
         else {
-            // 요청 설정 과정에서 에러 발생
-            console.error("요청 설정 에러:", error.message);
+            console.error('요청 설정 에러:', error.message);
         }
-        console.error("환경변수 확인:", {
-            KAKAO_REST_API_KEY: ((_a = process.env.KAKAO_REST_API_KEY) === null || _a === void 0 ? void 0 : _a.slice(0, 5)) + "...",
-            KAKAO_REDIRECT_URI: process.env.KAKAO_REDIRECT_URI,
-            code: code ? code.slice(0, 5) + "..." : "없음"
-        });
         res.status(500).json({ message: '카카오 로그인 실패' });
     }
 });

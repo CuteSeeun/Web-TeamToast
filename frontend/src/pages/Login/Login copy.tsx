@@ -4,36 +4,62 @@ import { RiKakaoTalkFill } from "react-icons/ri";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useSetRecoilState } from 'recoil';
-import { userState } from '../../recoil/atoms/userAtoms';
 
 const Login:React.FC = () => {
-    const [useremail,setUseremail] = useState('');
-    const [userpw,setUserpw] = useState('');
-    const navigate = useNavigate();
+    const [useremail , setUseremail] = useState<string>('');
+    const [userpw , setUserpw] = useState<string>('');
+    const navi = useNavigate();
 
-    const user1 = useSetRecoilState(userState);
+    //로그인 정보 확인
+    // 입력값 유효성 확인하고 서버에 로그인 요청함
+    // 로그인 성공 시 토큰 저장
+    const infoCheck = async(e:React.FormEvent)=>{
+        e.preventDefault();
 
-    const infoCheck = async() =>{
+        if(useremail === '' && userpw === ''){
+            alert('아이디와 비밀번호를 입력해주세요');
+            return;
+        }else if(useremail === ''){
+            alert('아이디를 입력해주세요');
+            return;
+        }else if(userpw === ''){
+            alert('비밀번호를 입력해주세요');
+            return;
+        }
+        
         try {
-            const response = await axios.post('http://localhost:3001/editUser/loginUser',{
+            console.log('Attempting login with:', { useremail, userpw });
+            const response= await axios.post('http://localhost:3001/editUser/loginUser',{
                 useremail,
                 userpw
+            },{
+                timeout:5000 // 5초 설정
             });
-            const {accessToken,user} = response.data;
-            
+
+            console.log('Login response:', response.data); 
+
+            const { accessToken, refreshToken, user } = response.data;
+
             localStorage.setItem('accessToken',accessToken);
-            console.log(user);
-            
-            // user1(user);
-            await navigate('/');
-        } catch (error) {
-            console.error('로그인 중 문제가 발생했습니다:', error);
+          
+            await navi('/');
+            await setTimeout(() => window.location.reload(), 100);
+
+        } catch (error: any) {
+            if (error.code === 'ECONNABORTED') {
+                alert('서버 응답 시간이 초과되었습니다. 다시 시도해주세요.');
+            } else if (error.code === 'ECONNREFUSED') {
+                alert('서버에 연결할 수 없습니다. 서버 상태를 확인해주세요.');
+            } else if (error.response?.status === 403) {
+                alert('이메일 인증이 필요합니다.');
+            } else if (error.response?.status === 401) {
+                alert('아이디와 비밀번호를 다시 확인해주세요');
+            } else {
+                console.error('로그인 중 문제가 발생했습니다:', error);
                 alert('로그인 중 문제가 발생했습니다.');
+            }
         }
-
-    }
-
+    };
 
     // 카카오 소셜 로그인 처리
     // 서버로부터 카카오 로그인 url 받아와서 리다이렉트
@@ -86,8 +112,8 @@ const Login:React.FC = () => {
                 </div>
 
                 <div className='join-pass'>
-                    <span onClick={() => navigate('/join')}>회원가입</span>
-                    <span onClick={() => navigate('/pass')}>비밀번호 찾기</span>
+                    <span onClick={() => navi('/join')}>회원가입</span>
+                    <span onClick={() => navi('/pass')}>비밀번호 찾기</span>
                 </div>
 
             </div>

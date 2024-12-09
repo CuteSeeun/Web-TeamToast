@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const sprintRouter_1 = __importDefault(require("./routes/sprintRouter"));
 require("dotenv").config();
+// require('dotenv').config({ path: './backend/.env' }); // 현진 실험용
 const http_1 = require("http"); // HTTP 서버 생성
 const socketServer_1 = require("./socketServer"); // 분리된 Socket.IO 코드 import
 const path_1 = __importDefault(require("path"));
@@ -31,6 +32,11 @@ const app = (0, express_1.default)();
 // Middleware
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
+// app.use(cors({
+//     origin: 'http://localhost:8080',
+//     methods: ['GET', 'POST'],
+//     credentials: true,
+// }));
 app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 //스케쥴링 작업 시작
 (0, scheduledPayment_1.scheduledRecurringPayments)();
