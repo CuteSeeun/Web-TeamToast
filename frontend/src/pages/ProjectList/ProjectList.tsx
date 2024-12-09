@@ -62,7 +62,7 @@ const ProjectList = () => {
         setProjects(data || []);
         setHasError(false); // 에러 상태 설정
       } catch (err) {
-        console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
+        console.log(`프로젝트를 받아오는 중 에러 발생: ${err}`);
         renderProjectAlert(isAdmin, openModal); // 바로 경고 메시지 반환
         setHasError(true); // 에러 상태 설정
       } finally {
