@@ -6,9 +6,10 @@ import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
 import CreateIssueModal from './CreateIssueModal';
 import AccessToken from '../pages/Login/AccessToken';
-import { issueListState, backlogState, Issue, Type } from '../recoil/atoms/issueAtoms';
+import { issueListState, backlogState, Issue, Type, allIssuesState } from '../recoil/atoms/issueAtoms';
 import axios from 'axios';
 import { loadingAtoms } from '../recoil/atoms/loadingAtoms';
+import {sprintState} from '../recoil/atoms/sprintAtoms';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -91,8 +92,13 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
   const [issues, setIssues] = useRecoilState(issueListState);
   const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
-  const [allIssues, setAllIssues] = useState<Issue[]>([]);
-  const [sprints, setSprints] = useState<any[]>([]); // sprints에 적합한 타입을 지정하세요
+  //
+  // const [allIssues, setAllIssues] = useState<Issue[]>([]);
+  // const [sprints, setSprints] = useState<any[]>([]); // sprints에 적합한 타입을 지정하세요
+  //
+
+  const setAllIssues = useSetRecoilState(allIssuesState);
+  const setSprints = useSetRecoilState(sprintState);
 
   // const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
   const setLoading = useSetRecoilState(loadingAtoms);
