@@ -120,7 +120,7 @@ const Sidebar: React.FC = () => {
       files.forEach((file) => formData.append('files', file));
 
       const issuePromise = AccessToken.post(
-        `http://localhost:3001/issues/new/${spaceId}/${projectId}`, //sid 삭제해야함
+        `http://localhost:3001/issues/new/${pid}`,
         issue
       );
 

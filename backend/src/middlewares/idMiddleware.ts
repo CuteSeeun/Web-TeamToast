@@ -11,7 +11,7 @@ const validateId = (paramName: string) => {
       res.status(400).json({ error: `유효하지 않은 ${paramName}입니다.` });
       return;
     }
-    req.params[paramName] = String(id); // 숫자로 변환 후 저장
+    (req as any)[paramName] = id; // 숫자로 변환 후 저장
     next();
   };
 };
