@@ -198,4 +198,3 @@ const SBoard: React.FC = () => {
 };
 
 export default SBoard;
-

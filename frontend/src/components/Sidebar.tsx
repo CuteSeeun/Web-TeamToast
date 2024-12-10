@@ -9,8 +9,7 @@ import AccessToken from '../pages/Login/AccessToken';
 import { issueListState, backlogState, Issue, Type, allIssuesState } from '../recoil/atoms/issueAtoms';
 import axios from 'axios';
 import { loadingAtoms } from '../recoil/atoms/loadingAtoms';
-import { sprintState } from '../recoil/atoms/sprintAtoms';
-// import { currentProjectState } from '../recoil/atoms/projectAtoms';
+import {sprintState} from '../recoil/atoms/sprintAtoms';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -93,10 +92,11 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
   const [issues, setIssues] = useRecoilState(issueListState);
   const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
+
   const setAllIssues = useSetRecoilState(allIssuesState);
   const setSprints = useSetRecoilState(sprintState);
-  // const [, setCuurrentProject] = useRecoilState(currentProjectState);
 
+  
   // const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
   const setLoading = useSetRecoilState(loadingAtoms);
 
@@ -179,9 +179,6 @@ const Sidebar: React.FC = () => {
         setSprints(sprintsResponse.data);
         console.log('가져온 스프린트 레코드:', sprintsResponse.data);
 
-        // const projectResponse = await axios.get(`/projects/find/one/${pid}`);
-        // setCuurrentProject(projectResponse.data);
-        // console.log('가져온 프로젝트 레코드:', projectResponse.data);
         // setIsLoading(false); // 데이터 로딩 완료
         setLoading(false);
 

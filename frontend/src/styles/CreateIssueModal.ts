@@ -1,5 +1,3 @@
-// 2024-11-28 한채경
-// CreateIssueModal.ts
 import styled from "styled-components"
 
 export const CreateIssueModalWrap = styled.div`

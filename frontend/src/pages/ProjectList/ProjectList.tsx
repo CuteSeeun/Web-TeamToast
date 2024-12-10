@@ -199,9 +199,7 @@ const ProjectList = () => {
     if (selectedProject) {
       setCurrentProject(selectedProject); // Recoil 상태 업데이트
       sessionStorage.setItem('pid', pid.toString()); // 세션 스토리지에 pid 저장
-
-      //클릭한 프로젝트의 pname을 세션에 저장
-
+      sessionStorage.setItem('pname', selectedProject.pname); //클릭한 프로젝트의 pname을 세션에 저장
     } else {
       console.log(`${pid}에 해당하는 프로젝트를 프로젝트 목록에서 찾을 수 없습니다.`);
     };

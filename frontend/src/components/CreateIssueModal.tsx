@@ -1,12 +1,13 @@
 //이슈 생성 모달에서 제출 시 데이터 처리하는 코드
 
 import { CreateIssueModalWrap, PreviewContainer } from "../styles/CreateIssueModal";
-import { useRecoilValue } from "recoil";
 import React, { useEffect, useState } from "react";
 import { Issue, Type, Status, Priority } from '../recoil/atoms/issueAtoms';
 import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
-
 import { sprintState } from "../recoil/atoms/sprintAtoms";
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { managerAtoms } from '../recoil/atoms/managerAtoms';
+import { teamMembersState } from '../recoil/atoms/memberAtoms';
 
 interface IssueModalProps {
     isOpen: boolean;
@@ -21,6 +22,8 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
     const [previews, setPreviews] = useState<string[]>([]);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { pid, isOpen, onClose, onSubmit } = props; // pid 추출
+    const setManager = useSetRecoilState(managerAtoms);//담당자 아톰 상태 업데이트 함수
+    const teamMembers = useRecoilValue(teamMembersState);//스페이스 내 멤버 목록
 
     // 객체 기반 issue 스테이트 작성 (임시)
     const [issue, setIssue] = useState<Issue>({
@@ -120,7 +123,8 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
             ...issue,
             isid: issue.isid || 0, // 기본값 추가
             sprint_id: issue.sprint_id || null, // null 허용
-            file: selectedFiles.map((file) => file.name), // string[]로 변환
+            // file: selectedFiles.map((file) => file.name), // string[]로 변환
+            file: fileNames,
         };
 
         try {
@@ -128,6 +132,11 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
                 status: ${updatedIssue.status},project_id: ${updatedIssue.project_id},
                 file: ${updatedIssue.file},priority: ${updatedIssue.priority}`
             );
+            // `manager` 값이 존재하면 managerAtoms에 저장
+            if (updatedIssue.manager) {
+                setManager(updatedIssue.manager);
+                console.log('업데이트된 담당자 아톰:', setManager);
+            }
             // 비동기 작업 완료까지 대기
             await onSubmit(updatedIssue, selectedFiles);
             // 상태 초기화
@@ -171,7 +180,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
                         <input type="text" value={pid || ''} className="disabled" />
                     </div>
                     <div className="input-group">
-                        <label>스프린트 선택</label>
+                        <label>스프린트를 선택해주세요</label>
                         <div className="select-container sprint-select">
                             <select name="sprint_id"
                                 value={issue.sprint_id || ''}
@@ -250,10 +259,20 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
                                     value={issue.created_by || ''}
                                     onChange={(e) => handleValueChange('created_by', e.target.value)}
                                 >
-                                    <option value="" disabled>
-                                        없음
-                                    </option>
-                                    {/* 팀원 목록을 받아와서 렌더링 (구현안됨) */}
+                                    <option value="" disabled>필수 선택</option>
+
+                                    {teamMembers.length > 0 ? (
+                                        teamMembers.map((member) => (
+                                            <option key={member.id} value={member.id}>
+                                                {member.name}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option value="" disabled>
+                                            팀원이 없습니다
+                                        </option>
+                                    )}
+
                                 </select>
                                 <IoChevronDownOutline className="downIcon" />
                             </div>
@@ -266,8 +285,18 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
                                     value={issue.manager || ''}
                                     onChange={(e) => handleValueChange('manager', e.target.value)}
                                 >
-                                    <option value="" disabled> 없음</option>
-                                    {/* 팀원 목록을 받아와서 렌더링 */}
+
+                                    <option value="" disabled>미지정</option>
+                                    {teamMembers.length > 0 ? (
+                                        teamMembers.map((member) => (
+                                            <option key={member.id} value={member.id}>
+                                                {member.name}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option value="" disabled>팀원이 없습니다</option>
+                                    )}
+
                                 </select>
                                 <IoChevronDownOutline className="downIcon" />
                             </div>
