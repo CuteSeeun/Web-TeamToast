@@ -6,13 +6,7 @@ import { Request, Response, NextFunction } from 'express';
 import { getIssuesQuery, newIssueQuery } from '../models/issueModel';
 
 // 유틸 / 헬퍼 함수
-import { validateAndMap } from '../utils/helpers';
-// import {
-//   checkProjectExists,
-//   checkSprintExists,
-//   checkUserInSpace,
-//   checkUserInProjectAndSpace,
-// } from '../utils/dbHelpers';
+import { validateAndMap, ValidMapping } from '../utils/helpers';
 
 // DB에 데이터를 보내기 위한 타입 선언
 import { Issue } from '../types/issueTypes';
@@ -39,81 +33,63 @@ export const getIssues = async (req: Request , res: Response, next: NextFunction
 };
 
 // 새 이슈 생성하기
-export const newIssue = async (req: Request & { userRole: { user: string; role: string; space_id: number } }, res: Response, next: NextFunction) => {
-  if (!req.userRole) {
+export const newIssue = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
     res.status(400).json({ error: '로그인하지 않은 사용자입니다.' });
     return;
   };
   
   const pid = parseInt(req.params.pid, 10); // 현재 속한 프로젝트의 pid
-  const URSid = req.userRole.space_id; // UserRole에 저장된 space_id (임시 / 로직 보고 변경 필요)
   if (!req.body.title || !pid) {
     res.status(400).json({ error: '필수 필드가 누락되었습니다.' });
     return;
   };
 
   try {
-    // 프로젝트 존재 여부 확인
-    // const projectExists = await checkProjectExists(pid);
-    // if (!projectExists) {
-    //   res.status(400).json({ error: `Project ID ${pid}는 존재하지 않습니다.` });
-    //   return;
-    // };
-
-    // UserRole에서 user가 해당 스페이스에 권한이 있는지, 해당 프로젝트가 존재하는지 검증
-    const user = req.userRole.user; // UserRole에 저장된 user(email 형식)
-    // if (!(await checkUserInProjectAndSpace(user, pid))) {
-    //   res.status(403).json({ error: `사용자 ${user}가 해당 프로젝트에 권한이 없습니다.` });
-    //   return;
-    // };
+    const sendValidationError = (res: Response, fieldName: string) => {
+      res.status(400).json({ error: `유효하지 않은 ${fieldName} 값입니다.` });
+    };
 
     // Status 값 검증 및 변환
-    type ValidMapping<T> = Record<string, T>;
     const validStatuses: ValidMapping<Status> = {
-      Backlog: Status.Backlog,
-      Working: Status.Working,
-      Dev: Status.Dev,
-      QA: Status.QA,
+      백로그: Status.Backlog,
+      작업중: Status.Working,
+      개발완료: Status.Dev,
+      QA완료: Status.QA,
     };
     const status = validateAndMap(req.body.status, validStatuses, 'Status');
+    if (!status) {
+      sendValidationError(res, 'Status');
+      return;
+    };
 
     // Type 값 검증 및 변환
     const validTypes: ValidMapping<Type> = {
-      process: Type.process,
-      bug: Type.bug,
+      작업: Type.process,
+      버그: Type.bug,
     };
     const type = validateAndMap(req.body.type, validTypes, 'Type');
+    if (!type) {
+      sendValidationError(res, 'Type');
+      return;
+    };
 
     // Priority 값 검증 및 변환
     const validPriority: ValidMapping<Priority> = {
-      high: Priority.high,
-      normal: Priority.normal,
-      low: Priority.low,
+      높음: Priority.high,
+      보통: Priority.normal,
+      낮음: Priority.low,
     };
     const priority = validateAndMap(req.body.priority, validPriority, 'Priority');
+    if (!priority) {
+      sendValidationError(res, 'Priority');
+      return;
+    };
 
 
     // Sprint ID 처리
     const sprintId = req.body.sprint_id ?? null;
-    // const sprintExists = await checkSprintExists(sprintId);
-    // if (!sprintExists) {
-    //   res.status(400).json({ error: `Sprint ID ${sprintId}는 유효하지 않습니다.` });
-    //   return;
-    // };
-
-    // Manager가 해당 space에 소속해 있는지 UserRole에서 검증
     const managerEmail = req.body.manager;
-    // if (!(await checkUserInSpace(managerEmail, URSid))) {
-    //   res.status(403).json({ message: `${managerEmail}는 스페이스 접근 권한이 없습니다.` });
-    //   return;
-    // };
-
-    // // Created by가 해당 space에 소속해 있는지 UserRole에서 검증
-    // const createdByEmail = req.body.created_by;
-    // if (!(await checkUserInSpace(createdByEmail, URSid))) {
-    //   res.status(403).json({ message: `${createdByEmail}는 스페이스 접근 권한이 없습니다.` });
-    //   return;
-    // };
 
     const issue: Issue = {
       title: req.body.title,

@@ -45,32 +45,21 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
         const fileArray = Array.from(files);
         console.log("새로 선택된 파일:", fileArray);
 
-        // 기존 선택된 파일과 합쳐 중복 검사
-        const previousFiles = [...selectedFiles]; // 기존 선택된 파일
-        const duplicatedFiles = fileArray.filter((file) =>
-            previousFiles.some(
+        // 중복되지 않은 파일만 필터링
+        const uniqueFiles = fileArray.filter(
+            (file) =>
+            !selectedFiles.some(
                 (selectedFile) =>
-                    selectedFile.name === file.name &&
-                    selectedFile.size === file.size &&
-                    selectedFile.lastModified === file.lastModified
+                selectedFile.name === file.name &&
+                selectedFile.size === file.size &&
+                selectedFile.lastModified === file.lastModified
             )
         );
 
-        if (duplicatedFiles.length > 0) {
-            alert("중복된 파일은 업로드할 수 없습니다.");
-            return;
-        };
-
-        // 중복을 제외한 파일만 추가
-        const uniqueFiles = fileArray.filter(
-            (file) =>
-                !previousFiles.some(
-                    (selectedFile) =>
-                        selectedFile.name === file.name &&
-                        selectedFile.size === file.size &&
-                        selectedFile.lastModified === file.lastModified
-                )
-        );
+        // 중복된 파일이 있는 경우 알림 표시
+        if (uniqueFiles.length < fileArray.length) {
+            alert('중복된 파일은 업로드할 수 없습니다.');
+        }
 
         console.log("중복 제외 후 추가할 파일:", uniqueFiles);
 
@@ -107,8 +96,6 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
         // 파일 데이터 업로드 준비
         const formData = new FormData();
         selectedFiles.forEach((file) => formData.append("files", file));
-        // 파일 이름 배열 생성
-        const fileNames = selectedFiles.map((file) => file.name);
 
         if ([(issue.title || '').trim(), issue.type, issue.status, issue.project_id, issue.priority].some((field) => !field)) {
             alert('필수 데이터가 누락되었습니다.');
