@@ -1,67 +1,59 @@
 import React, { useEffect, useState } from "react";
 import * as Styled from "./teamStyle";
 import axios from "axios";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { teamMembersState } from "../../recoil/atoms/memberAtoms";
 import { userState } from "../../recoil/atoms/userAtoms";
 
-interface TeamMember {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
-
 interface TeamListProps {
-  // teamMembers: TeamMember[];
   onOpenInviteModal: () => void; // 초대 모달 열기 함수
   spaceId: number; // 현재 Space ID
 }
 
-const TeamList: React.FC<TeamListProps> = ({
-  // teamMembers,
-  onOpenInviteModal,
-  spaceId,
-}) => {
+const TeamList: React.FC<TeamListProps> = ({ onOpenInviteModal, spaceId, }) => {
 
-    const [teamMembers,setTeamMembers] = useRecoilState(teamMembersState);
-    const currentUserEmail = useRecoilValue(userState);
-    // const [currentRole,setCurrentRole] = useState(sessionStorage.getItem('userRole') || "normal");
+  // const setTeamMembers = useSetRecoilState(teamMembersState);
+  const [userRole, setUserRole] = useState(sessionStorage.getItem('userRole'));
+  const [teamMembers, setTeamMembers] = useRecoilState(teamMembersState); // 팀 멤버 상태
+  const currentUserEmail = useRecoilValue(userState)?.email; // 현재 로그인한 유저 이메일
+  const isAdmin = userRole === 'normal';
 
-    // const isAdmin = currentRole !== 'normal';
-    const isAdmin = sessionStorage.getItem('userRole') === 'normal';
+  useEffect(() => {
+    // 세션에서 userRole 변경 감지
+    const handleRoleChangeInSession = () => {
+      const role = sessionStorage.getItem("userRole") || "normal";
+      setUserRole(role); // useState로 상태 업데이트
+    };
 
-    // useEffect(()=>{
-    //   // 세션에서 role 바뀌면
-    //   const changeRole = () =>{
-    //     const role = sessionStorage.getItem('userRole') || "normal";
-    //     setCurrentRole(role);
-    //   };
-    //   window.addEventListener("storage",changeRole);
-    //   return() =>{
-    //     window.removeEventListener("storage",changeRole);
-    //   }
-    // },[]);
+    window.addEventListener("storage", handleRoleChangeInSession);
 
-  
+    return () => {
+      window.removeEventListener("storage", handleRoleChangeInSession);
+    };
+  }, [userRole]);
+
   // 권한 변경 API 호출
   const handleRoleChange = async (email: string, role: string) => {
     try {
-      await axios.put("http://localhost:3001/team/update-role", {
+      // 권한 변경 요청
+      const response = await axios.put("http://localhost:3001/team/update-role", {
         email,
         role,
-        spaceId, // Space ID 추가
+        spaceId,
       });
-      // 리코일 상태 업데이트
-      setTeamMembers((prev)=>
-        prev.map((member)=>member.email === email ? {...member,role} : member
+
+      // Recoil 상태 업데이트
+      setTeamMembers((prev) =>
+        prev.map((member) =>
+          member.email === email ? { ...member, role } : member
         )
       );
 
-      // 작업중
-      // if(email === currentUserEmail?.email) {
-      //   const response = await axios.get('http://localhost:3001/user')
-      // }
+      // 현재 유저의 권한이 변경되었을 경우 세션에 업데이트
+      if (email === currentUserEmail) {
+        sessionStorage.setItem("userRole", role);
+        window.dispatchEvent(new Event("storage")); // 세션 변경 감지 트리거
+      }
 
       alert("권한이 성공적으로 변경되었습니다.");
     } catch (error) {
@@ -75,10 +67,14 @@ const TeamList: React.FC<TeamListProps> = ({
     if (window.confirm("정말로 삭제하시겠습니까?")) {
       try {
         await axios.delete("http://localhost:3001/team/remove", {
-          data: { email, spaceId }, // Space ID 추가
+          data: { email, spaceId },
         });
-        // 리코일 상태 업데이트
-        setTeamMembers((prev) => prev.filter((member) => member.email !== email));
+
+        // Recoil 상태 업데이트
+        setTeamMembers((prev) =>
+          prev.filter((member) => member.email !== email)
+        );
+
         alert("멤버가 성공적으로 삭제되었습니다.");
       } catch (error) {
         console.error("Failed to delete member:", error);
@@ -87,11 +83,9 @@ const TeamList: React.FC<TeamListProps> = ({
     }
   };
 
-  const nodelete = () =>{
-    alert('접근 권한이 없습니다.')
-  }
-
-
+  const noDelete = () => {
+    alert("접근 권한이 없습니다.");
+  };
 
   return (
     <Styled.TeamMaWrap>
@@ -105,58 +99,57 @@ const TeamList: React.FC<TeamListProps> = ({
       <div className="member-list">
         {teamMembers.map((member) => (
           <div className="member-item" key={member.email}>
+            <div className="profile">{member.name.charAt(0)}</div>
 
-            <div className="profile">
-              {member.name.charAt(0)} 
-            </div>
-            
             <div className="info">
               <span className="name">{member.name}</span>
               <span className="email">{member.email}</span>
             </div>
+
             <div className="action-buttons">
-            {isAdmin ? (
-            <>
-            <div className="role-wrapper">
-                <span>역할:</span>
-                <select
-                  defaultValue={member.role}
-                  onChange={(e) => handleRoleChange(member.email, e.target.value)}
-                  disabled
-                >
-                  <option value="top_manager">최고관리자</option>
-                  <option value="manager">관리자</option>
-                  <option value="normal">팀원</option>
-                </select>
-              </div>
-              <button
-                className="delete-button"
-                onClick={nodelete}
-              >
-                삭제
-             </button>
-            </>
-          ) : (
-            <>
-              <div className="role-wrapper">
-                <span>역할:</span>
-                <select
-                  defaultValue={member.role}
-                  onChange={(e) => handleRoleChange(member.email, e.target.value)}
-                >
-                  <option value="top_manager">최고관리자</option>
-                  <option value="manager">관리자</option>
-                  <option value="normal">팀원</option>
-                </select>
-              </div>
-              <button
-                className="delete-button"
-                onClick={() => handleDeleteMember(member.email)}
-              >
-                삭제
-             </button>
-           </>
-  )}
+              {isAdmin ? (
+                <>
+                  <div className="role-wrapper">
+                    <span>역할:</span>
+                    <select
+                      defaultValue={member.role}
+                      onChange={(e) =>
+                        handleRoleChange(member.email, e.target.value)
+                      }
+                      disabled
+                    >
+                      <option value="top_manager">최고관리자</option>
+                      <option value="manager">관리자</option>
+                      <option value="normal">팀원</option>
+                    </select>
+                  </div>
+                  <button className="delete-button" onClick={noDelete}>
+                    삭제
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="role-wrapper">
+                    <span>역할:</span>
+                    <select
+                      defaultValue={member.role}
+                      onChange={(e) =>
+                        handleRoleChange(member.email, e.target.value)
+                      }
+                    >
+                      <option value="top_manager">최고관리자</option>
+                      <option value="manager">관리자</option>
+                      <option value="normal">팀원</option>
+                    </select>
+                  </div>
+                  <button
+                    className="delete-button"
+                    onClick={() => handleDeleteMember(member.email)}
+                  >
+                    삭제
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))}

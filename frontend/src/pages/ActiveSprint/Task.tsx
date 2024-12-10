@@ -1,30 +1,12 @@
 //보드의 각 이슈 (태스크)
-import React, { useRef } from 'react';
-import { useDrag, useDrop } from 'react-dnd'
+import React from 'react';
 import styled from 'styled-components';
+import { useDrag } from 'react-dnd';
 import { ReactComponent as IssueTaskIcon } from '../../assets/icons/Issue-Task.svg';
 import { ReactComponent as IssueBugIcon } from '../../assets/icons/Issue-Bug.svg';
 
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
-interface TaskProps {
-  id: number;
-  text: string;
-  index: number;
-  columnId: number;
-  moveTask: (
-    fromColumnId: number,
-    toColumnId: number,
-    dragIndex: number,
-    hoverIndex: number,
-    task: DragItem
-  ) => void;
-}
-interface DragItem {
-  id: number;
-  index: number;
-  sourceColumn: number;
-  text: string; // 추가
-}
+
 
 const TaskContainer = styled.div`
   background: #fff;
@@ -34,118 +16,70 @@ const TaskContainer = styled.div`
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
+
   &:hover {
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   }
 `;
+
 const TaskTitle = styled.h3`
   font-size: 14px;
   margin-bottom: 8px;
 `;
+
 const IconContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 8px;
-  svg { width: 20px; height: 20px; margin-right: 5px; }
+  margin-top: 8px; // 아이콘과 제목 사이 간격
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+  }
 `;
-export const ItemTypes = {
-  TASK: 'TASK',
-};
 
 
-// const Task: React.FC = ({ id, title, type, columnId, index, moveTask }) => {
-
-//   const ref = useRef<HTMLDivElement>(null);
-
-
-//   const [, dragRef] = useDrag({
-//     type: 'TASK',
-//     item: { id, sourceColumn: columnId, index },
-//   });
-
-//   const [, dropRef] = useDrop({
-//     accept: 'TASK',
-//     hover: (item: { id: string; sourceColumn: string; index: number }) => {
-//       if (item.index === index && item.sourceColumn === columnId) {
-//         return;
-//       }
-//       moveTask(columnId, columnId, item.index, index); // 같은 컬럼 내에서 순서 변경
-//       item.index = index; // 인덱스 업데이트
-//     },
-//   });
-
-//   dragRef(dropRef(ref));
-
-
-//   return (
-//     // <TaskContainer ref={dragRef} id={id}>
-//     //   <TaskTitle>{title}</TaskTitle>
-//     //   <IconContainer>
-//     //     {type === 'task' && <IssueTaskIcon />}
-//     //     {type === 'bug' && <IssueBugIcon />}
-//     //     <span>{type === 'task' ? '작업' : '버그'}</span>
-//     //   </IconContainer>
-//     // </TaskContainer>
-//     <TaskContainer ref={ref}>
-//       <p>{title}</p>
-//       <small>{type}</small>
-//     </TaskContainer>
-//   );
-// };
-
-// const Task = ({ id, text, index, columnId, moveTask }) => {
-//   const ref = useRef(null);
-
-//   const [, dragRef] = useDrag({
-//     type: 'TASK',
-//     item: { id, index, sourceColumn: columnId },
-//   });
-
-//   const [, dropRef] = useDrop({
-//     accept: 'TASK',
-//     hover: (item) => {
-//       if (item.index !== index || item.sourceColumn !== columnId) {
-//         moveTask(columnId, columnId, item.index, index, item);
-//         item.index = index;
-//       }
-//     },
-//   });
-
-//   dragRef(dropRef(ref));
-
-//   return <TaskContainer ref={ref}>{text}</TaskContainer>;
-// };
-
-const Task: React.FC<TaskProps> = ({ id, text, index, columnId, moveTask }) => {
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Drag 설정
-  const [, dragRef] = useDrag<DragItem>({
-    type: 'TASK',
-    item: { id, index, sourceColumn: columnId, text },
-  });
-
-  // Drop 설정
-  const [, dropRef] = useDrop<DragItem>({
-    accept: 'TASK',
-    hover: (item) => {
-      // 같은 위치에서는 아무 작업도 하지 않음
-      if (item.index === index && item.sourceColumn === columnId) {
-        return;
+const Task: React.FC<{
+  id: string;
+  title: string;
+  index: number;
+  columnId: ColumnKey
+  type?: 'task' | 'bug'; // 아이콘 타입을 추가
+  style?: React.CSSProperties; // style 속성을 선택적으로 추가
+  // // TaskProps;
+  // onSendData: (data: 'task' | 'bug') => void;
+  // onSendData?: (data: 'task' | 'bug') => void;
+}> = ({ id, title, index, columnId, type }) => {
+  
+  const [, dragRef] = useDrag({
+    type: "TASK",
+    item: { id, title, index, fromColumn: columnId, type }, // 드래그 중 전달할 데이터
+    //여기서 fromColumn 값이 ColumnKey 타입으로 정확히 전달
+    collect: (monitor) => {
+      if (monitor.isDragging()) {
+        console.log(`Dragging Task: ${title}`); // 드래그 시작 시 title 출력
       }
-
-      // 이동 작업 수행
-      moveTask(item.sourceColumn, columnId, item.index, index, item);
-
-      // 드래그된 아이템의 index를 업데이트
-      item.index = index;
     },
+    // end: (item, monitor) => {
+    //   if (monitor.didDrop()) {
+    //     // 부모로 데이터 전송
+    //     onSendData(type ?? 'task'); // 드래그된 데이터 타입을 전달
+    //   }
+    // },
+
   });
 
-  // Drag와 Drop을 ref에 연결
-  dragRef(dropRef(ref));
-
-  return <TaskContainer ref={ref}>{text}</TaskContainer>;
+  return (
+    <TaskContainer ref={dragRef} id={id}>
+      <TaskTitle>{title}</TaskTitle>
+      {/* 조건부 렌더링으로 아이콘 추가 */}
+      <IconContainer>
+        {type === 'task' && <IssueTaskIcon />}
+        {type === 'bug' && <IssueBugIcon />}
+        <span>{type === 'task' ? '작업' : '버그'}</span>
+      </IconContainer>
+    </TaskContainer>
+  );
 };
 
 export default Task;
