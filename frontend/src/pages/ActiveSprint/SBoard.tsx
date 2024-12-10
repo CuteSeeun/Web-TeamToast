@@ -1,5 +1,5 @@
 //SBoard
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom'; // useNavigate 가져오기
 import Column from './Column';
@@ -10,6 +10,13 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useRecoilValue } from 'recoil';
 import { sortedSprintsState } from '../../recoil/atoms/sprintAtoms';
 import sprintAlert from '../../assets/images/sprintAlert.svg';
+
+interface DragItem {
+  id: number;
+  sourceColumn: number;
+  index: number;
+  text: string; // 추가
+}
 
 
 const BoardContainer = styled.div`
@@ -115,6 +122,31 @@ overflow-y: hidden;
 
 
 const SBoard: React.FC = () => {
+  //리팩토링 코드
+  const [columns, setColumns] = useState([
+    { id: 1, title: '백로그', tasks: [{ id: 1, text: 'Task 1' }, { id: 2, text: 'Task 2' }] },
+    { id: 2, title: '진행중', tasks: [{ id: 3, text: 'Task 3' }] },
+    { id: 3, title: '개발완료', tasks: [] },
+    { id: 4, title: 'QA완료', tasks: [] },
+  ]);
+
+  const moveTask = useCallback(
+    (fromColumnId: number, toColumnId: number, dragIndex: number, hoverIndex: number, task: DragItem) => {
+      setColumns((prevColumns) => {
+        const updatedColumns = [...prevColumns];
+        const fromColumn = updatedColumns.find((col) => col.id === fromColumnId);
+        const toColumn = updatedColumns.find((col) => col.id === toColumnId);
+  
+        if (!fromColumn || !toColumn || !fromColumn.tasks || !toColumn.tasks) return prevColumns;
+  
+        const [removedTask] = fromColumn.tasks.splice(dragIndex, 1);
+        toColumn.tasks.splice(hoverIndex, 0, { ...removedTask, ...task });
+  
+        return updatedColumns;
+      });
+    },
+    []
+  );
 
   const { pid } = useParams<{ pid: string }>(); // URL에서 pid 가져오기
   const navigate = useNavigate(); // useNavigate 훅 초기화
@@ -143,29 +175,11 @@ const SBoard: React.FC = () => {
   }
 
 
-  //소스 코드
-  const [columns, setColumns] = useState({
-    backlog: [{ id: '1', title: '이슈 이름 1', type: 'task' },],
-    inProgress: [{ id: '2', title: '이슈 이름 2', type: 'bug' },],
-    done: [{ id: '3', title: '이슈 이름 3', type: 'task' },],
-    qa: [{ id: '4', title: '이슈 이름 4', type: 'bug' }, ],
-  });
-  const moveTask = (sourceColumn: string, targetColumn: string, dragIndex: number, hoverIndex: number) => {
-    setColumns((prevColumns) => {
-      const task = prevColumns[sourceColumn][dragIndex];
-      return update(prevColumns, {
-        [sourceColumn]: { $splice: [[dragIndex, 1]] }, // 드래그된 태스크 제거
-        [targetColumn]: { $splice: [[hoverIndex, 0, task]] }, // 드롭 위치에 추가
-      });
-    });
-  };
-
-
   return (
     <>
       <BoardContainer>
-        <BoardHeader>{/* 상단 헤더 */}
-          <BoardTitle>활성 스프린트</BoardTitle>{/* 제목 */}
+        <BoardHeader>
+          <BoardTitle>활성 스프린트</BoardTitle>
           <Breadcrumb>프로젝트 &gt; {pname || '프로젝트 이름 없음'} &gt; 활성 스프린트</Breadcrumb>{/* 네비게이션 텍스트 */}
           <Filters>
             <label>담당자 <FaChevronDown /></label>
@@ -183,15 +197,17 @@ const SBoard: React.FC = () => {
             <Column title="QA 완료" tasks={columns.qa} columnId="qa" onMoveTask={moveTask} />
           </BoardMain> */}
           <BoardMain>
-          {Object.keys(columns).map((columnId) => (
-            <Column
-              key={columnId}
-              title={columnId}
-              tasks={columns[columnId]}
-              columnId={columnId}
-              moveTask={moveTask}
-            />
-          ))}
+          
+          {columns.map((column) => (
+          <Column
+            key={column.id} // 고유 ID를 key로 사용
+            id={column.id}
+            title={column.title}
+            tasks={column.tasks}
+            moveTask={moveTask}
+          />
+        ))}
+
         </BoardMain>
         </DndProvider>
       </BoardContainer>
