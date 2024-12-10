@@ -11,20 +11,38 @@ export const CreateIssueModalWrap = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  overflow-y: auto;
+  /* padding:10px; */
+
+  /* 모달창 밖 영역 클릭 불가능하게 */
+  pointer-events: none;
 
   .modal {
     background: white;
     padding: 24px;
     border-radius: 8px;
-    width: 100%;
+    
+    width: 90%;
     max-width: 400px;
+    height: 80%; 
+    /* overflow: hidden;  */
+    
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    /* 모달 내부는 클릭 가능하게 */
+    pointer-events: auto;
 
     h3 {
       margin: 0 0 20px 0;
       font-size: 18px;
       font-weight: 600;
       color: #4D4D4D;
+    }
+
+    /* 내부 컨텐츠에 스크롤 추가 */
+    .bodycontent {
+      overflow-y: auto;
+      height: calc(100% - 50px); 
     }
 
     p {
