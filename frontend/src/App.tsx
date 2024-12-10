@@ -52,7 +52,7 @@ const App: React.FC = () => {
               <Route path="/chat/:sid" element={<Chat />} />
               <Route path="/dashboard/:pid" element={<Dashboard />} />
               <Route path="/issuelist/:pid" element={<IssueList />} />
-              <Route path="/issue/:id" element={<IssueDetail />} />
+              <Route path="/issue/:isid" element={<IssueDetail />} />
             </Route>
             <Route path="/payment" element={<Payment />} />
             <Route path="/spacemanagement" element={<SpaceManagement />} />

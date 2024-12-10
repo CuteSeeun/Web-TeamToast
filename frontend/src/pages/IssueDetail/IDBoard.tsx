@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AiOutlinePlus } from "react-icons/ai";
 import { useRecoilValue } from 'recoil';
+import CommentList from './CommentList';
 import {
   Avatar,
   AvatarImage,
@@ -18,13 +19,8 @@ import {
   FileUpload,
   InputField,
   Label,
-  Comment,
   DesSection,
   TitleSection,
-  ChatArea,
-  InputArea,
-  CommentField,
-  SendButton,
   IssueList,
   IssueSection,
   List,
@@ -36,16 +32,18 @@ import {
 import { sprintState } from '../../recoil/atoms/sprintAtoms';
 import { allIssuesSelector, Issue } from '../../recoil/atoms/issueAtoms';
 import axios from 'axios';
+import { currentProjectState } from '../../recoil/atoms/projectAtoms';
 
 type DropdownKeys = 'sprint' | 'createdBy' | 'manager' | 'type' | 'status' | 'priority';
 type Sprint = { spid: number; spname: string; };
 
 const IDBoard: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // URL에서 id 값 추출
+  const { isid } = useParams<{ isid: string }>(); // URL에서 id 값 추출
   const issues = useRecoilValue(allIssuesSelector);
   const sprints = useRecoilValue<Sprint[]>(sprintState);
-  const issueId = parseInt(id || '0', 10);
+  const issueId = parseInt(isid || '0', 10);
   const navigate = useNavigate();
+  const currentProject = useRecoilValue(currentProjectState);
 
   // 여러 SelectLabel의 상태를 관리하기 위해 개별 상태 변수 추가
   const [isDropdownOpen, setDropdownOpen] = useState<DropdownKeys | null>(null);
@@ -108,7 +106,7 @@ const IDBoard: React.FC = () => {
   };
 
   const onClose = () => {
-    navigate(`/backlog`);
+    navigate(`/backlog/${isid}`);
   };
   // handleUpdate 함수 수정
 
@@ -140,7 +138,7 @@ const IDBoard: React.FC = () => {
     <BoardContainer>
       <BoardHeader>
         <BoardTitle>{issue.title}</BoardTitle>
-        <Breadcrumb>프로젝트 &gt; 중고차 직거래 &gt; {sprint.spname} &gt; {issue.title}</Breadcrumb>
+        <Breadcrumb>프로젝트 &gt; {currentProject.pname} &gt; {sprint.spname} &gt; {issue.title}</Breadcrumb>
       </BoardHeader>
 
       <DetailMainWrapper>
@@ -295,15 +293,7 @@ const IDBoard: React.FC = () => {
             <Button primary onClick={handleUpdate}>수정</Button>
           </ButtonContainer>
         </DetailMain>
-        <Comment>
-          <ChatArea>
-            {/* 채팅 메시지가 여기에 표시됩니다 */}
-          </ChatArea>
-          <InputArea>
-            <CommentField placeholder="댓글을 입력하세요" />
-            <SendButton>입력</SendButton>
-          </InputArea>
-        </Comment>
+        <CommentList />
       </DetailMainWrapper>
     </BoardContainer>
   );
