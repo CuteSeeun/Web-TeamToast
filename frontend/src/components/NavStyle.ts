@@ -562,3 +562,8 @@ position: fixed;
        }
    }
 `
+
+export const PJtooltipWrap = styled.div`
+
+
+`

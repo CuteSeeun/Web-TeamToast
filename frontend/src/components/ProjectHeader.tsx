@@ -14,6 +14,8 @@ import AccessToken from '../pages/Login/AccessToken';
 import PJheaderBell from './PJheaderBell';
 import axios from 'axios';
 import { teamMembersState } from '../recoil/atoms/memberAtoms';
+import { fetchUserData } from '../utils/userDataFetcher';
+import { Tooltip } from '../styles/HeaderStyle';
 
 const ProjectHeader = ({
     onFetchTeamMembers,
@@ -24,9 +26,16 @@ const ProjectHeader = ({
     const setUser = useSetRecoilState(userState);
     const setTeamMembers = useSetRecoilState(teamMembersState); 
     const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
+    const [showTooltip, setShowTooltip] = useState(false); // 툴팁 상태
     const navigate = useNavigate();
 
     const sid = sessionStorage.getItem('sid');
+
+
+// 로그인 유지
+    useEffect(()=>{
+        fetchUserData(setUser);
+    },[setUser]);
    
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
@@ -128,8 +137,26 @@ const ProjectHeader = ({
 
                 <div className="rightPro">
 
-                <div className="Subscription">
-                  <span onClick={()=> navigate('/payment')}>구독 관리</span>
+                <div className="Subscription"
+                onMouseEnter={() => setShowTooltip(true)} 
+                onMouseLeave={() => setShowTooltip(false)}
+                >
+                    {Admin ? (
+                        <>
+                            <span style={{cursor:"not-allowed"}}>구독 관리</span>
+                        </>
+                    ):(
+                        <>
+                            <span onClick={()=> navigate('/payment')}>구독 관리</span>
+                        </>
+
+                    )
+                }
+                {showTooltip && Admin && (
+                    <Tooltip>
+                        최고 관리자만 접근이 가능합니다.
+                    </Tooltip>
+                )}
                 </div>
                     <div className="notification-icon">
                     <PJheaderBell/>

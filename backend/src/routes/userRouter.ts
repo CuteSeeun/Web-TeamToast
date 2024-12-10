@@ -15,7 +15,7 @@ const router:Router = express.Router();
 router.post('/saveUser',join);
 router.post('/loginUser',login);
 router.post('/logout',checkToken,logout);
-router.get('/me',checkToken,getInfo);
+router.get('/me',getInfo);
 
 //리프레시 토큰생성
 router.post('/refresh', RefreshToken);

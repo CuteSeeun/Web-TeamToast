@@ -1,9 +1,9 @@
 import {atom} from 'recoil';
 
 interface UserState {
-    uid: number | undefined;
-    uname: string | undefined;
-    email: string | undefined;
+    uid: number | null;
+    uname: string | null;
+    email: string | null;
     // token: string | null | undefined;
     isLoggedIn: boolean;
     // role: 'admin' | 'member' | null; 

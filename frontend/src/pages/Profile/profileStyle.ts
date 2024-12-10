@@ -1,84 +1,108 @@
 import styled from "styled-components";
 
 export const ProfileWrap = styled.div`
-   max-width: 800px;
- height: 570px;
- margin: 0 auto;
- background: white;
- border-radius: 8px;
- border: 1px solid #f0f0f0;
+  max-width: 800px;
+   margin: 0 auto;
+   background: white;
+   border-radius: 8px;
+   border: 1px solid #f0f0f0;
+   padding-bottom: 60px;
 
- h1 {
-   font-size: 20px;
-   text-align: center;
-   margin: 60px 0 60px 0;
- }
+   h1 {
+     font-size: 20px;
+     text-align: center;
+     margin: 60px 0 60px 0;
+   }
 
- .profile-container {
-   display: block;
-   padding: 0 40px;
- }
+   .profile-container {
+     padding: 0 40px;
+     /* position: relative; */
+   }
 
- .info-section {
-   h2 {
-     font-size: 16px;
-     font-weight: 500;
+   .info-section {
+    position: relative;
+    width: 100%;
+     h2 {
+       font-size: 16px;
+       font-weight: 500;
+       margin-bottom: 24px;
+       color: #333;
+     }
+   }
+
+   .form-row {
      margin-bottom: 24px;
-     color: #333;
-   }
- }
+     padding-right: 25px;
+     label {
+       display: block;
+       font-size: 14px;
+       color: #666;
+       margin-bottom: 8px;
+     }
 
- .form-row {
-   margin-bottom: 24px;
-   position: relative;
-
-   label {
-     display: block;
-     font-size: 14px;
-     color: #666;
-     margin-bottom: 8px;
-   }
-
-   input {
-     width: 100%;
-     height: 40px;
-     border: 1px solid #e0e0e0;
-     border-radius: 4px;
-     padding: 0 12px;
-     font-size: 14px;
-   }
- }
-
- .password-group {
-   position: relative;
-   margin-bottom: 40px;
-   
-   .change-pwd-btn {
-     width: 50%;
-     height: 40px;
-     border-radius: 4px;
-     font-size: 14px;
-     cursor: pointer;
-     background: #038c8c;
-     border: none;
-     color: white;
-     &:hover{background: #017276;}
+     input {
+       width: 100%;
+       height: 40px;
+       border: 1px solid #e0e0e0;
+       border-radius: 4px;
+       padding: 0 12px;
+       font-size: 14px;
+     }
    }
 
    .save-btn {
      position: absolute;
-     right: 0;
-     bottom: -40px;
-     padding: 8px 20px;
+     right: 0px;
+     top:5px;
+     width: 80px;
      height: 40px;
      background: #038c8c;
+     color: white;
      border: none;
      border-radius: 4px;
-     color: white;
-     font-size: 14px;
      cursor: pointer;
+     font-size: 14px;
+
+     &:hover {
+       background: #017276;
+     }
    }
- }
+
+   .divider {
+     margin: 60px 0 60px 0;
+     border: none;
+     width: 100%;
+     border-top: 1px solid #038c8c;
+   }
+
+   .password-section {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding-right: 40px;
+
+     label {
+       font-size: 14px;
+       color: #666;
+     }
+
+     .change-pwd-btn {
+      position: absolute;
+      right: 0;
+       width: 300px;
+       height: 40px;
+       border-radius: 4px;
+       font-size: 14px;
+       cursor: pointer;
+       background: #038c8c;
+       border: none;
+       color: white;
+       
+       &:hover {
+         background: #017276;
+       }
+     }
+   }
 `
 
 export const PlanWrap = styled.div`

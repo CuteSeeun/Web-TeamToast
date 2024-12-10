@@ -58,6 +58,32 @@ export const NotificationCard = styled.div`
   }
 `;
 
+//툴팁 css
+export const Tooltip = styled.div`
+    position: absolute;
+    top: 50px; /* 버튼 위로 위치 */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    color: #999;
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -10px; /* 아래 꼬리 위치 */
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+    }
+`;
+
 
 export const ProjectHeaderWrap = styled.div`
   width: 100%;
@@ -202,6 +228,8 @@ export const ProjectHeaderWrap = styled.div`
     cursor: pointer;
     border: 1px solid #038c8c;
     color: #038c8c;
+    position: relative;
+    display: inline-block;
 
     &:hover {
       border: 1px solid #017276;

@@ -17,7 +17,7 @@ const router = express_1.default.Router();
 router.post('/saveUser', userController_1.join);
 router.post('/loginUser', userController_1.login);
 router.post('/logout', authMiddleware_1.checkToken, userController_1.logout);
-router.get('/me', authMiddleware_1.checkToken, userController_1.getInfo);
+router.get('/me', userController_1.getInfo);
 //리프레시 토큰생성
 router.post('/refresh', refreshController_1.RefreshToken);
 //액세스 토큰 재발급

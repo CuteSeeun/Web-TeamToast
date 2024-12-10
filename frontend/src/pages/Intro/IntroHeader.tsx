@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IntroHeaderWrap } from '../../styles/HeaderStyle';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
 import AccessToken from '../Login/AccessToken';
+import { fetchUserData } from '../../utils/userDataFetcher';
 
 const IntroHeader = () => {
 
     const user = useRecoilValue(userState);
-    const setUser = useSetRecoilState(userState);
     const navigate = useNavigate();
+    const setUser = useSetRecoilState(userState);
+
+    useEffect(()=>{
+        fetchUserData(setUser);
+    },[setUser]);
 
     const logoutGo = async() =>{
         try {

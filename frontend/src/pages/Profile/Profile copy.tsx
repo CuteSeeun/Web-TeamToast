@@ -19,7 +19,6 @@ const Profile:React.FC = () => {
         uname: '',
         email: ''        
     });
-    
 
     // user 정보가 업데이트 될때마다 input에 값 입력
     useEffect(()=>{
@@ -92,21 +91,13 @@ const Profile:React.FC = () => {
                         <input type="email" name='email' value={formData.email} onChange={valueChange}  />
                     </div>
 
-                    
-                    <button className="save-btn" onClick={editInfo}>
-                        수정
-                    </button>
-                    
-                    <hr className="divider" />
-
-                    <div className="password-section">
+                    <div className="form-row">
                         <label>비밀번호</label>
-                        <button 
-                            className="change-pwd-btn" 
-                            onClick={() => setIsPasswordModalOpen(true)}
-                        >
-                            비밀번호 변경하기
-                        </button>
+                        <div className="password-group">
+                            <button className="change-pwd-btn" 
+                             onClick={() => setIsPasswordModalOpen(true)}>비밀번호 변경하기</button>
+                            <button className="save-btn" onClick={editInfo}>수정</button>
+                        </div>
                     </div>
                 </div>
                     

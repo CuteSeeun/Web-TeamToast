@@ -8,12 +8,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const issueController_1 = require("../controller/issueController");
 const idMiddleware_1 = require("../middlewares/idMiddleware");
-// 임시 사용자 정보
-const temporaryAuthMiddleware_js_1 = require("../middlewares/temporaryAuthMiddleware.js");
-// 사용자 권한 확인 (임시)
-const checkUserRole_js_1 = require("../middlewares/checkUserRole.js");
+const bellalarmController_1 = require("../controller/bellalarmController");
 const router = express_1.default.Router();
-router.use(temporaryAuthMiddleware_js_1.setTemporaryUser); // 임시 사용자 정보
+// router.use(setTemporaryUser); // 임시 사용자 정보
 router.get('/all/:pid', idMiddleware_1.validatePid, issueController_1.getIssues);
-router.post('/new/:pid', idMiddleware_1.validatePid, checkUserRole_js_1.checkUserRole, issueController_1.newIssue);
+// router.post('/new/:pid', validatePid, checkUserRole, newIssue);
+router.get('/notifications', bellalarmController_1.getAlarm); // 이슈 알림
+router.get('/notifications/:nid', bellalarmController_1.getProjectid); // 특정 알림의 프로젝트 ID 가져오기
 exports.default = router;

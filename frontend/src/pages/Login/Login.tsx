@@ -70,12 +70,11 @@ const Login:React.FC = () => {
     const getKakao = async() =>{
         try {
             // const response = await axios.get('http://localhost:3001/editUser/kakao-login');
-            const response = await axios.get('/editUser/kakao-login');
+            const response = await axios.get('http://localhost:3001/editUser/kakao-login');
             const {redirectUrl} = response.data;
             window.location.href = redirectUrl;
         } catch (error) {
             console.log(error);
-            
         }
     }
 

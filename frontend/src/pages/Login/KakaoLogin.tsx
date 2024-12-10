@@ -18,7 +18,8 @@ const OAuthCallback = () => {
             // axios.post('http://localhost:3001/editUser/kakao-token',{code},
             axios.post('/editUser/kakao-token',{code},
                 {
-                     baseURL: 'http://localhost:8080'
+                    //  baseURL: 'http://localhost:8080'
+                     baseURL: 'http://localhost:3001'
                 }
             )
             .then(response => {

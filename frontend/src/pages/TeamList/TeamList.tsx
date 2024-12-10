@@ -47,7 +47,7 @@ const TeamList: React.FC<TeamListProps> = ({
         prev.map((member)=>member.email === email ? {...member,role} : member
         )
       );
-
+      
       if(email === currentUserEmail?.email) {
         const response = await axios.get('http://localhost:3001/team/user-role',{
           params:{email}, // 현재 로그인한사람의 이메일 보냄
