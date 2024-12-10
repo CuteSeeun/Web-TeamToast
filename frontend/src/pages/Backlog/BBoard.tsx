@@ -15,17 +15,16 @@ import axios from 'axios';
 
 const BBoard: React.FC = () => {
     const allIssues = useRecoilValue(allIssuesState);
+    const setIssues = useSetRecoilState(allIssuesState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
     const setSprints = useSetRecoilState(sprintState);
     const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
-    const setIssues = useSetRecoilState(allIssuesState);
     const [filter, setFilter] = useRecoilState(filterState);
     const [modalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const currentProject = useRecoilValue(currentProjectState); // 현재 프로젝트 정보 가져오기
 
     const { pid } = useParams<{ pid: string }>();
-
 
     useEffect(() => {
         if (!pid) {
@@ -35,7 +34,10 @@ const BBoard: React.FC = () => {
         const projectId = parseInt(pid);
         const projectIssues = allIssues.filter(i => i.project_id === projectId && i.sprint_id === null);
         setBacklog(projectIssues);
-    }, [pid, allIssues, setBacklog]);
+        console.log('컴포넌트 렌더링 되었습니다.');
+        console.log('Recoil State in BBoard:', allIssues);
+
+    }, [pid, allIssues, setBacklog, setIssues, sortedSprints]);
 
     const onDrop = async (issue: Issue, newSprintId: number | null) => {
         if (!pid) {

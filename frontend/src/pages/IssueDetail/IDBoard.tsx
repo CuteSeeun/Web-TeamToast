@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AiOutlinePlus } from "react-icons/ai";
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import CommentList from './CommentList';
 import {
   Avatar,
@@ -30,9 +30,11 @@ import {
   DropdownItem
 } from './issueStyle';
 import { sprintState } from '../../recoil/atoms/sprintAtoms';
-import { allIssuesSelector, Issue } from '../../recoil/atoms/issueAtoms';
+import { allIssuesSelector, allIssuesState, Issue, Priority, Status, Type } from '../../recoil/atoms/issueAtoms';
 import axios from 'axios';
 import { currentProjectState } from '../../recoil/atoms/projectAtoms';
+import { PreviewContainer } from '../../styles/CreateIssueModal';
+import { IoAddOutline, IoCloseOutline } from 'react-icons/io5';
 
 type DropdownKeys = 'sprint' | 'createdBy' | 'manager' | 'type' | 'status' | 'priority';
 type Sprint = { spid: number; spname: string; };
@@ -44,6 +46,9 @@ const IDBoard: React.FC = () => {
   const issueId = parseInt(isid || '0', 10);
   const navigate = useNavigate();
   const currentProject = useRecoilValue(currentProjectState);
+  const setAllIssues = useSetRecoilState(allIssuesState);
+  const extendedSprints = [{ spid: -1, spname: '백로그' }, ...sprints];
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 여러 SelectLabel의 상태를 관리하기 위해 개별 상태 변수 추가
   const [isDropdownOpen, setDropdownOpen] = useState<DropdownKeys | null>(null);
@@ -57,6 +62,8 @@ const IDBoard: React.FC = () => {
     priority: '',
     detail: '',
   });
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -106,32 +113,102 @@ const IDBoard: React.FC = () => {
   };
 
   const onClose = () => {
-    navigate(`/backlog/${isid}`);
+    navigate(-1);
   };
-  // handleUpdate 함수 수정
 
   const handleUpdate = async () => {
-    const selectedSprint = sprints.find((sprint: Sprint) => sprint.spname === (selectedValues.sprint || sprint.spname)) || sprint;
-    const sprintId = (selectedSprint as Sprint).spid;
+    // 스프린트 선택 또는 백로그 선택에 따른 처리
+    const selectedSprint = extendedSprints.find((sprint: Sprint) =>
+      sprint.spname === selectedValues.sprint
+    ) || sprint;
+
+    const sprintId = selectedSprint && selectedSprint.spname === '백로그' ? null : (selectedSprint as Sprint)?.spid;
 
     const updatedIssue = {
+      ...issue, // 기존 이슈 데이터 포함
       title: selectedValues.title || issue.title,
       sprint_id: sprintId,
       created_by: selectedValues.createdBy || issue.created_by || "",
       manager: selectedValues.manager || issue.manager || "",
-      type: selectedValues.type || issue.type,
-      status: selectedValues.status || issue.status,
-      priority: selectedValues.priority || issue.priority,
+      type: selectedValues.type as Type || issue.type,
+      status: selectedValues.status as Status || issue.status,
+      priority: selectedValues.priority as Priority || issue.priority,
       detail: selectedValues.detail || issue.detail,
     };
 
     try {
       const response = await axios.put(`/sissue/updateDetail/${issueId}`, updatedIssue);
-      // 필요한 후속 작업 수행
+      console.log('Server Response:', response.data); // 서버 응답 로그 출력
+
+      // Recoil 상태 업데이트
+      setAllIssues(prevIssues =>
+        prevIssues.map((i: Issue) =>
+          i.isid === issueId ? updatedIssue : i
+        )
+      );
       alert('수정되었습니다.');
     } catch (error) {
       console.error('Error updating issue:', error);
     }
+  };
+  // --------------------------------------------------------------------
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const fileArray = Array.from(files);
+    console.log("새로 선택된 파일:", fileArray);
+
+    // 기존 선택된 파일과 합쳐 중복 검사
+    const previousFiles = [...selectedFiles]; // 기존 선택된 파일
+    const duplicatedFiles = fileArray.filter((file) =>
+      previousFiles.some(
+        (selectedFile) =>
+          selectedFile.name === file.name &&
+          selectedFile.size === file.size &&
+          selectedFile.lastModified === file.lastModified
+      )
+    );
+
+    if (duplicatedFiles.length > 0) {
+      alert("중복된 파일은 업로드할 수 없습니다.");
+      return;
+    };
+
+    // 중복을 제외한 파일만 추가
+    const uniqueFiles = fileArray.filter(
+      (file) =>
+        !previousFiles.some(
+          (selectedFile) =>
+            selectedFile.name === file.name &&
+            selectedFile.size === file.size &&
+            selectedFile.lastModified === file.lastModified
+        )
+    );
+
+    console.log("중복 제외 후 추가할 파일:", uniqueFiles);
+
+    setSelectedFiles((prev) => [...prev, ...uniqueFiles]); // 선택된 파일 저장
+
+    // 미리보기 URL 생성
+    const newPreviews = uniqueFiles.map((file) => URL.createObjectURL(file));
+    setPreviews((prev) => [...prev, ...newPreviews]); // 미리보기 상태 업데이트
+
+    // 파일 입력 필드 초기화
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    };
+  };
+
+  // 파일 선택 해제
+  const handleFileDelete = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+
+    // input 초기화
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    };
   };
 
   return (
@@ -163,7 +240,7 @@ const IDBoard: React.FC = () => {
                   </DropdownLabel>
                   {isDropdownOpen === 'sprint' && (
                     <DropdownList>
-                      {sprints.map((sprint) => (
+                      {extendedSprints.map((sprint) => (
                         <DropdownItem key={sprint.spid} onClick={() => handleSelectItem('sprint', sprint.spname)}>
                           {sprint.spname}
                         </DropdownItem>
@@ -274,19 +351,36 @@ const IDBoard: React.FC = () => {
             <Description name="detail" defaultValue={issue.detail || ""} onChange={handleChange} />
           </DesSection>
 
-          <IssueSection>
-            <Label>첨부 파일</Label>
-            <FileUpload>
-              <FileItem>
-                <AiOutlinePlus />
-                파일 추가
-              </FileItem>
-              <FileItem>
-                <img src="https://via.placeholder.com/50" alt="첨부 파일 미리보기" />
-                파일 이름
-              </FileItem>
-            </FileUpload>
-          </IssueSection>
+          <PreviewContainer>
+            {/* 커스텀 파일 추가 버튼 */}
+            <label htmlFor="file-input" className="custom-file-button">
+              <IoAddOutline className="file-btn" />
+            </label>
+
+            {/* 숨겨진 파일 입력 */}
+            <input
+              type="file"
+              id="file-input"
+              name="filename"
+              multiple
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              style={{ display: "none" }}
+            />
+
+            {/* 파일 미리보기 영역 */}
+            {previews.map((src, index) => (
+              <div
+                className="preview-wrap"
+                key={index}
+                onClick={() => handleFileDelete(index)}
+              >
+                <div className="img-wrap"><img src={src} alt={`Preview ${index}`} /></div>
+                <IoCloseOutline className="file-btn" />
+                <p className="file-name">{selectedFiles[index]?.name}</p>
+              </div>
+            ))}
+          </PreviewContainer>
 
           <ButtonContainer>
             <Button onClick={onClose}>취소</Button>

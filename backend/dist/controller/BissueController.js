@@ -168,6 +168,7 @@ const updateIssueDetail = (req, res) => __awaiter(void 0, void 0, void 0, functi
             return;
         }
         const createdByEmail = createdByResult[0].email;
+        // SQL 쿼리에서 sprint_id가 null일 경우를 처리
         const query = `
             UPDATE Issue 
             SET title = ?, 
@@ -176,10 +177,14 @@ const updateIssueDetail = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 status = ?, 
                 manager = ?, 
                 created_by = ?, 
-                sprint_id = ?
+                sprint_id = ${sprint_id === null ? 'NULL' : '?'}
             WHERE isid = ?
         `;
-        const [result] = yield dbpool_1.default.query(query, [title, detail, type, status, managerEmail, createdByEmail, sprint_id, issueId]);
+        const queryParams = [title, detail, type, status, managerEmail, createdByEmail];
+        if (sprint_id !== null)
+            queryParams.push(sprint_id);
+        queryParams.push(issueId);
+        const [result] = yield dbpool_1.default.query(query, queryParams);
         res.status(200).json({ message: 'Issue updated successfully', result });
     }
     catch (error) {

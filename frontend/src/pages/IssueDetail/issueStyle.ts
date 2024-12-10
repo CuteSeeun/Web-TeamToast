@@ -173,14 +173,12 @@ export const Comment = styled.div`
   width: 35%;
 `;
 
-
-
-
 export const ChatArea = styled.div`
   flex: 1;
   overflow-y: auto;
   border: 1px solid #ddd;
   padding: 10px;
+  min-height: 0;
 
   // p 태그를 인라인으로 만들기
   p {
@@ -189,17 +187,12 @@ export const ChatArea = styled.div`
   }
 `;
 
-
-
-
-
 export const DetailMainWrapper = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
   box-sizing: border-box;
 `;
-
 
 export const IssueList = styled.div`
   display: flex; 
@@ -213,14 +206,12 @@ export const IssueList = styled.div`
   }
 `;
 
-
 export const IssueSection = styled.div`
   display: flex;
   gap: 10px; /* 요소 간 간격 */
   min-width: 120px; /* 최소 너비 설정 */
   align-items: flex-start; /* 좌측 정렬 */
 `;
-
 
 export const List = styled.div`
   display: flex;
@@ -286,44 +277,49 @@ export const DropdownItem = styled.li`
 
 export const CommentContainer = styled.div`
   display: flex;
+  flex-grow: 1;
   flex-direction: column-reverse;
-  height: 100%;
+  height: 500px; /* 원하는 높이 설정 */
+  overflow-y: auto; /* 세로 스크롤 추가 */
   background-color: #f0f0f0;  /* 배경색을 회색으로 변경 */
   border-radius: 10px;  /* 모서리를 둥글게 설정 */
   padding: 10px;
 `;
 
-
 export const CommentField = styled.input`
-flex: 1;
-padding: 10px;
-border: 1px solid #ddd;
-border-radius: 5px;
-margin-bottom: 10px;
-`;
-
-export const InputArea = styled.div`
-display: flex;
-align-items: center;
-border-top: 1px solid #ddd;
-padding: 10px;
-flex: 0 0 auto;
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  line-height: 1.5; /* 줄높이 설정 */
+  vertical-align: middle; /* 수직 정렬 */
 `;
 
 export const SendButton = styled.button`
-padding: 10px 20px;
-font-size: 14px;
-font-weight: bold;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-background-color: #007bff;
-color: white;
-
-&:hover {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap; /* 텍스트 줄 바꿈 방지 */
+  line-height: 1.5; /* 줄높이 설정 */
+  vertical-align: middle; /* 수직 정렬 */
+  &:hover {
     background-color: #0056b3;
-    }
+  }
 `;
+
+
+export const InputArea = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  flex-direction: row; /* 가로 방향 유지 */
+`;
+
 
 export const CommentBoxContainer = styled.div`
   background-color: #ffffff;
@@ -337,28 +333,41 @@ export const CommentUserInfo = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 5px;
+  // white-space: nowrap;
 
   p {
     margin: 0 10px;
     font-weight: bold;
   }
+  span {
+    cursor: pointer;
+    margin-left: 10px;
+  }
 `;
 
-// export const AvatarImage = styled.div`
-//   width: 40px;
-//   height: 40px;
-//   border-radius: 50%;
-//   background-color: #007bff;
-//   color: white;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   font-size: 20px;
-//   font-weight: bold;
-// `;
 
 export const CommentContent = styled.div`
   p {
     margin: 0;
   }
+`;
+export const CommentUserDetails = styled.div`
+    display: flex;
+    align-items: center;
+
+    p {
+        margin: 0 10px;
+        white-space: nowrap;
+    }
+`;
+
+export const CommentActions = styled.div`
+    display: flex;
+    align-items: center;
+
+    span {
+        cursor: pointer;
+        margin-left: 10px;
+        white-space: nowrap;
+    }
 `;
