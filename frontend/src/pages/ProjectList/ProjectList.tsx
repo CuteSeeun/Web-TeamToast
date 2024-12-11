@@ -107,6 +107,10 @@ const ProjectList = () => {
 
   // 모달 관련 핸들러
   const openModal = (type: 'create' | 'edit' | 'delete', projectId?: number) => {
+    if(!isAdmin) {
+      alert('권한이 없습니다.');
+      return;
+    };
     if (type === 'edit' || type === 'delete') {
       // 수정 모드, 삭제 모드에서 projectId를 사용
       setModal({ isOpen: true, type, projectId });
