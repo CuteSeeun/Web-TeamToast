@@ -1,4 +1,5 @@
 // issueStyle.ts
+import { IoCloseOutline } from "react-icons/io5";
 import styled from "styled-components";
 
 export const BoardContainer = styled.div`
@@ -370,4 +371,47 @@ export const CommentActions = styled.div`
         margin-left: 10px;
         white-space: nowrap;
     }
+`;
+
+export const PreviewContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
+export const PreviewWrap = styled.div`
+  position: relative;
+  width: 150px;
+  text-align: center;
+`;
+
+export const ImageWrap = styled.div`
+  position: relative;
+  cursor: pointer;
+`;
+
+export const PreviewImage = styled.img`
+  width: 100%;
+  height: auto;
+`;
+
+export const DeleteButton = styled(IoCloseOutline)`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  padding: 5px;
+  cursor: pointer;
+`;
+
+export const FileName = styled.p`
+  margin: 5px 0;
+`;
+
+export const DownloadButton = styled.button`
+  display: block;
+  margin: 5px auto 0;
+  padding: 5px 10px;
+  cursor: pointer;
 `;

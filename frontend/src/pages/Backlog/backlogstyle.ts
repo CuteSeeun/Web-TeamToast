@@ -210,7 +210,8 @@ export const DropdownMenu = styled.ul<{ show: boolean }>`
   display: ${({ show }) => (show ? 'block' : 'none')};
   position: absolute;
   top: 100%; /* 부모 요소 바로 아래에 위치 */
-  left: 0;
+  left: auto; /* 추가된 속성 */
+  right: 0; /* 추가된 속성 */
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -218,7 +219,10 @@ export const DropdownMenu = styled.ul<{ show: boolean }>`
   z-index: 1000;
   padding: 10px;
   margin-top: 8px; /* 약간의 간격 추가 */
+  white-space: nowrap; /* 텍스트를 한 줄로 유지 */
 `;
+
+
 
 export const MenuItem = styled.li`
   padding: 8px 16px;

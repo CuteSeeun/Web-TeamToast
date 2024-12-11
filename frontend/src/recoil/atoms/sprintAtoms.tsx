@@ -5,8 +5,6 @@ import { atom, selector } from 'recoil';
 export type SprintStatus = 'disabled' | 'enabled' | 'end';
 
 export interface Sprint {
-    created_by: any;
-    manager: any;
     spid: number;
     spname: string;
     status: SprintStatus;

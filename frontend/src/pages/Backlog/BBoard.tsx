@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { AddSprint, BoardContainer, BoardHeader, BoardTitle, Breadcrumb, Filters, Div, StyledSprintBox, SprintHeader, SprintName, IssueTable } from './backlogstyle';
 import SprintBox from './SprintBox';
-import { sprintState, sortedSprintsState, filterState } from '../../recoil/atoms/sprintAtoms';
+import { sprintState, sortedSprintsState, filterState, Sprint } from '../../recoil/atoms/sprintAtoms';
 import { allIssuesState, backlogState, Issue } from '../../recoil/atoms/issueAtoms';
 import { currentProjectState } from '../../recoil/atoms/projectAtoms'; // currentProjectState import 추가
 import { useDrop } from 'react-dnd';
@@ -23,6 +23,7 @@ const BBoard: React.FC = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const currentProject = useRecoilValue(currentProjectState); // 현재 프로젝트 정보 가져오기
+    const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
 
     const { pid } = useParams<{ pid: string }>();
 
@@ -37,7 +38,7 @@ const BBoard: React.FC = () => {
         console.log('컴포넌트 렌더링 되었습니다.');
         console.log('Recoil State in BBoard:', allIssues);
 
-    }, [pid, allIssues, setBacklog, setIssues, sortedSprints]);
+    }, [pid, allIssues, setBacklog, setIssues, sortedSprints]); // 의존성 배열에 sprints 추가
 
     const onDrop = async (issue: Issue, newSprintId: number | null) => {
         if (!pid) {
@@ -122,11 +123,15 @@ const BBoard: React.FC = () => {
                             </label>
                         </Filters>
                     </BoardHeader>
-
                     {sortedSprints.filter(sprint => sprint.project_id === parseInt(pid || '0') && sprint.status !== 'end').map(sprint => (
-                        <SprintBox key={sprint.spid} sprint={sprint} onDrop={onDrop} />
+                        <SprintBox
+                            key={sprint.spid}
+                            sprint={sprint}
+                            onDrop={onDrop}
+                            activeMenuId={activeMenuId}
+                            setActiveMenuId={setActiveMenuId}
+                        />
                     ))}
-
                     <Div>
                         <AddSprint onClick={() => setModalOpen(true)}>스프린트 생성</AddSprint>
                         {modalOpen && (

@@ -14,9 +14,11 @@ import axios from 'axios';
 interface SprintProps {
     sprint: Sprint;
     onDrop: (issue: Issue, newSprintId: number | null) => void;
+    activeMenuId: number | null; // 추가된 속성
+    setActiveMenuId: React.Dispatch<React.SetStateAction<number | null>>; // 추가된 속성
 }
 
-const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
+const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop, activeMenuId, setActiveMenuId }) => {
     const setSprints = useSetRecoilState(sprintState);
     const allIssues = useRecoilValue(allIssuesState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
@@ -76,8 +78,16 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
     });
 
     const toggleMenu = () => {
-        setShowMenu(prev => !prev);
+        setActiveMenuId(prevId => prevId === sprint.spid ? null : sprint.spid);
     };
+
+    useEffect(() => {
+        if (activeMenuId !== sprint.spid) {
+            setShowMenu(false);
+        } else {
+            setShowMenu(true);
+        }
+    }, [activeMenuId, sprint.spid]);
 
     const openModifyModal = () => {
         setCurrentSprint(sprint); // 현재 스프린트를 설정
@@ -105,7 +115,7 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                         </button>
                     )}
                     <BsThreeDots className="menu-icon" onClick={toggleMenu} />
-                    <DropdownMenu show={showMenu}>
+                    <DropdownMenu show={showMenu && activeMenuId === sprint.spid}>
                         <MenuItem onClick={openModifyModal}>스프린트 수정</MenuItem>
                         <MenuItem onClick={openDeleteModal}>스프린트 삭제</MenuItem>
                     </DropdownMenu>
