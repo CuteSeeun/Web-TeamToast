@@ -20,6 +20,7 @@ interface Filter {
     manager: string;
     status: string;
     priority: string;
+    type: string;
 }
 
 export const sprintState = atom<Sprint[]>({
@@ -29,7 +30,7 @@ export const sprintState = atom<Sprint[]>({
 
 export const filterState = atom<Filter>({
     key: 'filterState',
-    default: { manager: '', status: '', priority: '' }
+    default: { manager: '', status: '', priority: '', type: '' }
 });
 
 export const sortedSprintsState = selector<Sprint[]>({

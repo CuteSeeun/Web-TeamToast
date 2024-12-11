@@ -1,4 +1,5 @@
 import { atom, selector } from 'recoil';
+import  {filterState, enabledSprintsState} from './sprintAtoms';
 
 //스프린트별 이슈 목록(객체 형태) : 특정 스프린트에 속한 이슈만 필터링
 export const issueListState = atom<{ [key: number]: Issue[] }>({
@@ -29,7 +30,7 @@ export interface Issue {
   manager?: string | null;
   created_by?: string | null;
   file: string[];
-  priority: Priority;
+  priority: Priority; 
 }
 
 // Status ENUM 속성 지정
@@ -63,4 +64,55 @@ export const allIssuesSelector = selector({
     console.log('All Issues in Selector:', issueList); // 추가한 로그
     return issueList;
   }
+});
+
+//활성스프린트 검색 필터링 셀렉터
+export const filteredIssuesState = selector({
+  key: 'filteredIssuesState',
+  get: ({ get }) => {
+    const filter = get(filterState);// 필터 조건 가져오기
+    const enabledSprints = get(enabledSprintsState);// 활성 스프린트 가져오기
+    const allIssues = get(allIssuesState);// 모든 이슈 가져오기
+    const enabledSprintIds = enabledSprints.map((sprint) => sprint.spid);// 활성 스프린트 ID 추출
+
+    // 활성 스프린트에 속한 이슈만 필터링
+    let filteredIssues = allIssues.filter((issue) =>
+      enabledSprintIds.includes(issue.sprint_id || 0)
+    );
+    // 필터 조건 적용
+    if (filter.manager) {
+      filteredIssues = filteredIssues.filter((issue) => issue.manager === filter.manager);
+    }
+    if (filter.status) {
+      filteredIssues = filteredIssues.filter((issue) => issue.status === filter.status);
+    }
+    if (filter.priority) {
+      filteredIssues = filteredIssues.filter((issue) => issue.priority === filter.priority);
+    }
+    // 유형(타입) 필터: 'task'/'bug'를 Issue.type('작업'/'버그')와 매핑할 필요가 있다면 여기서 처리
+    if (filter.type) {
+      // 예를 들어, filter.type이 'task'면 issue.type이 '작업'인 이슈만 필터링
+      const mappedType = filter.type === 'task' ? '작업' : '버그';
+      filteredIssues = filteredIssues.filter((issue) => issue.type === mappedType);
+    }
+    return filteredIssues;
+  },
+});
+
+//활성스프린트 컬럼 필터링 셀렉터
+export const issuesByStatusState = selector({
+  key: 'issuesByStatusState',
+  get: ({ get }) => {
+    const filteredIssues = get(filteredIssuesState); // 활성 스프린트 및 필터 조건에 맞는 이슈들 가져오기
+
+    // 상태별로 이슈 분류
+    const issuesByStatus = {
+      backlog: filteredIssues.filter((issue) => issue.status === Status.Backlog),
+      working: filteredIssues.filter((issue) => issue.status === Status.Working),
+      dev: filteredIssues.filter((issue) => issue.status === Status.Dev),
+      qa: filteredIssues.filter((issue) => issue.status === Status.QA),
+    };
+
+    return issuesByStatus;
+  },
 });

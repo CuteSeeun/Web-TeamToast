@@ -1,5 +1,3 @@
-//
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
@@ -14,39 +12,33 @@ const BoardContainer = styled.div`
   padding: 25px;
   overflow: hidden;
 `;
-
 const BoardHeader = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 20px;
 `;
-
 const BoardTitle = styled.h1`
   font-size: 24px;
   font-weight: bold;
 `;
-
 const Breadcrumb = styled.div`
   font-size: 14px;
   color: #6c757d;
   margin-top: 8px; /* 제목과의 간격 */
 `;
-
 const DashboardSection = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
   gap: 20px;
 `;
-
 const ActiveSprintSection = styled.div`
 display: flex;
 justify-content: space-between;
 margin-top: 20px;
 gap: 20px;
 `;
-
 const ChartContainer = styled.div`
 width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
   max-width: 550px; /* 최대 크기를 지정하여 박스 내부에 제한 */
@@ -56,7 +48,6 @@ width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
-
 const TimelineContainer = styled.div`
   padding: 20px;
   background: #fff;
@@ -67,14 +58,12 @@ const TimelineContainer = styled.div`
   position: relative;
   overflow-x: scroll;
 `;
-
 const CalendarGrid = styled.div`
   display: flex;
   position: relative;
   height: 50px;
   border-bottom: 1px solid #ccc;
 `;
-
 const Day = styled.div`
   flex: 1;
   text-align: center;
@@ -82,7 +71,6 @@ const Day = styled.div`
   color: #666;
   border-right: 1px solid #eee;
 `;
-
 const TodayLine = styled.div<{ position: number }>`
   position: absolute;
   top: 0;
@@ -92,7 +80,6 @@ const TodayLine = styled.div<{ position: number }>`
   background: red;
   z-index: 10;
 `;
-
 const CustomTimelineBar = styled.div`
   display: flex;
   align-items: center;
@@ -120,7 +107,6 @@ const CustomTimelineBar = styled.div`
     }
   }
 `;
-
 const InfoContainer = styled.div`
 /* width: 48%; */
   display: flex;
@@ -128,7 +114,6 @@ const InfoContainer = styled.div`
   gap: 20px;
   margin-bottom: 20px;
 `;
-
 const InfoCard = styled.div`
 /* width: 48%; */
   flex: 1;
@@ -156,8 +141,6 @@ const InfoCard = styled.div`
   }
 `;
 
-
-// 데이터 타입 정의
 type TimelineBar = {
   id: number;
   name: string;
@@ -187,6 +170,7 @@ const teamIssueData = [
 ];
 
 const DBoard: React.FC = () => {
+  const pname = sessionStorage.getItem('pname');
   const [bars, setBars] = useState(timelineData);
 
   const totalDays = 100; // 캘린더 총 기간
@@ -195,26 +179,23 @@ const DBoard: React.FC = () => {
   // 드래그 핸들러
   const handleDrag = (e: any, data: any, id: number, isResize: 'start' | 'end') => {
     setBars((prevBars) =>
-      prevBars.map((bar) =>
-        bar.id === id
-          ? {
+      prevBars.map((bar) => bar.id === id ? {
             ...bar,
             [isResize]:
               isResize === 'start'
                 ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
                 : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
-          }
-          : bar
+          } : bar
       )
     );
   };
 
   return (
     <BoardContainer>
-      {/* 헤더 */}
-      <BoardHeader>
+  
+      <BoardHeader>{/* 헤더 */}
         <BoardTitle>대시보드</BoardTitle>
-        <Breadcrumb>프로젝트 &gt; 중고차 직거래 &gt; 대시보드</Breadcrumb>
+        <Breadcrumb>프로젝트 &gt; {pname} &gt; 대시보드</Breadcrumb>
       </BoardHeader>
 
       <TimelineContainer>
@@ -277,6 +258,35 @@ const DBoard: React.FC = () => {
         ))}
       </TimelineContainer>
 
+      <DashboardSection>
+        <ChartContainer>{/* 이슈 진행 상태 */}
+          <h3>이슈 진행 상태</h3>
+          <PieChart width={300} height={300}>
+            <Pie data={issueProgressData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
+              {issueProgressData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ChartContainer>
+        <ChartContainer>{/* 팀원별 이슈 현황 */}
+          <h3>팀원별 이슈 현황 상태</h3>
+          <BarChart width={500} height={300} data={teamIssueData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="backlog" stackId="a" fill="#FFA84A" />
+            <Bar dataKey="progress" stackId="a" fill="#FB67CA" />
+            <Bar dataKey="complete" stackId="a" fill="#9B88ED" />
+            <Bar dataKey="qa" stackId="a" fill="#5ED3E4" />
+          </BarChart>
+        </ChartContainer>
+      </DashboardSection>
+
       <ActiveSprintSection>
         <InfoContainer>
           <InfoCard>
@@ -291,48 +301,6 @@ const DBoard: React.FC = () => {
         </InfoContainer>
       </ActiveSprintSection>
 
-
-      {/* 차트 섹션 */}
-      <DashboardSection>
-
-        {/* 이슈 진행 상태 */}
-        <ChartContainer>
-          <h3>이슈 진행 상태</h3>
-          <PieChart width={300} height={300}>
-            <Pie
-              data={issueProgressData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-            >
-              {issueProgressData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ChartContainer>
-
-        {/* 팀원별 이슈 현황 */}
-        <ChartContainer>
-          <h3>팀원별 이슈 현황 상태</h3>
-          <BarChart width={500} height={300} data={teamIssueData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="backlog" stackId="a" fill="#FFA84A" />
-            <Bar dataKey="progress" stackId="a" fill="#FB67CA" />
-            <Bar dataKey="complete" stackId="a" fill="#9B88ED" />
-            <Bar dataKey="qa" stackId="a" fill="#5ED3E4" />
-          </BarChart>
-        </ChartContainer>
-
-      </DashboardSection>
     </BoardContainer>
   );
 };
