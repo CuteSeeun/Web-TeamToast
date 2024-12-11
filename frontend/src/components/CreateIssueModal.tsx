@@ -9,6 +9,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { managerAtoms } from '../recoil/atoms/managerAtoms';
 import { teamMembersState } from '../recoil/atoms/memberAtoms';
 import axios from 'axios';
+import { notificationsAtom } from "../recoil/atoms/notificationsAtom";
 
 interface IssueModalProps {
     isOpen: boolean;
@@ -22,7 +23,10 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
     const [previews, setPreviews] = useState<string[]>([]);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { pid, isOpen, onClose } = props; // pid 추출
+   
     const setManager = useSetRecoilState(managerAtoms);//담당자 아톰 상태 업데이트 함수
+    const setNotifications = useSetRecoilState(notificationsAtom); // 알림 업데이트
+
     const teamMembers = useRecoilValue(teamMembersState);//스페이스 내 멤버 목록
 
     // 객체 기반 issue 스테이트 작성 (임시)
@@ -134,7 +138,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
             file: selectedFiles.map((file) => file.name), // string[]로 변환
             // file: fileNames,
         };
-
+            
         try {
             // `manager` 값이 존재하면 managerAtoms에 저장
             if (updatedIssue.manager) {
@@ -157,6 +161,19 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
             console.log('이슈 생성 성공:', newIssue);
             if (newIssue.manager) {
                 setManager(newIssue.manager); // 담당자 업데이트
+
+                 // 알림 추가
+                const newNotification = {
+                    isid: newIssue.isid,
+                    type: 'new',
+                    projectTitle:`프로젝트 ID ${newIssue.project_id}`, // 예시
+                    issueTitle: newIssue.title,
+                    manager: newIssue.manager,
+                    project_id:newIssue.project_id,
+                    issueDetail:newIssue.detail || '',
+                };
+                setNotifications((prev) => [...prev, newNotification]); // 알림 배열에 추가
+
             }
 
             // 상태 초기화
