@@ -1,12 +1,14 @@
 //칸반 보드
 
 import React, { useState, useEffect } from 'react';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import Column from './Column';
 import { FaChevronDown } from 'react-icons/fa'; // 다운 화살표 아이콘 추가
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import CreateIssueModal from '../../components/CreateIssueModal';
+import { enabledSprintsState } from '../../recoil/atoms/sprintAtoms';
 
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
 
@@ -89,6 +91,7 @@ const SprintCompleteButton = styled.button`
 const SBoard: React.FC = () => {
   const pname = sessionStorage.getItem('pname');
   const [isModalOpen, setIsModalOpen] = useState(false);// 모달 열림/닫힘 상태 관리
+  const enabledSprints = useRecoilValue(enabledSprintsState);
 
   //columns 상태는 컬럼과 그 안에 태스크 목록을 저장한다
   const [columns, setColumns] = useState<{
@@ -133,12 +136,20 @@ const SBoard: React.FC = () => {
     setIsModalOpen(true);
   };
 
+
+  //활성스프린트 없으면 안내창 띄우기
+
+
   return (
     <>
       <BoardContainer>
+
+      
         <BoardHeader>{/* 상단 헤더 */}
           <BoardTitle>활성 스프린트</BoardTitle>{/* 제목 */}
           <Breadcrumb>프로젝트 &gt; {pname} &gt; 활성 스프린트</Breadcrumb>{/* 네비게이션 텍스트 */}
+
+          
           <Filters>
             <label>담당자 <FaChevronDown /></label>
             <label>상태 <FaChevronDown /></label>
@@ -147,6 +158,10 @@ const SBoard: React.FC = () => {
           <SprintCompleteButton>스프린트 완료</SprintCompleteButton>
         </BoardHeader>
 
+        {enabledSprints.length === 0 ? (
+        // 활성 스프린트가 없는 경우
+        <p>활성 스프린트가 없습니다</p>
+      ) : (
         <DndProvider backend={HTML5Backend}>
           <BoardMain>
             <Column title="백로그" tasks={columns.backlog} columnId="backlog" onMoveTask={moveTask} onAddIssue={handleAddIssue}/>
@@ -155,7 +170,11 @@ const SBoard: React.FC = () => {
             <Column title="QA 완료" tasks={columns.qa} columnId="qa" onMoveTask={moveTask} onAddIssue={handleAddIssue}/>
           </BoardMain>
         </DndProvider>
+        )}
+
       </BoardContainer>
+
+    
 
       <CreateIssueModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} pid={pname}/>
     </>

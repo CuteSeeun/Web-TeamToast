@@ -43,3 +43,12 @@ export const sortedSprintsState = selector<Sprint[]>({
         });
     }
 });
+
+// enabled 상태의 스프린트만 가져오는 셀렉터 추가
+export const enabledSprintsState = selector<Sprint[]>({
+    key: 'enabledSprintsState',
+    get: ({ get }) => {
+        const sprints = get(sprintState); // 모든 스프린트를 가져옴
+        return sprints.filter((sprint) => sprint.status === 'enabled'); // enabled 상태만 필터링
+    },
+});
