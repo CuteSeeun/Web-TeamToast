@@ -3,40 +3,18 @@ import React, { useState } from 'react';
 import { GoBell } from "react-icons/go";
 import { NotificationCard, NotificationsPopup } from '../styles/HeaderStyle';
 import { Link } from 'react-router-dom';
-
-type Notification = {
-    id: number;
-    projectTitle: string;
-    issueTitle: string;
-  };
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { notificationsAtom } from '../recoil/atoms/notificationsAtom';
+import { userState } from '../recoil/atoms/userAtoms';
 
 const PJheaderBell = () => {
-    const [notifications , setNotifications] = useState<Notification[]>([]); // 알림 데이터
+  const [notifications, setNotifications] = useRecoilState(notificationsAtom); // 알림 데이터
+    const user = useRecoilValue(userState);
     const [popOpen , setPopOpen] = useState(false);
     const [loading , setLoading] = useState(false);
 
-    const dummyNotifications = [
-        {
-          id: 1,
-          projectTitle: "프로젝트 A",
-          issueTitle: "버그 수정 필요",
-        },
-        {
-          id: 2,
-          projectTitle: "프로젝트 B",
-          issueTitle: "새로운 기능 추가 요청",
-        },
-        {
-          id: 3,
-          projectTitle: "프로젝트 C",
-          issueTitle: "UI 개선 작업 필요",
-        },
-        {
-          id: 4,
-          projectTitle: "프로젝트 D",
-          issueTitle: "테스트 코드 작성",
-        },
-      ];
+    console.log(notifications);
+    
 
     const toggleOnPopup = async() =>{
         setPopOpen(true);
@@ -45,9 +23,12 @@ const PJheaderBell = () => {
         if(notifications.length === 0){
             try {
                 setLoading(true);
-                const response = { data: dummyNotifications };
+                const response = await axios.get('http://localhost:3001/alarm/notifications',{
+                  params: {userEmail: user?.email},
+                })
                 setNotifications(response.data);
                 setLoading(false);
+
             } catch (error) {
                 console.error('데이터 없슴 : ',error);
                 setLoading(false);
@@ -58,6 +39,19 @@ const PJheaderBell = () => {
     const toggleDownPopup = () => {
             setPopOpen(false); // 팝업 닫기
       };
+
+      // 알림 클릭 시 읽음 처리 및 세션 저장
+      const notificationClick =async(notiId:number,projectId:number)=>{
+        try {
+          // 서버에 알림 읽음 상태 업데이트
+          await axios.post('http://localhost:3001/alarm/markAsRead',{notiId});
+          //읽은 알림 삭제
+          setNotifications((prev)=>prev.filter((n)=>n.isid !== notiId));
+          sessionStorage.setItem('pid',projectId.toString());
+        } catch (error) {
+          console.error("알림 읽음 처리 실패:", error);
+        }
+      }
 
     return (
         <div
@@ -75,12 +69,13 @@ const PJheaderBell = () => {
       {/* 알림 팝업 */}
       {popOpen && (
         <NotificationsPopup>
+          <span className='read'>전체읽음</span>
           {loading ? (
             <div className="loading-message">로딩 중...</div> // 로딩 메시지
           ) : notifications.length > 0 ? (
             notifications.map((notification) => (
-              <NotificationCard key={notification.id}>
-                <Link to={`/project/${notification.id}`}
+              <NotificationCard key={notification.isid} onClick={() => notificationClick(notification.isid ,notification.project_id)}>
+                <Link to={`/issue/${notification.isid}`}
                  style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                 <div className="notification-header">
@@ -89,7 +84,9 @@ const PJheaderBell = () => {
                   <div className="notification-body">
                     {notification.issueTitle}
                   </div>
-                  <div className="time-stamp">10분 전</div>
+                  <div className="notification-body">
+                    {notification.issueDetail}
+                  </div>
                 </Link>
               </NotificationCard>
             ))

@@ -12,6 +12,9 @@ export const NotificationsPopup = styled.div`
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   padding: 16px;
   border: 1px solid #e5e5e5;
+  height: 300px;
+  overflow-y: scroll;
+
 `;
 
 

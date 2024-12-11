@@ -112,6 +112,7 @@ const TeamList: React.FC<TeamListProps> = ({ onOpenInviteModal, spaceId, }) => {
                   <div className="role-wrapper">
                     <span>역할:</span>
                     <select
+                    style={{cursor:"not-allowed",}}
                       defaultValue={member.role}
                       onChange={(e) =>
                         handleRoleChange(member.email, e.target.value)
@@ -123,7 +124,9 @@ const TeamList: React.FC<TeamListProps> = ({ onOpenInviteModal, spaceId, }) => {
                       <option value="normal">팀원</option>
                     </select>
                   </div>
-                  <button className="delete-button" onClick={noDelete}>
+                  <button className="delete-button" onClick={noDelete}
+                  style={{cursor:"not-allowed"}}
+                  >
                     삭제
                   </button>
                 </>
@@ -145,6 +148,7 @@ const TeamList: React.FC<TeamListProps> = ({ onOpenInviteModal, spaceId, }) => {
                   <button
                     className="delete-button"
                     onClick={() => handleDeleteMember(member.email)}
+                    style={{cursor:"pointer"}}
                   >
                     삭제
                   </button>

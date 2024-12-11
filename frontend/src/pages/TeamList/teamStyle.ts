@@ -116,7 +116,6 @@ max-width: 800px;
       .delete-button {
         background: none;
         border: none;
-        cursor: pointer;
         color: #666;
         display: flex;
         align-items: center;
