@@ -1,5 +1,4 @@
 //채널 목록 가져오는  "채널 목록 조회 API"
-
 import { Request, Response } from 'express';
 import pool from '../config/dbpool'; // 디폴트 익스포트 가져오기
 import { RowDataPacket } from 'mysql2'; // 추가

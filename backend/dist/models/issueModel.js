@@ -1,8 +1,7 @@
+"use strict";
 // import { executeQuery } from '../utils/dbUtils';
 // import { RowDataPacket, ResultSetHeader } from 'mysql2';
 // import { Issue } from '../types/issueTypes';
-
-
 // // 이슈 생성
 // export const newIssueQuery = async (issue: Issue) => {
 //   return executeQuery(async (connection) => {

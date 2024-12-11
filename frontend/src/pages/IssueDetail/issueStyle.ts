@@ -162,7 +162,9 @@ export const DetailMain = styled.div`
   margin-left: 10px;
   border-right: 1px solid #ddd;
   width: 65%;
+  box-sizing: border-box;
 `;
+
 
 export const Comment = styled.div`
   display: flex;
@@ -171,48 +173,33 @@ export const Comment = styled.div`
   width: 35%;
 `;
 
+
+
+
 export const ChatArea = styled.div`
-  flex: 1; 
-  overflow-y: auto; 
-  border: 1px solid #ddd;
-  padding: 10px;
-`;
-
-export const InputArea = styled.div`
-  display: flex;
-  align-items: center;
-  border-top: 1px solid #ddd;
-  padding: 10px;
-  flex: 0 0 5%;
-`;
-
-export const CommentField = styled.input`
   flex: 1;
-  padding: 10px;
+  overflow-y: auto;
   border: 1px solid #ddd;
-  border-radius: 5px;
-`;
+  padding: 10px;
 
-export const SendButton = styled.button`
-  padding: 10px 20px;
-  margin-left: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #007bff;
-  color: white;
-
-  &:hover {
-    background-color: #0056b3;
+  // p 태그를 인라인으로 만들기
+  p {
+    display: inline-block;
+    margin-right: 10px; // p 태그 간의 간격 조절
   }
 `;
+
+
+
+
+
 export const DetailMainWrapper = styled.div`
   display: flex;
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
-  `;
+`;
+
 
 export const IssueList = styled.div`
   display: flex; 
@@ -294,5 +281,84 @@ export const DropdownItem = styled.li`
   cursor: pointer;
   &:hover {
     background-color: lightgrey;
+  }
+`;
+
+export const CommentContainer = styled.div`
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+  background-color: #f0f0f0;  /* 배경색을 회색으로 변경 */
+  border-radius: 10px;  /* 모서리를 둥글게 설정 */
+  padding: 10px;
+`;
+
+
+export const CommentField = styled.input`
+flex: 1;
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 5px;
+margin-bottom: 10px;
+`;
+
+export const InputArea = styled.div`
+display: flex;
+align-items: center;
+border-top: 1px solid #ddd;
+padding: 10px;
+flex: 0 0 auto;
+`;
+
+export const SendButton = styled.button`
+padding: 10px 20px;
+font-size: 14px;
+font-weight: bold;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+background-color: #007bff;
+color: white;
+
+&:hover {
+    background-color: #0056b3;
+    }
+`;
+
+export const CommentBoxContainer = styled.div`
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+`;
+
+export const CommentUserInfo = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+
+  p {
+    margin: 0 10px;
+    font-weight: bold;
+  }
+`;
+
+// export const AvatarImage = styled.div`
+//   width: 40px;
+//   height: 40px;
+//   border-radius: 50%;
+//   background-color: #007bff;
+//   color: white;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   font-size: 20px;
+//   font-weight: bold;
+// `;
+
+export const CommentContent = styled.div`
+  p {
+    margin: 0;
   }
 `;

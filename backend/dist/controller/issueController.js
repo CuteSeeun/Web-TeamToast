@@ -1,20 +1,15 @@
+"use strict";
 // import { Request, Response, NextFunction } from 'express';
 // import pool from '../config/dbpool';
 // // import { newIssueQuery } from '../models/issueModel';
 // // import { validateAndMap } from '../utils/helpers';
 // import { Issue, Priority, Status, Type } from '../types/issueTypes';
-
-
 // // 이슈 생성하기 
 // export const newIssue = async (req: Request & { userRole: { user: string; role: string; space_id: number } }, res: Response, next: NextFunction) => {
-
 //   const pid = parseInt(req.params.pid, 10);
-
 //   try {
-
 //     // Sprint ID 처리
 //     const sprintId = req.body.sprint_id ?? null;
-
 //     const issue: Issue = {
 //       title: req.body.title,
 //       detail: req.body.detail || null,
@@ -27,7 +22,6 @@
 //       file: req.body.file ? JSON.stringify(req.body.file) : null,
 //       priority: priority || Priority.normal,
 //     };
-
 //     const query = `
 //        INSERT INTO Issue (title, detail, type, status, sprint_id, project_id, manager, created_by, file, priority) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 //      `;
@@ -44,9 +38,6 @@
 //       issue.priority
 //     ]);
 //     return result;
-
-
-
 //     res.status(201).json({
 //       isid: insertId,
 //       ...issue,

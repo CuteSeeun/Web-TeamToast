@@ -1,4 +1,4 @@
-// recoil/atoms/teamAtoms.ts
+// recoil/atoms/teamAtoms.ts 스페이스의 팀원 목록을 저장
 import { atom } from "recoil";
 
 // export const teamMembersState = atom({
