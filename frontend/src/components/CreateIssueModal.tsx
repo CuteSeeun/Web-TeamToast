@@ -7,6 +7,7 @@ import { Issue, Type, Status, Priority } from '../recoil/atoms/issueAtoms';
 import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
 
 import { sprintState } from "../recoil/atoms/sprintAtoms";
+import { teamMembersState } from "../recoil/atoms/memberAtoms";
 
 interface IssueModalProps {
     isOpen: boolean;
@@ -21,6 +22,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
     const [previews, setPreviews] = useState<string[]>([]);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { pid, isOpen, onClose, onSubmit } = props; // pid 추출
+    const teamMembers = useRecoilValue(teamMembersState);
 
     // 객체 기반 issue 스테이트 작성 (임시)
     const [issue, setIssue] = useState<Issue>({
@@ -240,7 +242,9 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
                                     <option value="" disabled>
                                         없음
                                     </option>
-                                    {/* 팀원 목록을 받아와서 렌더링 (구현안됨) */}
+                                    {teamMembers.map((member) => (
+                                        <option key={member.id} value={member.id}>{member.name}</option>
+                                    ))}
                                 </select>
                                 <IoChevronDownOutline className="downIcon" />
                             </div>
@@ -254,7 +258,9 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
                                     onChange={(e) => handleValueChange('manager', e.target.value)}
                                 >
                                     <option value="" disabled> 없음</option>
-                                    {/* 팀원 목록을 받아와서 렌더링 */}
+                                    {teamMembers.map((member) => (
+                                        <option key={member.id} value={member.id}>{member.name}</option>
+                                    ))}
                                 </select>
                                 <IoChevronDownOutline className="downIcon" />
                             </div>
