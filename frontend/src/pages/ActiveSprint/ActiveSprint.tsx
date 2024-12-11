@@ -12,8 +12,8 @@ const ActiveSprint: React.FC = () => {
 
   // 상태 값 콘솔 출력
   useEffect(() => {
-    console.log('DB에서 가져온 이슈, 활성스프린트에서 로딩:', allIssues);
-    console.log('DB에서 가져온 스프린트, 활성스프린트에서 로딩:', sprints);
+    console.log('이슈 아톰 값:', allIssues);
+    console.log('스프린트 아톰 값:', sprints);
   }, [allIssues, sprints]);
 
   return (

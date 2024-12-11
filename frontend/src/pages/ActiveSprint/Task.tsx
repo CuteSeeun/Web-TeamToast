@@ -7,7 +7,6 @@ import { ReactComponent as IssueBugIcon } from '../../assets/icons/Issue-Bug.svg
 
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
 
-
 const TaskContainer = styled.div`
   background: #fff;
   border: 1px solid #ddd;
@@ -21,16 +20,14 @@ const TaskContainer = styled.div`
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   }
 `;
-
 const TaskTitle = styled.h3`
   font-size: 14px;
   margin-bottom: 8px;
 `;
-
 const IconContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-top: 8px; // 아이콘과 제목 사이 간격
+  margin-top: 8px; 
   svg {
     width: 20px;
     height: 20px;
@@ -38,17 +35,13 @@ const IconContainer = styled.div`
   }
 `;
 
-
 const Task: React.FC<{
   id: string;
   title: string;
   index: number;
   columnId: ColumnKey
-  type?: 'task' | 'bug'; // 아이콘 타입을 추가
-  style?: React.CSSProperties; // style 속성을 선택적으로 추가
-  // // TaskProps;
-  // onSendData: (data: 'task' | 'bug') => void;
-  // onSendData?: (data: 'task' | 'bug') => void;
+  type?: 'task' | 'bug'; 
+  style?: React.CSSProperties; 
 }> = ({ id, title, index, columnId, type }) => {
   
   const [, dragRef] = useDrag({
@@ -60,19 +53,11 @@ const Task: React.FC<{
         console.log(`Dragging Task: ${title}`); // 드래그 시작 시 title 출력
       }
     },
-    // end: (item, monitor) => {
-    //   if (monitor.didDrop()) {
-    //     // 부모로 데이터 전송
-    //     onSendData(type ?? 'task'); // 드래그된 데이터 타입을 전달
-    //   }
-    // },
-
   });
 
   return (
     <TaskContainer ref={dragRef} id={id}>
       <TaskTitle>{title}</TaskTitle>
-      {/* 조건부 렌더링으로 아이콘 추가 */}
       <IconContainer>
         {type === 'task' && <IssueTaskIcon />}
         {type === 'bug' && <IssueBugIcon />}
