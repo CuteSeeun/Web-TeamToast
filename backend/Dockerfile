@@ -1,5 +1,5 @@
 # Node.js 이미지 사용
-FROM node:16
+FROM node:18
 
 # 컨테이너 작업 디렉토리 설정
 WORKDIR /usr/src/app

@@ -1,5 +1,5 @@
 # 1. Node.js 환경에서 React 앱 빌드
-FROM node:16 as build
+FROM node:18 as build
 
 # 작업 디렉토리 설정
 WORKDIR /usr/src/app
