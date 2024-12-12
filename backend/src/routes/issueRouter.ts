@@ -32,6 +32,17 @@ router.post('/new/:pid', async (req: Request, res: Response): Promise<void> => {
         res.status(400).json({ error: '필수 데이터가 누락됨.' });
         return;
     }
+
+    const handleFileField = (fileField: string[] | null): string | null => {
+        if (!fileField || fileField.length === 0) {
+            return null; // 빈 배열을 null로 변환
+        }
+    
+        // JSON 문자열 배열을 객체 배열로 변환 후, 배열을 JSON 문자열로 변환
+        const objectArray = fileField.map((file) => JSON.parse(file));
+        return JSON.stringify(objectArray); // JSON 문자열로 변환
+    };
+
     try {
         // 쿼리문 정의
         const query = `
@@ -48,7 +59,7 @@ router.post('/new/:pid', async (req: Request, res: Response): Promise<void> => {
             pid,
             manager || null,
             created_by || null,
-            JSON.stringify(file) || null,
+            handleFileField(file),
             priority,
         ]);
 
