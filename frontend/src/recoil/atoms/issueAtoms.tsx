@@ -119,32 +119,52 @@ export const issuesByStatusState = selector({
 
 
 interface ManagerStatusCount {
-  backlog: number;
-  working: number;
-  dev: number;
-  qa: number;
+  [Status.Backlog]: number;
+  [Status.Working]: number;
+  [Status.Dev]: number;
+  [Status.QA]: number;
 }
 //활성스프린트 담당자분류 후 상태 분류 셀렉터
+// export const issuesByManagerAndStatusState = selector({
+//   key: 'issuesByManagerAndStatusState',
+//   get: ({ get }) => {
+//     const filteredIssues = get(filteredIssuesState); // 활성 스프린트 이슈 가져오기
+//     const acc: Record<string, ManagerStatusCount> = {}; //타입 명시
+
+//     return filteredIssues.reduce((acc, issue) => {
+//       const manager = issue.manager || 'Unassigned';
+
+//       if (!acc[manager]) {
+//         acc[manager] = {
+//           backlog: 0,
+//           working: 0,
+//           dev: 0,
+//           qa: 0,
+//         };
+//       }
+//       acc[manager][issue.status] += 1; // 상태별로 카운트 증가
+//       return acc;
+//     }, acc);
+//   },
+// });
 export const issuesByManagerAndStatusState = selector({
   key: 'issuesByManagerAndStatusState',
   get: ({ get }) => {
     const filteredIssues = get(filteredIssuesState); // 활성 스프린트 이슈 가져오기
-    const acc: Record<string, ManagerStatusCount> = {}; //타입 명시
-
-    return filteredIssues.reduce((acc, issue) => {
+    return filteredIssues.reduce((acc: Record<string, ManagerStatusCount>, issue) => {
       const manager = issue.manager || 'Unassigned';
-      const statusKey = issue.status.toLowerCase() as keyof ManagerStatusCount;
 
       if (!acc[manager]) {
         acc[manager] = {
-          backlog: 0,
-          working: 0,
-          dev: 0,
-          qa: 0,
+          [Status.Backlog]: 0,
+          [Status.Working]: 0,
+          [Status.Dev]: 0,
+          [Status.QA]: 0,
         };
       }
-      acc[manager][statusKey] += 1; // 상태별로 카운트 증가
+
+      acc[manager][issue.status] += 1; // 상태별로 카운트 증가
       return acc;
-    }, acc);
+    }, {});
   },
 });

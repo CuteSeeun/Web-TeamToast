@@ -9,6 +9,8 @@ import { Bar } from 'react-chartjs-2';
 import { FcLeave } from 'react-icons/fc';
 import { useRecoilValue } from 'recoil';
 import { issuesByStatusState, issuesByManagerAndStatusState } from '../../recoil/atoms/issueAtoms'; // issuesByStatusState 셀렉터를 가져오는 경로 확인 필요
+import { enabledSprintsState } from '../../recoil/atoms/sprintAtoms';
+import { differenceInDays, format } from 'date-fns';
 
 // 스타일 정의
 const BoardContainer = styled.div`
@@ -173,20 +175,6 @@ const timelineData: TimelineBar[] = [
   { id: 2, name: '스프린트 2', start: 35, end: 70 },
   { id: 3, name: '스프린트 3', start: 80, end: 95 },
 ];
-//이슈 진행 상태 더미 데이터 
-const issueProgressData = [
-  { name: '백로그', value: 10, color: '#F2994A' },
-  { name: '진행 중', value: 20, color: '#56CCF2' },
-  { name: '개발 완료', value: 30, color: '#27AE60' },
-  { name: 'QA 완료', value: 15, color: '#9B51E0' },
-];
-//팀원별 이슈 현황 상태 
-const teamIssueData = [
-  { name: '김정연', backlog: 5, progress: 8, complete: 10, qa: 2 },
-  { name: '김현진', backlog: 6, progress: 7, complete: 15, qa: 3 },
-  { name: '조하영', backlog: 8, progress: 10, complete: 20, qa: 5 },
-  { name: '최세은', backlog: 2, progress: 5, complete: 8, qa: 2 },
-];
 
 
 // Chart.js 요소 등록 (컴포넌트 외부에서 실행)
@@ -197,6 +185,16 @@ const DBoard: React.FC = () => {
   const issuesByStatus = useRecoilValue(issuesByStatusState);
   const issuesByManagerAndStatus = useRecoilValue(issuesByManagerAndStatusState);
   const [bars, setBars] = useState(timelineData);
+  const enabledSprints = useRecoilValue(enabledSprintsState);
+  const sprintDetails = enabledSprints[0];// 필요한 필드만 추출
+
+  // 컴포넌트 내부에서
+  const startDate = new Date(sprintDetails.startdate);
+  const endDate = new Date(sprintDetails.enddate);
+  const today = new Date();
+  const remainingDays = differenceInDays(endDate, today);
+  const formattedStartDate = format(startDate, 'yyyy.MM.dd');
+  const formattedEndDate = format(endDate, 'yyyy.MM.dd');
 
   const totalDays = 100; // 캘린더 총 기간
   const todayPosition = 50; // 현재 날짜 위치 (%)
@@ -252,28 +250,28 @@ const DBoard: React.FC = () => {
   const datasets = [
     {
       label: '백로그',
-      data: labels.map((manager) => issuesByManagerAndStatus[manager].backlog),
+      data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['백로그'] || 0),
       backgroundColor: '#E63946',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: '진행 중',
-      data: labels.map((manager) => issuesByManagerAndStatus[manager].working),
+      data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['작업중'] || 0),
       backgroundColor: '#F1FAEE',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: '개발 완료',
-      data: labels.map((manager) => issuesByManagerAndStatus[manager].dev),
+      data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['개발완료'] || 0),
       backgroundColor: '#A8DADC',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: 'QA 완료',
-      data: labels.map((manager) => issuesByManagerAndStatus[manager].qa),
+      data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['QA완료'] || 0),
       backgroundColor: '#457B9D',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
@@ -349,6 +347,11 @@ const DBoard: React.FC = () => {
     },
   };
 
+  console.log('labels:', labels);
+  console.log('datasets:', datasets);
+  console.log('issuesByManagerAndStatus:', issuesByManagerAndStatus);
+  console.log('labels:', labels);
+
   return (
     <BoardContainer>
       <BoardHeader>{/* 헤더 */}
@@ -356,32 +359,34 @@ const DBoard: React.FC = () => {
         <Breadcrumb>프로젝트 &gt; {pname} &gt; 대시보드</Breadcrumb>
       </BoardHeader>
 
-      <DashboardSection>{/*차트라이브러리*/}
-        <ChartContainer>{/* 이슈 진행 상태 */}
-          <h3>이슈 진행 상태</h3>
-          <Pie data={pieData} options={options} />
-        </ChartContainer>
+      {enabledSprints.length === 0 ? ( // 스프린트가 없을 경우
+        <p>활성 스프린트가 없습니다.</p>
+      ) : (
+        <>
+          <DashboardSection>{/*차트라이브러리*/}
+            <ChartContainer>{/* 이슈 진행 상태 */}
+              <h3>이슈 진행 상태</h3>
+              <Pie data={pieData} options={options} />
+            </ChartContainer>
+            <ChartContainer>{/* 담당자 진행 상태 */}
+              <h3>팀원별 이슈 현황 상태</h3>
+              <Bar data={stackedBarData} options={stackedBarOptions} />
+            </ChartContainer>
+          </DashboardSection>
 
-        <ChartContainer>
-          <h3>팀원별 이슈 현황 상태</h3>
-          <Bar data={stackedBarData} options={stackedBarOptions} />
-        </ChartContainer>
-
-      </DashboardSection>
-
-      <ActiveSprintSection>{/*활성스프린트 설명*/}
-          <InfoCard>
-            <h4>네비게이션바 디자인팀과 개발팀 협업</h4>
-            <p>색상 수정 및 애니메이션 기능 수정</p>
-            <br/>
-            <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
-            <span>5일</span>
-            <p>시작일 : 2024.10.5</p>
-            <p>마감일 : 2024.12.15</p>
-
-          </InfoCard>
-          
-      </ActiveSprintSection>
+          <ActiveSprintSection>{/*활성스프린트 설명*/}
+            <InfoCard>
+              <h4>{sprintDetails.spname}</h4>
+              <p>목표 : {sprintDetails.goal}</p>
+              <br />
+              <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
+              <span>{remainingDays}일</span>
+              <p>시작일 : {formattedStartDate}</p>
+              <p>마감일 : {formattedEndDate}</p>
+            </InfoCard>
+          </ActiveSprintSection>
+        </>
+      )}
 
       <TimelineContainer>{/*간트차트*/}
         <h3>타임라인</h3>
