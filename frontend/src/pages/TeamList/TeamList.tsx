@@ -2,6 +2,7 @@ import React from "react";
 import * as Styled from "./teamStyle";
 import axios from "axios";
 
+
 const currentUserRole = sessionStorage.getItem("userRole"); // 현재 사용자 역할
 
 interface TeamMember {
@@ -11,6 +12,7 @@ interface TeamMember {
   role: string;
 }
 
+
 interface TeamListProps {
   teamMembers: TeamMember[];
   currentUserRole: String;
@@ -19,6 +21,7 @@ interface TeamListProps {
   spaceId: number; // 현재 Space ID
 }
 
+
 const TeamList: React.FC<TeamListProps> = ({
   teamMembers,
   onOpenInviteModal,
@@ -26,6 +29,7 @@ const TeamList: React.FC<TeamListProps> = ({
   spaceId,
   currentUserRole,
 }) => {
+  
   // 권한 변경 API 호출
   const handleRoleChange = async (email: string, newRole: string) => {
     try {
@@ -80,8 +84,9 @@ const TeamList: React.FC<TeamListProps> = ({
     if (window.confirm("정말로 삭제하시겠습니까?")) {
       try {
         await axios.delete("http://localhost:3001/team/remove", {
-          data: { email, spaceId }, // Space ID 추가
+          data: { email, spaceId },
         });
+
         onReload(); // 목록 갱신
       } catch (error) {
         console.error("Failed to delete member:", error);
@@ -89,7 +94,6 @@ const TeamList: React.FC<TeamListProps> = ({
       }
     }
   };
-
   return (
     <Styled.TeamMaWrap>
       <div className="title-area">
@@ -101,6 +105,7 @@ const TeamList: React.FC<TeamListProps> = ({
 
       <div className="member-list">
         {teamMembers.map((member) => (
+
           <div className="member-item" key={member.id}>
             <img
               src={`https://ui-avatars.com/api/?name=${member.name}`}
@@ -110,6 +115,7 @@ const TeamList: React.FC<TeamListProps> = ({
               <span className="name">{member.name}</span>
               <span className="email">{member.email}</span>
             </div>
+
             <div className="action-buttons">
               <div className="role-wrapper">
                 <span>역할:</span>
