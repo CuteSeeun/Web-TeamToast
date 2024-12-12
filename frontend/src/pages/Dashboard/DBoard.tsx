@@ -214,7 +214,7 @@ const DBoard: React.FC = () => {
   // };
 
 
-  // Chart.js 데이터와 옵션 정의 _ 파이 차트
+  // Chart.js 데이터와 옵션 정의 _ 파이 차트 : 활성스프린트의 이슈를 status로 분류
   const pieData = {
     labels: ['백로그', '진행 중', '개발 완료', 'QA 완료'],
     datasets: [
@@ -239,7 +239,7 @@ const DBoard: React.FC = () => {
     },
   };
 
-  //팀원별 이슈 현황 _ 막대 차트
+  //팀원별 이슈 현황 _ 막대 차트 : 활성스프린트의 이슈를 팀원으로 분류, status로 분류
   const stackedBarData = {
     labels: ['팀원 1', '팀원 2', '팀원 3', '팀원 4'], // x축 레이블
     datasets: [
@@ -317,7 +317,55 @@ const DBoard: React.FC = () => {
         <Breadcrumb>프로젝트 &gt; {pname} &gt; 대시보드</Breadcrumb>
       </BoardHeader>
 
-      <TimelineContainer>
+      <DashboardSection>{/*차트라이브러리*/}
+        <ChartContainer>{/* 이슈 진행 상태 */}
+          <h3>이슈 진행 상태</h3>
+          {/* <PieChart width={300} height={300}> */}
+          {/* <Pie data={issueProgressData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
+              {issueProgressData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart> */}
+
+          <Pie data={pieData} options={options} />
+        </ChartContainer>
+
+        <ChartContainer>
+          <h3>팀원별 이슈 현황 상태</h3>
+          {/* <BarChart width={500} height={300} data={teamIssueData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="backlog" stackId="a" fill="#FFA84A" />
+            <Bar dataKey="progress" stackId="a" fill="#FB67CA" />
+            <Bar dataKey="complete" stackId="a" fill="#9B88ED" />
+            <Bar dataKey="qa" stackId="a" fill="#5ED3E4" />
+          </BarChart> */}
+          <Bar data={stackedBarData} options={stackedBarOptions} />
+        </ChartContainer>
+
+      </DashboardSection>
+
+      <ActiveSprintSection>{/*활성스프린트 설명*/}
+          <InfoCard>
+            <h4>네비게이션바 디자인팀과 개발팀 협업</h4>
+            <p>색상 수정 및 애니메이션 기능 수정</p>
+            <br/>
+            <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
+            <span>5일</span>
+            <p>시작일 : 2024.10.5</p>
+            <p>마감일 : 2024.12.15</p>
+
+          </InfoCard>
+          
+      </ActiveSprintSection>
+
+      <TimelineContainer>{/*간트차트*/}
         <h3>타임라인</h3>
         {/* 캘린더 그리드 */}
         <CalendarGrid>
@@ -376,54 +424,6 @@ const DBoard: React.FC = () => {
           </CustomTimelineBar>
         ))}
       </TimelineContainer>
-
-      <DashboardSection>
-        <ChartContainer>{/* 이슈 진행 상태 */}
-          <h3>이슈 진행 상태</h3>
-          {/* <PieChart width={300} height={300}> */}
-          {/* <Pie data={issueProgressData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
-              {issueProgressData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart> */}
-
-          <Pie data={pieData} options={options} />
-        </ChartContainer>
-
-        <ChartContainer>
-          <h3>팀원별 이슈 현황 상태</h3>
-          {/* <BarChart width={500} height={300} data={teamIssueData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="backlog" stackId="a" fill="#FFA84A" />
-            <Bar dataKey="progress" stackId="a" fill="#FB67CA" />
-            <Bar dataKey="complete" stackId="a" fill="#9B88ED" />
-            <Bar dataKey="qa" stackId="a" fill="#5ED3E4" />
-          </BarChart> */}
-          <Bar data={stackedBarData} options={stackedBarOptions} />
-        </ChartContainer>
-
-      </DashboardSection>
-
-      <ActiveSprintSection>
-          <InfoCard>
-            <h4>네비게이션바 디자인팀과 개발팀 협업</h4>
-            <p>색상 수정 및 애니메이션 기능 수정</p>
-            <br/>
-            <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
-            <span>5일</span>
-            <p>시작일 : 2024.10.5</p>
-            <p>마감일 : 2024.12.15</p>
-
-          </InfoCard>
-          
-      </ActiveSprintSection>
 
     </BoardContainer>
   );

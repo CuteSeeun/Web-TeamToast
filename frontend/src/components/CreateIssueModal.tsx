@@ -157,6 +157,19 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
             console.log('이슈 생성 성공:', newIssue);
             if (newIssue.manager) {
                 setManager(newIssue.manager); // 담당자 업데이트
+
+                // 알림 추가
+                const newNotification = {
+                    isid: newIssue.isid,
+                    type: 'new',
+                    projectTitle:`프로젝트 ID ${newIssue.project_id}`, // 예시
+                    issueTitle: newIssue.title,
+                    manager: newIssue.manager,
+                    project_id:newIssue.project_id,
+                    issueDetail:newIssue.detail || '',
+                };
+                // setNotifications((prev) => [...prev, newNotification]); // 알림 배열에 추가
+
             }
 
             // 상태 초기화
