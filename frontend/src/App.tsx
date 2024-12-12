@@ -3,7 +3,7 @@ import Success from "./pages/Payment/Success";
 import Fail from "./pages/Payment/Fail";
 import CardChangeSuccess from "./pages/Payment/CardChangeSuccess";
 import CardChangeFail from "./pages/Payment/CardChangeFail";
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import GlobalStyles from './styles/GlobalStyles';
 import ActiveSprint from './pages/ActiveSprint/ActiveSprint';
@@ -26,6 +26,8 @@ import SpaceManagement from './pages/SpaceManagement/SpaceManagement';
 import Profile from './pages/Profile/Profile';
 import Plan from './pages/Plan/Plan';
 import { useAuth } from './hooks/useAuth';
+import { RiTimeLine } from "react-icons/ri";
+import Timeline from "./pages/TimeLine/TimeLine";
 
 const App: React.FC = () => {
   useAuth(); // 로그인 상태 관리 
@@ -33,7 +35,6 @@ const App: React.FC = () => {
   return (
     <>
       <GlobalStyles />
-      {/* <ActiveSprint /> */}
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -53,6 +54,7 @@ const App: React.FC = () => {
               <Route path="/dashboard/:pid" element={<Dashboard />} />
               <Route path="/issuelist/:pid" element={<IssueList />} />
               <Route path="/issue/:isid" element={<IssueDetail />} />
+              <Route path="/timeline/:pid" element={<Timeline/>} />
             </Route>
             <Route path="/payment" element={<Payment />} />
             <Route path="/spacemanagement" element={<SpaceManagement />} />

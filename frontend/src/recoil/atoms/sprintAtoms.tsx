@@ -45,7 +45,7 @@ export const sortedSprintsState = selector<Sprint[]>({
     }
 });
 
-// enabled 상태의 스프린트만 가져오는 셀렉터 추가
+// enabled 상태의 스프린트만 가져오는 셀렉터
 export const enabledSprintsState = selector<Sprint[]>({
     key: 'enabledSprintsState',
     get: ({ get }) => {
@@ -53,3 +53,16 @@ export const enabledSprintsState = selector<Sprint[]>({
         return sprints.filter((sprint) => sprint.status === 'enabled'); // enabled 상태만 필터링
     },
 });
+
+//모든 스프린트의 제목, 날짜를 가져오는 셀렉터
+export const sprintBasicInfoState = selector<{ spname: string; startdate: string; enddate: string }[]>({
+    key: 'sprintBasicInfoState',
+    get: ({ get }) => {
+      const sprints = get(sprintState); // 모든 스프린트를 가져옴
+      return sprints.map((sprint) => ({
+        spname: sprint.spname,
+        startdate: sprint.startdate,
+        enddate: sprint.enddate,
+      }));
+    },
+  });

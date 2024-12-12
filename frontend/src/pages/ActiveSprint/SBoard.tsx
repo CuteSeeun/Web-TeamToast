@@ -300,10 +300,10 @@ const SBoard: React.FC = () => {
         <BoardHeader>
           <BoardTitle>활성 스프린트</BoardTitle>{/* 제목 */}
           <Breadcrumb>프로젝트 &gt; {pname} &gt; 활성 스프린트</Breadcrumb>{/* 네비게이션 텍스트 */}
+          
           {enabledSprints.length !== 0 && (
             <>
               <Filters>
-                
                 <div className="filter-label" onClick={() => setManagerOpen((prev) => !prev)}>
                   담당자 <FaChevronDown />
                   <DropdownMenu open={managerOpen}>
