@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { BsThreeDots } from "react-icons/bs";
-import { AddIssueLink, IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox, DropdownMenu, MenuItem } from "./backlogstyle"; // 스타일 컴포넌트 임포트
+import { IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox, DropdownMenu, MenuItem } from "./backlogstyle"; // 스타일 컴포넌트 임포트
 import { sprintState, sortedSprintsState, filterState, Sprint, SprintStatus } from '../../recoil/atoms/sprintAtoms';
 import { allIssuesState, Issue } from '../../recoil/atoms/issueAtoms';
 import DragItem from './DragItem';
@@ -101,12 +101,17 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop, activeMenuId, setAct
         setShowMenu(false);
     };
 
+    const formatDate = (dateString: string) => {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return new Date(dateString).toLocaleDateString(undefined, options as any);
+    };
+
     return (
         <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
             <SprintHeader>
                 <div>
                     <SprintName>{sprint.spname}</SprintName>
-                    <SprintPeriod>스프린트 기간 ({sprint.startdate} ~ {sprint.enddate})</SprintPeriod>
+                    <SprintPeriod>스프린트 기간 ({formatDate(sprint.startdate)} ~ {formatDate(sprint.enddate)})</SprintPeriod>
                 </div>
                 <SprintControls>
                     {!shouldHideButton && (
@@ -152,9 +157,6 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop, activeMenuId, setAct
                     )}
                 </tbody>
             </IssueTable>
-
-            <AddIssueLink>+ 이슈 추가하기</AddIssueLink>
-
             {modifyModalOpen && (
                 <ModalOverlay>
                     <ModalContent>

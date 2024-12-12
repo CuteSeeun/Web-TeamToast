@@ -239,7 +239,7 @@ const IDBoard: React.FC = () => {
         <DetailMain>
           <IssueSection>
             <Label>프로젝트</Label>
-            <div>프로젝트 이름</div>
+            <div>{currentProject.pname}</div>
           </IssueSection>
 
           <TitleSection>

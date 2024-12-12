@@ -141,25 +141,25 @@ export const IssueTable = styled.table`
   border-collapse: collapse;
   margin-top: 10px;
 
-  th {
-    background-color: #e9ecef;
+  th, td {
     text-align: left;
     padding: 8px;
     font-size: 14px;
-    font-weight: bold;
-    color: #495057;
+    border-bottom: 1px solid #dee2e6;
   }
 
-  td {
-    padding: 8px;
-    border-bottom: 1px solid #dee2e6;
-    font-size: 14px;
+  th {
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #495057;
+    width: 25%; /* 각 셀의 너비를 고정 */
   }
 
   tr:hover {
     background-color: #f8f9fa;
   }
 `;
+
 
 export const AddIssueLink = styled.div`
   margin-top: 10px;
