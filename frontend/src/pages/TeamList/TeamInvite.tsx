@@ -9,6 +9,7 @@ interface TeamInviteModalProps {
   onInvite: (email: string, role: string) => Promise<void>;
   onInviteSuccess: () => void;
   errorMessage: string | null; // 부모 컴포넌트에서 전달받는 에러 메시지
+  currentUserRole: string; // 현재 사용자의 역할 추가
 }
 
 const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
@@ -16,7 +17,9 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
   onClose,
   spaceId,
   onInvite,
+  onInviteSuccess,
   errorMessage, // props로 에러 메시지 전달
+  currentUserRole,
 }) => {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("normal");
@@ -44,10 +47,19 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
       return;
     }
     try {
-      await onInvite(email, role);
-      onClose(); // 초대되면 모달 닫음
+      await onInvite(email, role); // 초대 요청 수행
+      onClose(); // 성공 시 모달 닫기
     } catch (error) {
-      console.error('초대 오류',error);
+      console.error("Invite failed:", error);
+    }
+  };
+
+  // 결제 페이지 이동 핸들러
+  const handleNavigateToPayment = () => {
+    if (currentUserRole === "top_manager") {
+      navigate("/payment"); // 최고관리자일 경우 결제 페이지로 이동
+    } else {
+      alert("결제 페이지는 최고관리자만 접근할 수 있습니다."); // 경고 메시지 표시
     }
   };
 
@@ -88,7 +100,6 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
               onChange={(e) => setRole(e.target.value)}
               disabled={remainingInvites === 0}
             >
-              <option value="top_manager">최고관리자</option>
               <option value="manager">관리자</option>
               <option value="normal">팀원</option>
             </select>
@@ -112,7 +123,7 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
             <div className="button-group">
               <button
                 className="invite"
-                onClick={() => navigate("/payment")} // 결제 페이지로 이동
+                onClick={handleNavigateToPayment} // 결제 페이지 이동 핸들러 사용
               >
                 결제 페이지로 이동
               </button>

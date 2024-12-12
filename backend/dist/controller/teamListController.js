@@ -77,7 +77,7 @@ exports.removeMember = removeMember;
 const getUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email } = req.query;
     if (!email) {
-        res.status(400).json({ message: '이메일이 없습니다.' });
+        res.status(400).json({ message: "이메일이 없습니다." });
         return;
     }
     try {

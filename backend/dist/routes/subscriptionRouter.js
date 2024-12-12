@@ -8,6 +8,8 @@ const subscriptionController_1 = require("../controller/subscriptionController")
 const router = express_1.default.Router();
 // 최고 관리자 확인
 router.get("/check-admin", subscriptionController_1.checkAdmin);
+//userEmail, subId 조회
+router.get("/user/details", subscriptionController_1.fetchUserDetails);
 // 구독 정보 조회
 router.get("/details", subscriptionController_1.getSubscriptionData);
 // 무료 요금제로 변경

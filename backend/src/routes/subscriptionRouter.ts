@@ -5,12 +5,16 @@ import {
   changeToFreePlan,
   upgradeToPaidPlan,
   updatedLimit,
+  fetchUserDetails,
 } from "../controller/subscriptionController";
 
 const router = express.Router();
 
 // 최고 관리자 확인
 router.get("/check-admin", checkAdmin);
+
+//userEmail, subId 조회
+router.get("/user/details", fetchUserDetails);
 
 // 구독 정보 조회
 router.get("/details", getSubscriptionData);

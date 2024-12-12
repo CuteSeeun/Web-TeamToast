@@ -1,38 +1,51 @@
-import React, { useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { teamMembersState } from "../../recoil/atoms/memberAtoms";
-import { spaceIdState } from "../../recoil/atoms/spaceAtoms";
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import TeamList from "./TeamList";
 import TeamInviteModal from "./TeamInvite";
-import axios from "axios";
-import { response } from "express";
 
 const TeamManagement: React.FC = () => {
-  const setTeamMembers = useSetRecoilState(teamMembersState); // Recoil에서 팀 멤버 데이터 가져오기
-  // const spaceId = useRecoilValue(spaceIdState); // Recoil에서 현재 스페이스 ID 가져오기
-  const spaceId = sessionStorage.getItem('sid');
+  const spaceId = sessionStorage.getItem("sid");
+  const numericSpaceId = spaceId ? Number(spaceId) : 0; // 숫자로 변환, null이면 기본값 0
+  const [teamMembers, setTeamMembers] = useState([]);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [reload, setReload] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null); // 에러 메시지 상태 추가
+  // 현재 사용자 역할 가져오기
+  //const currentUserRole = sessionStorage.getItem("userRole") || "normal"; // 기본값 'normal'
+  const [currentUserRole, setCurrentUserRole] = useState<string>("normal");
 
-
+  // 팀 멤버 목록 가져오기
+  const fetchTeamMembers = useCallback(async () => {
+    if (!spaceId) return;
+    try {
+      const response = await axios.get("http://localhost:3001/team/members", {
+        params: { spaceId },
+      });
+      setTeamMembers(response.data);
+    } catch (err: any) {
+      console.error(
+        "Failed to fetch team members:",
+        err.response?.data?.message
+      );
+    }
+  }, [spaceId]);
 
   // 초대 API 호출
   const handleInvite = async (email: string, role: string) => {
     try {
-     const response = await axios.post("http://localhost:3001/team/invite", {
-        space_id: Number(spaceId),
+      await axios.post("http://localhost:3001/team/invite", {
+        space_id: numericSpaceId,
         email,
         role,
       });
-      const newMember = response.data.member; // 반환된 새 멤버 데이터값
-      setTeamMembers((plus)=> [...plus , newMember]); // 리코일에 바로추가
-
       setInviteError(null); // 초대 성공 시 에러 메시지 초기화
-      // 갱신은 ProjectHeader의 fetchTeamMembers가 수행
-      alert('초대가 성공적으로 완료되었습니다.')
+      handleReload(); // 초대 성공 시 목록 갱신
     } catch (error: any) {
       if (error.response?.status === 409) {
         const errorMessage = error.response.data.message;
+
+        // 디버깅용 로그 추가
+        console.log("Error message received:", errorMessage);
 
         if (errorMessage === "이미 초대된 사용자입니다.") {
           setInviteError(
@@ -55,19 +68,39 @@ const TeamManagement: React.FC = () => {
       } else {
         setInviteError("초대에 실패했습니다. 다시 시도해주세요.");
       }
+      throw error; // 초대 실패 시 예외 던지기
     }
   };
+
+  // 목록 갱신 트리거
+  const handleReload = () => {
+    setReload(!reload);
+  };
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, [fetchTeamMembers, reload]);
+
+  useEffect(() => {
+    const storedRole = sessionStorage.getItem("userRole");
+    if (storedRole) {
+      setCurrentUserRole(storedRole);
+    }
+  }, []);
 
   return (
     <div>
       {/* TeamList 컴포넌트 */}
       <TeamList
-        // teamMembers={teamMembers} // Recoil에서 가져온 데이터를 전달
+        spaceId={numericSpaceId} // 숫자로 변환된 값 사용
+        teamMembers={teamMembers}
         onOpenInviteModal={() => {
           setInviteError(null); // 모달 열릴 때 에러 메시지 초기화
           setIsInviteModalOpen(true);
         }}
-        spaceId={spaceId ? Number(spaceId) : 0} // spaceId가 null일 경우 기본값 0 설정
+        onReload={handleReload}
+        currentUserRole={currentUserRole} // 현재 사용자의 역할 전달
+        //spaceId={spaceId}
       />
 
       {/* TeamInviteModal 컴포넌트 */}
@@ -75,13 +108,10 @@ const TeamManagement: React.FC = () => {
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         onInvite={handleInvite}
-        onInviteSuccess={() => {
-          // 초대 성공 시 호출될 동작
-          console.log("초대 성공");
-          window.location.reload(); // 간단히 페이지를 새로고침하거나 Recoil 상태 갱신
-        }}
-        spaceId={spaceId ? Number(spaceId) : 0} // spaceId가 null일 경우 기본값 0 설정
+        spaceId={numericSpaceId} // 숫자로 변환된 값 사용
+        onInviteSuccess={handleReload}
         errorMessage={inviteError} // 에러 메시지 전달
+        currentUserRole={currentUserRole} // 현재 사용자의 역할 전달
       />
     </div>
   );
