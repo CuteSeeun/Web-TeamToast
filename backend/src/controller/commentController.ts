@@ -40,10 +40,13 @@ export const getCommentsByIssueId = async (req: Request, res: Response) => {
 };
 
 export const insertComment = async (req: Request, res: Response) => {
-    console.log('요청 본문:', req.body); // 로그 추가
+    const issueId = parseInt(req.body.issueId, 10);
+    const { content, user } = req.body;
 
-    const issueId = parseInt(req.body.issueId, 10); // 수정: req.params가 아닌 req.body에서 가져오기
-    const { content, timestamp, user } = req.body;
+    // 현재 시간을 한국 표준시(KST)로 변환
+    const currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 9); // UTC+9 시간대로 변환
+    const timestamp = currentDate.toISOString().slice(0, 19).replace('T', ' ');
 
     if (isNaN(issueId)) {
         res.status(400).json({ error: 'Invalid issue ID' });
@@ -61,15 +64,65 @@ export const insertComment = async (req: Request, res: Response) => {
             VALUES (?, ?, ?, ?)
         `;
         const [result] = await pool.query(query, [issueId, content, timestamp, user]);
-
         const newCommentId = (result as { insertId: number }).insertId;
         const [rows] = await pool.query<CommentRow[]>('SELECT * FROM Comment WHERE cid = ?', [newCommentId]);
-
-        console.log('삽입된 댓글:', rows[0]); // 로그 추가
-
         res.status(201).json(rows[0]);
     } catch (error) {
         console.error('Server error occurred:', error);
+        res.status(500).json({ error: 'Server error occurred' });
+    }
+};
+
+
+
+
+export const editComment = async (req: Request, res: Response) => {
+    const cid = parseInt(req.params.cid, 10); // req.params에서 cid 가져오기
+    const { content } = req.body; // content를 body에서 가져옵니다
+
+    console.log('요청 받은 데이터:', req.body);
+
+    if (isNaN(cid)) {
+        console.error('잘못된 댓글 ID:', cid);
+        res.status(400).json({ error: 'Invalid comment ID' });
+        return;
+    }
+
+    try {
+        const query = `
+            UPDATE Comment SET content = ? WHERE cid = ?
+        `;
+        const [result] = await pool.query(query, [content, cid]); // ResultSetHeader 타입 사용
+        console.log('쿼리 결과:', result);
+
+        res.status(200).json({ message: 'Comment updated successfully' });
+    } catch (error) {
+        console.error('서버 오류 발생:', error); // 오류 메시지 출력
+        res.status(500).json({ error: 'Server error occurred' });
+    }
+};
+
+export const deleteComment = async (req: Request, res: Response) => {
+    const cid = parseInt(req.params.cid, 10); // req.params에서 cid 가져오기
+
+    console.log('요청 받은 댓글 ID:', cid);
+
+    if (isNaN(cid)) {
+        console.error('잘못된 댓글 ID:', cid);
+        res.status(400).json({ error: 'Invalid comment ID' });
+        return;
+    }
+
+    try {
+        const query = `
+            DELETE FROM Comment WHERE cid = ?
+        `;
+        const [result] = await pool.query(query, [cid]);
+        console.log('쿼리 결과:', result);
+
+        res.status(200).json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+        console.error('서버 오류 발생:', error); // 오류 메시지 출력
         res.status(500).json({ error: 'Server error occurred' });
     }
 };

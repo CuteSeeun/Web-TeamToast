@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AiOutlinePlus } from "react-icons/ai";
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import CommentList from './CommentList';
 import {
   Avatar,
@@ -15,8 +14,6 @@ import {
   Description,
   DetailMain,
   DetailMainWrapper,
-  FileItem,
-  FileUpload,
   InputField,
   Label,
   DesSection,
@@ -30,20 +27,30 @@ import {
   DropdownItem
 } from './issueStyle';
 import { sprintState } from '../../recoil/atoms/sprintAtoms';
-import { allIssuesSelector, Issue } from '../../recoil/atoms/issueAtoms';
+import { allIssuesSelector, allIssuesState, Issue, Priority, Status, Type } from '../../recoil/atoms/issueAtoms';
 import axios from 'axios';
 import { currentProjectState } from '../../recoil/atoms/projectAtoms';
+import { PreviewContainer } from '../../styles/CreateIssueModal';
+import { IoAddOutline, IoCloseOutline } from 'react-icons/io5';
+import { teamMembersState, TeamMember } from '../../recoil/atoms/memberAtoms'
 
 type DropdownKeys = 'sprint' | 'createdBy' | 'manager' | 'type' | 'status' | 'priority';
 type Sprint = { spid: number; spname: string; };
 
+
 const IDBoard: React.FC = () => {
+  const [initialFileNames, setInitialFileNames] = useState<string[]>([]);
   const { isid } = useParams<{ isid: string }>(); // URL에서 id 값 추출
   const issues = useRecoilValue(allIssuesSelector);
   const sprints = useRecoilValue<Sprint[]>(sprintState);
   const issueId = parseInt(isid || '0', 10);
   const navigate = useNavigate();
   const currentProject = useRecoilValue(currentProjectState);
+  const teamMembers = useRecoilValue(teamMembersState);
+  const setAllIssues = useSetRecoilState(allIssuesState);
+  const extendedSprints = [{ spid: -1, spname: '백로그' }, ...sprints];
+  const [initialFiles, setInitialFiles] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 여러 SelectLabel의 상태를 관리하기 위해 개별 상태 변수 추가
   const [isDropdownOpen, setDropdownOpen] = useState<DropdownKeys | null>(null);
@@ -57,6 +64,9 @@ const IDBoard: React.FC = () => {
     priority: '',
     detail: '',
   });
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const issue = issues.find((issue: Issue) => issue.isid === issueId);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -72,7 +82,16 @@ const IDBoard: React.FC = () => {
     };
   }, []);
 
-  const issue = issues.find((issue: Issue) => issue.isid === issueId);
+
+  useEffect(() => {
+    if (issue && issue.file) {
+      const fileArray = Array.isArray(issue.file) ? issue.file : [issue.file];
+      const existingPreviews = fileArray.map(fileName => `/upload/path/${fileName}`);
+      setInitialFiles(existingPreviews);
+      setInitialFileNames(fileArray);
+    }
+  }, [issue]);
+
 
   if (!issue) {
     return <div>이슈를 찾을 수 없습니다.</div>;
@@ -84,6 +103,10 @@ const IDBoard: React.FC = () => {
   // created_by와 manager의 첫 글자 추출
   const firstLetterCreatedBy = issue.created_by ? issue.created_by.charAt(0).toUpperCase() : '';
   const firstLetterManager = issue.manager ? issue.manager.charAt(0).toUpperCase() : '';
+
+  // sessionStorage에서 space_id 가져오기
+  const spaceId = parseInt(sessionStorage.getItem('sid') || '0', 10);
+  console.log("sessionStorage spaceId:", spaceId);
 
   const handleToggleDropdown = (key: DropdownKeys) => {
     setDropdownOpen(prevState => (prevState === key ? null : key));
@@ -106,31 +129,102 @@ const IDBoard: React.FC = () => {
   };
 
   const onClose = () => {
-    navigate(`/backlog/${isid}`);
+    navigate(-1);
   };
-  // handleUpdate 함수 수정
 
   const handleUpdate = async () => {
-    const selectedSprint = sprints.find((sprint: Sprint) => sprint.spname === (selectedValues.sprint || sprint.spname)) || sprint;
-    const sprintId = (selectedSprint as Sprint).spid;
+    const selectedSprint = extendedSprints.find((sprint: Sprint) =>
+      sprint.spname === selectedValues.sprint
+    ) || sprint;
+
+    const sprintId = selectedSprint && selectedSprint.spname === '백로그' ? null : (selectedSprint as Sprint)?.spid;
 
     const updatedIssue = {
+      ...issue,
       title: selectedValues.title || issue.title,
       sprint_id: sprintId,
       created_by: selectedValues.createdBy || issue.created_by || "",
       manager: selectedValues.manager || issue.manager || "",
-      type: selectedValues.type || issue.type,
-      status: selectedValues.status || issue.status,
-      priority: selectedValues.priority || issue.priority,
+      type: selectedValues.type as Type || issue.type,
+      status: selectedValues.status as Status || issue.status,
+      priority: selectedValues.priority as Priority || issue.priority,
       detail: selectedValues.detail || issue.detail,
+      file: selectedFiles.length > 0 ? selectedFiles.map(file => file.name) : null,
     };
 
     try {
-      const response = await axios.put(`/sissue/updateDetail/${issueId}`, updatedIssue);
-      // 필요한 후속 작업 수행
+      const formData = new FormData();
+      selectedFiles.forEach((file) => formData.append('files', file));
+
+      const issuePromise = axios.put(`/sissue/updateDetail/${issueId}`, updatedIssue);
+      const fileUploadPromise = selectedFiles.length > 0
+        ? axios.post('/upload/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        : Promise.resolve();
+
+      const [issueResponse, fileResponse] = await Promise.all([issuePromise, fileUploadPromise]);
+      console.log('서버 응답 데이터:', issueResponse.data);
+      const updatedIssueData: Issue = issueResponse.data.updatedIssue || updatedIssue;
+
+      setAllIssues(prevIssues => prevIssues.map((i: Issue) =>
+        i.isid === issueId ? updatedIssueData : i
+      ));
       alert('수정되었습니다.');
+
+      setSelectedFiles([]); // 파일 선택 후 초기화
+      setPreviews([]);
+    } catch (err) {
+      console.error('이슈 수정 또는 파일 업로드 실패:', err);
+    }
+  };
+
+
+  // --------------------------------------------------------------------
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const fileArray = Array.from(files);
+    setSelectedFiles(fileArray);
+
+    const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
+    setPreviews(newPreviews);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleFileDelete = (index: number) => {
+    if (index < selectedFiles.length) {
+      setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+      setPreviews((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      const adjustedIndex = index - selectedFiles.length;
+      setInitialFiles((prev) => prev.filter((_, i) => i !== adjustedIndex));
+      setInitialFileNames((prev) => prev.filter((_, i) => i !== adjustedIndex));
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDownload = async (fileName: string) => {
+    try {
+      const response = await axios.get(`/upload/download`, { params: { fileName } });
+      if (response.data.success) {
+        const link = document.createElement('a');
+        link.href = response.data.downloadUrl;
+        link.download = fileName;
+        link.click();
+      } else {
+        alert('파일 다운로드 URL 생성에 실패했습니다.');
+      }
     } catch (error) {
-      console.error('Error updating issue:', error);
+      console.error('파일 다운로드 실패:', error);
+      alert('파일 다운로드 중 오류가 발생했습니다.');
     }
   };
 
@@ -145,7 +239,7 @@ const IDBoard: React.FC = () => {
         <DetailMain>
           <IssueSection>
             <Label>프로젝트</Label>
-            <div>프로젝트 이름</div>
+            <div>{currentProject.pname}</div>
           </IssueSection>
 
           <TitleSection>
@@ -163,7 +257,7 @@ const IDBoard: React.FC = () => {
                   </DropdownLabel>
                   {isDropdownOpen === 'sprint' && (
                     <DropdownList>
-                      {sprints.map((sprint) => (
+                      {extendedSprints.map((sprint) => (
                         <DropdownItem key={sprint.spid} onClick={() => handleSelectItem('sprint', sprint.spname)}>
                           {sprint.spname}
                         </DropdownItem>
@@ -175,16 +269,19 @@ const IDBoard: React.FC = () => {
               <IssueSection>
                 <Label>담당자</Label>
                 <Avatar>
-                  <AvatarImage>{firstLetterCreatedBy}</AvatarImage>
+                  <AvatarImage>{firstLetterManager}</AvatarImage>
                   <DropdownContainer className="dropdown-container">
-                    <DropdownLabel onClick={() => handleToggleDropdown('createdBy')}>
-                      {selectedValues.createdBy || issue.created_by || ""}
+                    <DropdownLabel onClick={() => handleToggleDropdown('manager')}>
+                      {selectedValues.manager || issue.manager || ""}
                     </DropdownLabel>
-                    {isDropdownOpen === 'createdBy' && (
+                    {isDropdownOpen === 'manager' && (
                       <DropdownList>
-                        {issues.map((issue) => (
-                          <DropdownItem key={issue.created_by || ""} onClick={() => handleSelectItem('createdBy', issue.created_by || "")}>
-                            {issue.created_by || ""}
+                        {teamMembers.map((member) => (
+                          <DropdownItem
+                            key={member.id}
+                            onClick={() => handleSelectItem('manager', member.name)}
+                          >
+                            {member.name}
                           </DropdownItem>
                         ))}
                       </DropdownList>
@@ -195,16 +292,19 @@ const IDBoard: React.FC = () => {
               <IssueSection>
                 <Label>보고자</Label>
                 <Avatar>
-                  <AvatarImage>{firstLetterManager}</AvatarImage>
+                  <AvatarImage>{firstLetterCreatedBy}</AvatarImage>
                   <DropdownContainer className="dropdown-container">
-                    <DropdownLabel onClick={() => handleToggleDropdown('manager')}>
-                      {selectedValues.manager || issue.manager || ""}
+                    <DropdownLabel onClick={() => handleToggleDropdown('createdBy')}>
+                      {selectedValues.createdBy || issue.created_by || ""}
                     </DropdownLabel>
-                    {isDropdownOpen === 'manager' && (
+                    {isDropdownOpen === 'createdBy' && (
                       <DropdownList>
-                        {issues.map((issue) => (
-                          <DropdownItem key={issue.manager || ""} onClick={() => handleSelectItem('manager', issue.manager || "")}>
-                            {issue.manager || ""}
+                        {teamMembers.map((member) => (
+                          <DropdownItem
+                            key={member.id}
+                            onClick={() => handleSelectItem('createdBy', member.name)}
+                          >
+                            {member.name}
                           </DropdownItem>
                         ))}
                       </DropdownList>
@@ -273,21 +373,62 @@ const IDBoard: React.FC = () => {
             <Label>설명</Label>
             <Description name="detail" defaultValue={issue.detail || ""} onChange={handleChange} />
           </DesSection>
+          <PreviewContainer>
+            {/* 커스텀 파일 추가 버튼 */}
+            <label htmlFor="file-input" className="custom-file-button">
+              <IoAddOutline className="file-btn" />
+            </label>
 
-          <IssueSection>
-            <Label>첨부 파일</Label>
-            <FileUpload>
-              <FileItem>
-                <AiOutlinePlus />
-                파일 추가
-              </FileItem>
-              <FileItem>
-                <img src="https://via.placeholder.com/50" alt="첨부 파일 미리보기" />
-                파일 이름
-              </FileItem>
-            </FileUpload>
-          </IssueSection>
+            {/* 숨겨진 파일 입력 */}
+            <input
+              type="file"
+              id="file-input"
+              name="filename"
+              multiple
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              style={{ display: "none" }}
+            />
 
+            {/* 서버에서 받아온 기존 파일 미리보기 영역 */}
+            {initialFiles.length > 0 && (
+              <>
+                {initialFiles.map((fileUrl, index) => (
+                  <div className="preview-wrap" key={index}>
+                    <div className="img-wrap" onClick={() => handleFileDelete(index + selectedFiles.length)}>
+                      <img src={fileUrl} alt={`Preview ${index}`} />
+                      <IoCloseOutline className="file-btn delete-btn" />
+                    </div>
+                    <p className="file-name">{initialFileNames[index]?.split('/').pop()}</p> {/* null 체크 추가 */}
+                    <button
+                      className="download-btn"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 부모의 클릭 이벤트 방지
+                        handleDownload(initialFileNames[index]?.split('/').pop() || "");
+                      }}
+                    >
+                      다운로드
+                    </button>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* 새로 선택한 파일 미리보기 영역 */}
+            {selectedFiles.length > 0 && previews.length > 0 && (
+              <>
+                {previews.map((src, index) => (
+                  <div className="preview-wrap" key={index} onClick={() => handleFileDelete(index)}>
+                    <div className="img-wrap">
+                      <img src={src} alt={`Preview ${index}`} />
+                      <IoCloseOutline className="file-btn delete-btn" />
+                    </div>
+                    <p className="file-name">{selectedFiles[index]?.name}</p>
+                  </div>
+                ))}
+              </>
+            )}
+          </PreviewContainer>
           <ButtonContainer>
             <Button onClick={onClose}>취소</Button>
             <Button primary onClick={handleUpdate}>수정</Button>
@@ -295,7 +436,7 @@ const IDBoard: React.FC = () => {
         </DetailMain>
         <CommentList />
       </DetailMainWrapper>
-    </BoardContainer>
+    </BoardContainer >
   );
 };
 

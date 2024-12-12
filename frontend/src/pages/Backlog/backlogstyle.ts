@@ -141,25 +141,25 @@ export const IssueTable = styled.table`
   border-collapse: collapse;
   margin-top: 10px;
 
-  th {
-    background-color: #e9ecef;
+  th, td {
     text-align: left;
     padding: 8px;
     font-size: 14px;
-    font-weight: bold;
-    color: #495057;
+    border-bottom: 1px solid #dee2e6;
   }
 
-  td {
-    padding: 8px;
-    border-bottom: 1px solid #dee2e6;
-    font-size: 14px;
+  th {
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #495057;
+    width: 25%; /* 각 셀의 너비를 고정 */
   }
 
   tr:hover {
     background-color: #f8f9fa;
   }
 `;
+
 
 export const AddIssueLink = styled.div`
   margin-top: 10px;
@@ -210,7 +210,8 @@ export const DropdownMenu = styled.ul<{ show: boolean }>`
   display: ${({ show }) => (show ? 'block' : 'none')};
   position: absolute;
   top: 100%; /* 부모 요소 바로 아래에 위치 */
-  left: 0;
+  left: auto; /* 추가된 속성 */
+  right: 0; /* 추가된 속성 */
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -218,7 +219,10 @@ export const DropdownMenu = styled.ul<{ show: boolean }>`
   z-index: 1000;
   padding: 10px;
   margin-top: 8px; /* 약간의 간격 추가 */
+  white-space: nowrap; /* 텍스트를 한 줄로 유지 */
 `;
+
+
 
 export const MenuItem = styled.li`
   padding: 8px 16px;
