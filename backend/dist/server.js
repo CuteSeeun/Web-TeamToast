@@ -27,6 +27,7 @@ const BuserRouter_1 = __importDefault(require("./routes/BuserRouter"));
 const MessageRouter_1 = __importDefault(require("./routes/MessageRouter"));
 const uploadRouter_1 = __importDefault(require("./routes/uploadRouter"));
 const commentRouter_1 = __importDefault(require("./routes/commentRouter"));
+const AlarmRouter_1 = __importDefault(require("./routes/AlarmRouter"));
 // 미들웨어 설정
 const app = (0, express_1.default)();
 // Middleware
@@ -51,6 +52,7 @@ app.use('/space', spaceRouter_1.default);
 app.use('/messages', MessageRouter_1.default);
 app.use('/upload', uploadRouter_1.default);
 app.use('/comment', commentRouter_1.default);
+app.use('/alarm', AlarmRouter_1.default);
 // HTTP 서버 생성
 const httpServer = (0, http_1.createServer)(app);
 // Socket.IO 초기화

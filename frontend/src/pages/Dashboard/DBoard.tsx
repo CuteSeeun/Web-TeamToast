@@ -1,9 +1,13 @@
-//
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
+// import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend } from 'recharts';
+// import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Cell, Legend } from 'recharts';
 import Draggable from 'react-draggable';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
+import { FcLeave } from 'react-icons/fc';
+
 import { useRecoilValue } from 'recoil';
 import { allIssuesState } from '../../recoil/atoms/issueAtoms';
 
@@ -13,50 +17,51 @@ const BoardContainer = styled.div`
   flex-direction: column;
   padding: 25px;
   overflow: hidden;
+  /* background: pink; */
+  width:100%;
 `;
-
 const BoardHeader = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 20px;
 `;
-
 const BoardTitle = styled.h1`
   font-size: 24px;
   font-weight: bold;
 `;
-
 const Breadcrumb = styled.div`
   font-size: 14px;
   color: #6c757d;
   margin-top: 8px; /* 제목과의 간격 */
 `;
-
 const DashboardSection = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
   gap: 20px;
+  /* background: red; */
 `;
-
 const ActiveSprintSection = styled.div`
 display: flex;
 justify-content: space-between;
 margin-top: 20px;
 gap: 20px;
 `;
-
 const ChartContainer = styled.div`
 width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
-  max-width: 550px; /* 최대 크기를 지정하여 박스 내부에 제한 */
-  width: 48%;
+  max-width: 700px; /* 최대 크기를 지정하여 박스 내부에 제한 */
+  width: 100%;
+
+  height: 500px; /* 높이 증가 */
+
   padding: 20px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-`;
 
+  /* background:yellow; */
+`;
 const TimelineContainer = styled.div`
   padding: 20px;
   background: #fff;
@@ -67,14 +72,12 @@ const TimelineContainer = styled.div`
   position: relative;
   overflow-x: scroll;
 `;
-
 const CalendarGrid = styled.div`
   display: flex;
   position: relative;
   height: 50px;
   border-bottom: 1px solid #ccc;
 `;
-
 const Day = styled.div`
   flex: 1;
   text-align: center;
@@ -82,7 +85,6 @@ const Day = styled.div`
   color: #666;
   border-right: 1px solid #eee;
 `;
-
 const TodayLine = styled.div<{ position: number }>`
   position: absolute;
   top: 0;
@@ -92,7 +94,6 @@ const TodayLine = styled.div<{ position: number }>`
   background: red;
   z-index: 10;
 `;
-
 const CustomTimelineBar = styled.div`
   display: flex;
   align-items: center;
@@ -120,7 +121,6 @@ const CustomTimelineBar = styled.div`
     }
   }
 `;
-
 const InfoContainer = styled.div`
 /* width: 48%; */
   display: flex;
@@ -128,7 +128,6 @@ const InfoContainer = styled.div`
   gap: 20px;
   margin-bottom: 20px;
 `;
-
 const InfoCard = styled.div`
 /* width: 48%; */
   flex: 1;
@@ -155,9 +154,12 @@ const InfoCard = styled.div`
     color: #000;
   }
 `;
+const Datediv = styled.div`
+display: flex; /* Flexbox 사용 */
+/* align-items: center;  */
+ gap:3px;
+`;
 
-
-// 데이터 타입 정의
 type TimelineBar = {
   id: number;
   name: string;
@@ -186,35 +188,133 @@ const teamIssueData = [
   { name: '최세은', backlog: 2, progress: 5, complete: 8, qa: 2 },
 ];
 
+
+// Chart.js 요소 등록 (컴포넌트 외부에서 실행)
+ChartJS.register(BarElement, CategoryScale, LinearScale, Title, ArcElement, Tooltip, Legend);
+
 const DBoard: React.FC = () => {
+  const pname = sessionStorage.getItem('pname');
   const [bars, setBars] = useState(timelineData);
 
   const totalDays = 100; // 캘린더 총 기간
   const todayPosition = 50; // 현재 날짜 위치 (%)
 
   // 드래그 핸들러
-  const handleDrag = (e: any, data: any, id: number, isResize: 'start' | 'end') => {
-    setBars((prevBars) =>
-      prevBars.map((bar) =>
-        bar.id === id
-          ? {
-            ...bar,
-            [isResize]:
-              isResize === 'start'
-                ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
-                : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
-          }
-          : bar
-      )
-    );
+  // const handleDrag = (e: any, data: any, id: number, isResize: 'start' | 'end') => {
+  //   setBars((prevBars) =>
+  //     prevBars.map((bar) => bar.id === id ? {
+  //           ...bar,
+  //           [isResize]:
+  //             isResize === 'start'
+  //               ? Math.max(Math.min(bar.start + data.deltaX * 0.1, bar.end - 5), 0)
+  //               : Math.max(bar.start + 5, bar.end + data.deltaX * 0.1),
+  //         } : bar
+  //     )
+  //   );
+  // };
+
+
+  // Chart.js 데이터와 옵션 정의 _ 파이 차트
+  const pieData = {
+    labels: ['백로그', '진행 중', '개발 완료', 'QA 완료'],
+    datasets: [
+      {
+        label: '이슈 진행 상태',
+        data: [10, 20, 30, 15],
+        backgroundColor: ['#FF6384', '#FFCD56', '#4BC0C0', '#36A2EB'],
+        hoverOffset: 4,
+        borderWidth: 1,
+      },
+    ],
+  };
+  const options: ChartOptions<'pie'> = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom', // Chart.js에서 허용되는 값
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+  };
+
+  //팀원별 이슈 현황 _ 막대 차트
+  const stackedBarData = {
+    labels: ['팀원 1', '팀원 2', '팀원 3', '팀원 4'], // x축 레이블
+    datasets: [
+      {
+        label: '백로그',
+        data: [5, 6, 8, 2], // 데이터 값
+        backgroundColor: '#E63946',
+        // stack: 'Group 1', // 그룹 1
+
+        barPercentage: 0.5, // 막대 두께
+      categoryPercentage: 0.8, // 카테고리 너비
+      },
+      {
+        label: '진행 중',
+        data: [8, 7, 10, 5],
+        backgroundColor: '#F1FAEE',
+        // stack: 'Group 1', // 그룹 1
+        barPercentage: 0.5,
+      categoryPercentage: 0.8,
+      },
+      {
+        label: '개발 완료',
+        data: [10, 15, 20, 8],
+        backgroundColor: '#A8DADC',
+        // stack: 'Group 2', // 그룹 2
+        barPercentage: 0.5,
+      categoryPercentage: 0.8,
+      },
+      {
+        label: 'QA 완료',
+        data: [2, 3, 5, 2],
+        backgroundColor: '#457B9D',
+        // stack: 'Group 2', // 그룹 2
+        barPercentage: 0.5,
+      categoryPercentage: 0.8,
+      },
+    ],
+  };
+  const stackedBarOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+      },
+      title: {
+        display: true,
+        text: '팀원별 이슈 현황 상태',
+      },
+    },
+    scales: {
+      x: {
+        stacked: true, // x축 그룹 스택 활성화
+        // barPercentage: 0.8, // 막대 두께 설정 (0.1 ~ 1.0)
+        // categoryPercentage: 0.8, // 카테고리(그룹) 너비 설정
+        ticks: {
+          maxRotation: 0, // 텍스트 회전 제거
+          minRotation: 0,
+        },
+      },
+      y: {
+        stacked: true, // y축 그룹 스택 활성화
+        beginAtZero: true,
+      },
+    },
   };
 
   return (
     <BoardContainer>
-      {/* 헤더 */}
-      <BoardHeader>
+      <BoardHeader>{/* 헤더 */}
         <BoardTitle>대시보드</BoardTitle>
-        <Breadcrumb>프로젝트 &gt; 중고차 직거래 &gt; 대시보드</Breadcrumb>
+        <Breadcrumb>프로젝트 &gt; {pname} &gt; 대시보드</Breadcrumb>
       </BoardHeader>
 
       <TimelineContainer>
@@ -240,7 +340,7 @@ const DBoard: React.FC = () => {
                 x: (bar.start / totalDays) * 100,
                 y: 0,
               }}
-              onDrag={(e, data) => handleDrag(e, data, bar.id, 'start')}
+            // onDrag={(e, data) => handleDrag(e, data, bar.id, 'start')}
             >
               <div
                 className="bar"
@@ -258,7 +358,7 @@ const DBoard: React.FC = () => {
                 x: (bar.end / totalDays) * 100,
                 y: 0,
               }}
-              onDrag={(e, data) => handleDrag(e, data, bar.id, 'end')}
+            // onDrag={(e, data) => handleDrag(e, data, bar.id, 'end')}
             >
               <div
                 className="bar"
@@ -277,49 +377,25 @@ const DBoard: React.FC = () => {
         ))}
       </TimelineContainer>
 
-      <ActiveSprintSection>
-        <InfoContainer>
-          <InfoCard>
-            <h4>활성 스프린트명 spname</h4>
-            <p>목표 goal</p>
-          </InfoCard>
-          <InfoCard>
-            <h4>남은 기간</h4>
-            <span>enddate-현재</span>
-            <p>전체 기간 들어갈 자리입니다.</p>
-          </InfoCard>
-        </InfoContainer>
-      </ActiveSprintSection>
-
-
-      {/* 차트 섹션 */}
       <DashboardSection>
-
-        {/* 이슈 진행 상태 */}
-        <ChartContainer>
+        <ChartContainer>{/* 이슈 진행 상태 */}
           <h3>이슈 진행 상태</h3>
-          <PieChart width={300} height={300}>
-            <Pie
-              data={issueProgressData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-            >
+          {/* <PieChart width={300} height={300}> */}
+          {/* <Pie data={issueProgressData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
               {issueProgressData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip />
             <Legend />
-          </PieChart>
+          </PieChart> */}
+
+          <Pie data={pieData} options={options} />
         </ChartContainer>
 
-        {/* 팀원별 이슈 현황 */}
         <ChartContainer>
           <h3>팀원별 이슈 현황 상태</h3>
-          <BarChart width={500} height={300} data={teamIssueData}>
+          {/* <BarChart width={500} height={300} data={teamIssueData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
@@ -329,10 +405,26 @@ const DBoard: React.FC = () => {
             <Bar dataKey="progress" stackId="a" fill="#FB67CA" />
             <Bar dataKey="complete" stackId="a" fill="#9B88ED" />
             <Bar dataKey="qa" stackId="a" fill="#5ED3E4" />
-          </BarChart>
+          </BarChart> */}
+          <Bar data={stackedBarData} options={stackedBarOptions} />
         </ChartContainer>
 
       </DashboardSection>
+
+      <ActiveSprintSection>
+          <InfoCard>
+            <h4>네비게이션바 디자인팀과 개발팀 협업</h4>
+            <p>색상 수정 및 애니메이션 기능 수정</p>
+            <br/>
+            <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
+            <span>5일</span>
+            <p>시작일 : 2024.10.5</p>
+            <p>마감일 : 2024.12.15</p>
+
+          </InfoCard>
+          
+      </ActiveSprintSection>
+
     </BoardContainer>
   );
 };

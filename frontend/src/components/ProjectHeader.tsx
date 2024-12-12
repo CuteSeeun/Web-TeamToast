@@ -14,6 +14,7 @@ import AccessToken from '../pages/Login/AccessToken';
 import PJheaderBell from './PJheaderBell';
 import axios from 'axios';
 import { teamMembersState } from '../recoil/atoms/memberAtoms';
+import { notificationsAtom } from '../recoil/atoms/notificationsAtom';
 
 const ProjectHeader = ({
     onFetchTeamMembers,
@@ -25,6 +26,9 @@ const ProjectHeader = ({
     const setTeamMembers = useSetRecoilState(teamMembersState); 
     const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
+
+    const alarmOnOff = useRecoilValue(notificationsAtom);
+    const setAlarmOnOff = useSetRecoilState(notificationsAtom);
 
     const sid = sessionStorage.getItem('sid');
    
@@ -58,8 +62,6 @@ const ProjectHeader = ({
     };
 
     fetchTeamMembers(); // 컴포넌트 로드 시 호출
-    // onFetchTeamMembers?.(); // prop으로 전달된 함수가 있을 경우 호출
-//   }, [sid, setTeamMembers, onFetchTeamMembers]);
   }, [sid, setTeamMembers]);
 
 
@@ -88,9 +90,6 @@ const ProjectHeader = ({
             return;
         }
         try {
-            // uuid로 해당 스페이스의 정보를 가져옴
-            // const response = await AccessToken.get(`/space/get-space/${currentSpaceUuid}`);
-            // if (response.data && response.data.spaceId) {
             if (sid) {
                 // spaceId를 이용해서 프로젝트 리스트 페이지로 이동
                 navigate(`/projectlist/${sid}`);
@@ -103,6 +102,20 @@ const ProjectHeader = ({
             navigate('/space');
         }
     };
+
+    useEffect(()=>{
+        const fetchNotification = async() =>{
+            try {
+                const response = await axios.get('http://localhost:3001/alarm/notifications',{
+                    params:{userEmail:user?.email},
+                });
+                setAlarmOnOff(response.data); // 상태 업데이트
+            } catch (error) {
+                console.error("알림 데이터 가져오기 오류: ", error);
+            }
+        }
+        fetchNotification();
+    },[setAlarmOnOff]);
 
 
     
@@ -133,7 +146,9 @@ const ProjectHeader = ({
                 </div>
                     <div className="notification-icon">
                     <PJheaderBell/>
-                        <span className="notification-badge"></span>
+                    {alarmOnOff.length > 0 && (
+                      <span className="notification-badge"></span> // 알림 배지
+                    )}
                     </div>
                     <div className="menu-wrap">
                         <IoSettingsOutline className='icon-wrap' style={{cursor:'pointer'}} />
