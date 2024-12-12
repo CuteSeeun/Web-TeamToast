@@ -4,7 +4,6 @@ import { userState } from '../../recoil/atoms/userAtoms';
 import { Link, useNavigate } from 'react-router-dom';
 import { IntroWrap } from './introStyle';
 import SpaceAll from '../SpaceList/Space';
-import SpaceView from './SpaceView';
 
 const Intro = () => {
 
@@ -58,19 +57,27 @@ const Intro = () => {
                     </div>
                 </div>
                 <div className="visual-section">
-                    {space ? (
-                        <SpaceView onClose={()=>closeSpaceModal()} /> // 비디오 대신 새로운 UI
-                    ) : (
-                        <video
-                            className="intro-video"
-                            src="/video.mp4"
-                            autoPlay
-                            muted
-                            loop
-                        />
-                    )}
+                    <video
+                        className="intro-video"
+                        src='/video.mp4'
+                        autoPlay
+                        muted
+                        loop
+                    />
                 </div>
             </div>
+
+            {/* 스페이스 */}
+            {space && (
+                  <div className="space-modal-overlay">
+                  <div className="space-modal-content">
+                      <button className="close-button" onClick={closeSpaceModal}>
+                          닫기
+                      </button>
+                      <SpaceAll /> {/* SpaceAll 컴포넌트를 모달에 렌더링 */}
+                  </div>
+              </div>
+            )}
         </IntroWrap>
     );
 };

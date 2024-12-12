@@ -86,7 +86,7 @@ const ProjectHeader = ({
      const handleProjectGo = async () => {
         if (!sid) {
             console.error('현재 선택된 스페이스가 없습니다.');
-            navigate('/space');
+            navigate('/');
             return;
         }
         try {
@@ -95,11 +95,11 @@ const ProjectHeader = ({
                 navigate(`/projectlist/${sid}`);
             } else {
                 console.error('스페이스 정보를 찾을 수 없습니다.');
-                navigate('/space');
+                navigate('/');
             }
         } catch (error) {
             console.error('스페이스 정보 조회 실패:', error);
-            navigate('/space');
+            navigate('/');
         }
     };
 
