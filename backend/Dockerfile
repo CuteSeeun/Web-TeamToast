@@ -16,4 +16,3 @@ EXPOSE 3001
 
 # 서버 실행
 CMD ["npm", "start"]
-
