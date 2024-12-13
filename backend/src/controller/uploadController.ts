@@ -86,16 +86,16 @@ export const uploadFiles = (req: Request, res: Response): void => {
 
 // 파일 다운로드 URL 생성 컨트롤러
 export const getDownloadUrl = async (req: Request, res: Response): Promise<void> => {
-  const { fileName } = req.query;
-  if (!fileName) {
-    res.status(400).json({ success: false, message: 'File name is required' });
+  const { key } = req.query; // fileName 대신 key 값 사용
+  if (!key) {
+    res.status(400).json({ success: false, message: 'Key is required' });
     return;
   }
 
   try {
     const command = new GetObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME!,
-      Key: fileName as string,
+      Key: key as string, // key 값을 사용하여 S3에서 객체를 가져옴
     });
 
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 }); // 유효시간: 1시간
