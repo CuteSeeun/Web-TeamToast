@@ -39,7 +39,6 @@ type Sprint = { spid: number; spname: string; };
 
 
 const IDBoard: React.FC = () => {
-  const [initialFileNames, setInitialFileNames] = useState<string[]>([]);
   const { isid } = useParams<{ isid: string }>(); // URL에서 id 값 추출
   const issues = useRecoilValue(allIssuesSelector);
   const sprints = useRecoilValue<Sprint[]>(sprintState);
@@ -50,7 +49,11 @@ const IDBoard: React.FC = () => {
   const setAllIssues = useSetRecoilState(allIssuesState);
   const extendedSprints = [{ spid: -1, spname: '백로그' }, ...sprints];
   const [initialFiles, setInitialFiles] = useState<string[]>([]);
+  const [initialFileNames, setInitialFileNames] = useState<{ originalFilename: string, previewUrl: string, key: string }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const projectName = sessionStorage.getItem('pname');
+
 
   // 여러 SelectLabel의 상태를 관리하기 위해 개별 상태 변수 추가
   const [isDropdownOpen, setDropdownOpen] = useState<DropdownKeys | null>(null);
@@ -85,8 +88,8 @@ const IDBoard: React.FC = () => {
 
   useEffect(() => {
     if (issue && issue.file) {
-      const fileArray = Array.isArray(issue.file) ? issue.file : [issue.file];
-      const existingPreviews = fileArray.map(fileName => `/upload/path/${fileName}`);
+      const fileArray = JSON.parse(issue.file); // JSON 파싱
+      const existingPreviews = fileArray.map((file: { previewUrl: string }) => file.previewUrl);
       setInitialFiles(existingPreviews);
       setInitialFileNames(fileArray);
     }
@@ -139,45 +142,59 @@ const IDBoard: React.FC = () => {
 
     const sprintId = selectedSprint && selectedSprint.spname === '백로그' ? null : (selectedSprint as Sprint)?.spid;
 
-    const updatedIssue = {
-      ...issue,
-      title: selectedValues.title || issue.title,
-      sprint_id: sprintId,
-      created_by: selectedValues.createdBy || issue.created_by || "",
-      manager: selectedValues.manager || issue.manager || "",
-      type: selectedValues.type as Type || issue.type,
-      status: selectedValues.status as Status || issue.status,
-      priority: selectedValues.priority as Priority || issue.priority,
-      detail: selectedValues.detail || issue.detail,
-      file: selectedFiles.length > 0 ? selectedFiles.map(file => file.name) : null,
-    };
-
     try {
+      // 파일 업로드 처리
       const formData = new FormData();
       selectedFiles.forEach((file) => formData.append('files', file));
 
-      const issuePromise = axios.put(`/sissue/updateDetail/${issueId}`, updatedIssue);
       const fileUploadPromise = selectedFiles.length > 0
         ? axios.post('/upload/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         })
-        : Promise.resolve();
+        : Promise.resolve({ data: { files: [] } });
 
-      const [issueResponse, fileResponse] = await Promise.all([issuePromise, fileUploadPromise]);
+      const [fileResponse] = await Promise.all([fileUploadPromise]);
+
+      // 업로드된 파일 정보 처리
+      const uploadedFiles = fileResponse.data.files.map((file: { originalFilename: string, previewUrl: string, key: string }) => ({
+        originalFilename: file.originalFilename,
+        previewUrl: file.previewUrl,
+        key: file.key
+      }));
+
+      const updatedIssue = {
+        ...issue,
+        title: selectedValues.title || issue.title,
+        sprint_id: sprintId,
+        created_by: selectedValues.createdBy || issue.created_by || "",
+        manager: selectedValues.manager || issue.manager || "",
+        type: selectedValues.type as Type || issue.type,
+        status: selectedValues.status as Status || issue.status,
+        priority: selectedValues.priority as Priority || issue.priority,
+        detail: selectedValues.detail || issue.detail,
+        file: uploadedFiles.length > 0 ? JSON.stringify(uploadedFiles) : null,
+      };
+
+      // 이슈 업데이트 요청
+      const issueResponse = await axios.put(`/sissue/updateDetail/${issueId}`, updatedIssue);
       console.log('서버 응답 데이터:', issueResponse.data);
+
       const updatedIssueData: Issue = issueResponse.data.updatedIssue || updatedIssue;
 
+      // Recoil 상태 업데이트
       setAllIssues(prevIssues => prevIssues.map((i: Issue) =>
         i.isid === issueId ? updatedIssueData : i
       ));
       alert('수정되었습니다.');
 
+      // 상태 초기화
       setSelectedFiles([]); // 파일 선택 후 초기화
       setPreviews([]);
-    } catch (err) {
-      console.error('이슈 수정 또는 파일 업로드 실패:', err);
+    } catch (error) {
+      console.error('이슈 수정 또는 파일 업로드 실패:', error);
     }
   };
+
 
 
   // --------------------------------------------------------------------
@@ -211,13 +228,13 @@ const IDBoard: React.FC = () => {
     }
   };
 
-  const handleDownload = async (fileName: string) => {
+  const handleDownload = async (fileKey: string) => {
     try {
-      const response = await axios.get(`/upload/download`, { params: { fileName } });
+      const response = await axios.get(`/upload/download`, { params: { key: fileKey } }); // key 값을 사용하여 요청
       if (response.data.success) {
         const link = document.createElement('a');
         link.href = response.data.downloadUrl;
-        link.download = fileName;
+        link.download = fileKey;
         link.click();
       } else {
         alert('파일 다운로드 URL 생성에 실패했습니다.');
@@ -228,18 +245,19 @@ const IDBoard: React.FC = () => {
     }
   };
 
+
   return (
     <BoardContainer>
       <BoardHeader>
         <BoardTitle>{issue.title}</BoardTitle>
-        <Breadcrumb>프로젝트 &gt; {currentProject.pname} &gt; {sprint.spname} &gt; {issue.title}</Breadcrumb>
+        <Breadcrumb>프로젝트 &gt; {projectName} &gt; {sprint.spname} &gt; {issue.title}</Breadcrumb>
       </BoardHeader>
 
       <DetailMainWrapper>
         <DetailMain>
           <IssueSection>
             <Label>프로젝트</Label>
-            <div>{currentProject.pname}</div>
+            <div>{projectName}</div>
           </IssueSection>
 
           <TitleSection>
@@ -399,12 +417,12 @@ const IDBoard: React.FC = () => {
                       <img src={fileUrl} alt={`Preview ${index}`} />
                       <IoCloseOutline className="file-btn delete-btn" />
                     </div>
-                    <p className="file-name">{initialFileNames[index]?.split('/').pop()}</p> {/* null 체크 추가 */}
+                    <p className="file-name">{initialFileNames[index]?.originalFilename}</p>
                     <button
                       className="download-btn"
                       onClick={(e) => {
-                        e.stopPropagation(); // 부모의 클릭 이벤트 방지
-                        handleDownload(initialFileNames[index]?.split('/').pop() || "");
+                        e.stopPropagation();
+                        handleDownload(initialFileNames[index]?.key); // key 값을 전달
                       }}
                     >
                       다운로드
@@ -429,6 +447,7 @@ const IDBoard: React.FC = () => {
               </>
             )}
           </PreviewContainer>
+
           <ButtonContainer>
             <Button onClick={onClose}>취소</Button>
             <Button primary onClick={handleUpdate}>수정</Button>

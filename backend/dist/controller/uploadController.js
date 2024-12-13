@@ -51,15 +51,15 @@ const uploadFiles = (req, res) => {
 exports.uploadFiles = uploadFiles;
 // 파일 다운로드 URL 생성 컨트롤러
 const getDownloadUrl = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { fileName } = req.query;
-    if (!fileName) {
-        res.status(400).json({ success: false, message: 'File name is required' });
+    const { key } = req.query; // fileName 대신 key 값 사용
+    if (!key) {
+        res.status(400).json({ success: false, message: 'Key is required' });
         return;
     }
     try {
         const command = new client_s3_1.GetObjectCommand({
             Bucket: process.env.S3_BUCKET_NAME,
-            Key: fileName,
+            Key: key, // key 값을 사용하여 S3에서 객체를 가져옴
         });
         const signedUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.default, command, { expiresIn: 3600 }); // 유효시간: 1시간
         res.status(200).json({
