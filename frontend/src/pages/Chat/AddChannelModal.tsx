@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { useRecoilValue } from 'recoil';
+import { teamMembersState } from '../../recoil/atoms/memberAtoms';
 
 //모달 배경 스타일
 const ModalOverlay = styled.div`
@@ -14,7 +16,6 @@ const ModalOverlay = styled.div`
   align-items: center;
   z-index: 1000;
 `;
-
 // 모달 컨테이너 스타일
 const ModalContainer = styled.div`
   width: 400px;
@@ -23,7 +24,6 @@ const ModalContainer = styled.div`
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 `;
-
 // 모달 헤더 스타일
 const ModalHeader = styled.h3`
   margin: 0;
@@ -33,7 +33,6 @@ const ModalHeader = styled.h3`
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
 `;
-
 const Label = styled.label`
   display: block;
   margin-top: 20px;
@@ -41,7 +40,6 @@ const Label = styled.label`
   font-weight: bold;
   color: #555;
 `;
-
 const Input = styled.input`
   width: 100%;
   padding: 10px;
@@ -55,46 +53,38 @@ const Input = styled.input`
     border-color: #038c8c;
   }
 `;
-
 const SearchInput = styled(Input)`
   margin-top: 10px;
 `;
-
 const MemberList = styled.div`
   margin-top: 15px;
   max-height: 150px;
   overflow-y: auto;
 `;
-
 const MemberItem = styled.div`
   display: flex;
   align-items: center;
   padding: 5px 0;
 `;
-
 const Checkbox = styled.input`
   margin-right: 10px;
 `;
-
 const MemberName = styled.span`
   font-size: 14px;
   color: #333;
 `;
-
 const MemberAvatar = styled.img`
   width: 30px;
   height: 30px;
   border-radius: 50%;
   margin-right: 10px;
 `;
-
 const ModalFooter = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
   gap: 10px;
 `;
-
 const Button = styled.button<{ primary?: boolean }>`
   padding: 10px 15px;
   font-size: 14px;
@@ -114,9 +104,7 @@ const Button = styled.button<{ primary?: boolean }>`
 interface Member {
   id: number;
   name: string;
-  avatar: string;
 }
-
 interface ModalProps {
   onClose: () => void;
   onApply: (selectedMembers: Member[]) => void;
@@ -125,17 +113,19 @@ interface ModalProps {
 
 // 모달 컴포넌트
 const AddChannelModal: React.FC<ModalProps> = ({ onClose, onApply, type }) => {
+
+  const teamMembers = useRecoilValue(teamMembersState);
   const [channelName, setChannelName] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [members, setMembers] = useState<Member[]>([
-    { id: 1, name: '사용자 1', avatar: 'https://via.placeholder.com/30' },
-    { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-    { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-    { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-    { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-    { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-    { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  ]);
+  // const [members, setMembers] = useState<Member[]>([
+  //   { id: 1, name: '사용자 1', avatar: 'https://via.placeholder.com/30' },
+  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
+  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
+  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
+  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
+  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
+  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
+  // ]);
   const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
   // 스크롤 방지 처리
@@ -159,7 +149,7 @@ const AddChannelModal: React.FC<ModalProps> = ({ onClose, onApply, type }) => {
   };
 
   const handleApply = () => {
-    const selected = members.filter((member) => selectedMembers.has(member.id));
+    const selected = teamMembers.filter((member) => selectedMembers.has(member.id));
     onApply(selected);
   };
 
@@ -170,21 +160,18 @@ const AddChannelModal: React.FC<ModalProps> = ({ onClose, onApply, type }) => {
 
         {type === 'channel' && (
           <>
-        <Label>채널명</Label>
-        <Input placeholder="채널명" value={channelName} onChange={(e) => setChannelName(e.target.value)} />
-        </>
+            <Label>채널명</Label>
+            <Input placeholder="채널명" value={channelName} onChange={(e) => setChannelName(e.target.value)} />
+          </>
         )}
 
-
         <Label>대화상대 선택</Label>
-        <SearchInput
-          placeholder="사용자 검색"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+        <SearchInput placeholder="사용자 검색"
+          value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
         />
 
         <MemberList>
-          {members
+          {teamMembers
             .filter((member) => member.name.includes(searchTerm))
             .map((member) => (
               <MemberItem key={member.id}>
@@ -193,7 +180,7 @@ const AddChannelModal: React.FC<ModalProps> = ({ onClose, onApply, type }) => {
                   checked={selectedMembers.has(member.id)}
                   onChange={() => handleMemberToggle(member.id)}
                 />
-                <MemberAvatar src={member.avatar} alt={member.name} />
+                <MemberAvatar src={member.name} alt={member.name} />
                 <MemberName>{member.name}</MemberName>
               </MemberItem>
             ))}
@@ -205,6 +192,7 @@ const AddChannelModal: React.FC<ModalProps> = ({ onClose, onApply, type }) => {
             확인
           </Button>
         </ModalFooter>
+
       </ModalContainer>
     </ModalOverlay>
   );

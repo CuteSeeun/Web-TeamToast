@@ -150,6 +150,7 @@ const Sidebar: React.FC = () => {
         <MenuItem to={`/dashboard/${pid}`}><FaChartPie />대시보드</MenuItem>
         <MenuItem to={`/backlog/${pid}`}><FaClipboardList />백로그</MenuItem>
         <MenuItem to={`/issuelist/${pid}`}><FaClipboardList />이슈 목록</MenuItem>
+        <MenuItem to={`/timeline/${pid}`}><FaClipboardList />타임라인</MenuItem>
         <MenuItem to={`/chat/${sid}`}><FaComments />채팅</MenuItem>
       </TopSection>
 

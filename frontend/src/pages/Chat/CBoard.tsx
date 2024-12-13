@@ -7,7 +7,6 @@ import TapMenu from './TapMenu';
 
 import { connectSocket, disconnectSocket } from '../../socketClient';
 
-
 const BoardContainer = styled.div`
   position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
   display: flex;
