@@ -83,7 +83,8 @@ const getUserRole = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         // query =< execute 같은 기능 인데 execute가 상위호환느낌이다.
         // 앞으로 execute만 쓰자
-        const [result] = yield dbpool_1.default.execute(`select role from UserRole where user = ? and space_id = (select sid from Space order by last_accessed_at desc limit 1)`, [email]);
+        const [result] = yield dbpool_1.default.execute(`select role from UserRole where user = ? and space_id = 
+      (select sid from Space order by last_accessed_at desc limit 1)`, [email]);
         if (!result.length) {
             res.status(404).json({ message: "Role not found for the user" });
             return;

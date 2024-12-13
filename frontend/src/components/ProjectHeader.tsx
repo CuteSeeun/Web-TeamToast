@@ -35,10 +35,9 @@ const ProjectHeader = ({
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
         if(confirmed){
+            localStorage.clear();
+            sessionStorage.clear();
             setUser(null);
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('currentSpaceUuid');
-            localStorage.removeItem('userRole');
             setUserRole(null);
             navigate('/');
         }
@@ -47,17 +46,17 @@ const ProjectHeader = ({
   // 팀 멤버 데이터를 가져오는 함수
   useEffect(() => {
     const fetchTeamMembers = async () => {
-      if (!sid) {
-        console.error("spaceId가 설정되지 않았습니다.");
-        return;
-      }
+    //   if (!sid) {
+    //     console.error("spaceId가 설정되지 않았습니다.");
+    //     return;
+    //   }
       try {
         const response = await axios.get("http://localhost:3001/team/members", {
           params: { spaceId : sid },
         });
         setTeamMembers(response.data); // 팀 멤버 상태 갱신
       } catch (error) {
-        console.error("팀원 데이터를 가져오는 중 오류 발생:", error);
+        console.log("팀원 데이터를 가져오는 중 오류 발생:", error);
       }
     };
 
@@ -123,7 +122,7 @@ const ProjectHeader = ({
         <ProjectHeaderWrap>
              <div className='headerProject'>
                 <div className="leftPro">
-                   <Link to='/space'><Logo><LogoIcon /></Logo></Link> 
+                   <Link to='/'><Logo><LogoIcon /></Logo></Link> 
                     <nav>
                         <div className="menu-wrap">
                             <span className="menu-text" onClick={handleProjectGo}>프로젝트</span>

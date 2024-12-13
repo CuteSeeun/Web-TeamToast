@@ -2,18 +2,20 @@ import styled from "styled-components";
 
 
 export const IntroWrap = styled.div`
- background: linear-gradient(180deg, #60c1df, #84d1b6);
-  height: 100vh;
+  background: linear-gradient(180deg, #60c1df, #84d1b6);
+  min-height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   width: 100%;
+  padding: 50px 20px; /* 전체 패딩 추가 */
 
   .intro-container {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    margin-top: 200px;
     max-width: 1200px;
+    margin: 0 auto 50px; /* 하단 탭 섹션과의 간격 추가 */
   }
 
   .text-section {
@@ -76,29 +78,14 @@ export const IntroWrap = styled.div`
     }
   }
 
-  .space-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-
-  .space-modal-content {
-    background: white;
-    width: 80%;
-    max-width: 600px; /* 적정 너비 설정 */
-    max-height: 90%;
-    overflow-y: auto;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-    position: relative;
+  .tab-section {
+    margin-top: 50px;
+    /* background: #f9f9f9; */
+    padding: 50px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
 `
@@ -111,16 +98,16 @@ export const SpaceViewWrap = styled.div`
   background: white;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
-  height: 70%;
+  height: 30%;
   width: 500px; /* 고정 너비 */
-  overflow: hidden; /* 스크롤 영역을 한정 */
+  overflow-y: scroll; /* 스크롤 영역을 한정 */
   position: relative; /* 버튼과 제목 위치 조정용 */
 
      .space-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 50px;
     position: relative;
 
     h2 {
@@ -130,23 +117,24 @@ export const SpaceViewWrap = styled.div`
       flex-grow: 1; /* 제목이 가운데로 오도록 */
     }
     
+    .create-btn {
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background-color: #038c8c;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+  
+  
+        &:hover {
+          background-color: #008ca3;
+        }
+      }
   }
 
-  .create-btn {
-    
-    background-color: #038c8c;
-      color: white;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 50%;
-
-
-      &:hover {
-        background-color: #008ca3;
-      }
-    }
 
   .space-list {
     flex-grow: 1;
@@ -177,4 +165,87 @@ export const SpaceViewWrap = styled.div`
       margin-right: 10px;
     }
   }
+`
+
+export const TabSectionWrap = styled.div`
+display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 1200px;
+  .tab-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+
+    .tab-button {
+      padding: 10px 20px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      background: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+
+      &.active {
+        background: #ff8484;
+        color: white;
+        border-color: #ff8484;
+      }
+
+      &:hover:not(.active) {
+        background: #f0f0f0;
+      }
+    }
+  }
+
+  .content-section {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+
+    .image-container {
+      flex: 1;
+
+      img {
+        /* width: 100%; */
+        max-width: 800px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .text-container {
+      flex: 1;
+      text-align: left;
+
+      h2 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      p {
+        font-size: 1rem;
+        margin-bottom: 20px;
+        color: #555;
+      }
+
+      .cta-button {
+        padding: 10px 20px;
+        background-color: #038c8c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #006f6f;
+        }
+      }
+    }
+  }
+
 `

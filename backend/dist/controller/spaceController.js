@@ -113,12 +113,19 @@ const getCurrentSpace = (req, res) => __awaiter(void 0, void 0, void 0, function
             res.status(400).json({ message: '유효하지 않은 요청입니다.' });
             return;
         }
-        // UUID와 UserRole을 기준으로 Space 조회
-        const [result] = yield connection.query(`SELECT s.sid AS spaceId, s.sname AS spaceName
-             FROM Space s 
-             JOIN UserRole ur ON s.sid = ur.space_id 
-             WHERE ur.user = ?
-             ORDER BY s.last_accessed_at DESC LIMIT 1`, [userEmail]);
+        // UserRole을 기준으로 Space 조회
+        const [result] = yield connection.query(
+        // `SELECT s.sid AS spaceId, s.sname AS spaceName
+        //  FROM Space s 
+        //  JOIN UserRole ur ON s.sid = ur.space_id 
+        //  WHERE ur.user = ?
+        //  ORDER BY s.last_accessed_at DESC LIMIT 1`,
+        `SELECT s.sid AS spaceId, s.sname AS spaceName
+            FROM Space s 
+            JOIN UserRole ur ON s.sid = ur.space_id 
+            WHERE ur.user = ?
+            LIMIT 1`, // 최신 하나만 가져오도록 수정
+        [userEmail]);
         if (!result.length) {
             res.status(404).json({ message: '현재 선택된 스페이스가 없습니다.' });
             return;
@@ -149,8 +156,10 @@ const selectSpace = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             res.status(400).json({ message: '유효하지 않은 요청입니다.' });
             return;
         }
-        // UUID로 Space를 선택하고 마지막 접근 시간 업데이트
-        const [result] = yield connection.query(`UPDATE Space SET last_accessed_at = NOW() WHERE sid = ?`, [spaceId]);
+        //Space를 선택하고 마지막 접근 시간 업데이트
+        const [result] = yield connection.query(
+        // `UPDATE Space SET last_accessed_at = NOW() WHERE sid = ?`,
+        `SELECT sid FROM Space WHERE sid = ?`, [spaceId]);
         if (result.affectedRows === 0) {
             res.status(404).json({ message: '해당 스페이스를 찾을 수 없습니다.' });
             return;

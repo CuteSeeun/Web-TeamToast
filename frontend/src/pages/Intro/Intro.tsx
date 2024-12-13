@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { IntroWrap } from './introStyle';
 import SpaceAll from '../SpaceList/Space';
 import SpaceView from './SpaceView';
+import TabSection from './TabSection';
 
 const Intro = () => {
 
@@ -58,19 +59,27 @@ const Intro = () => {
                     </div>
                 </div>
                 <div className="visual-section">
-                    {space ? (
-                        <SpaceView onClose={()=>closeSpaceModal()} /> // 비디오 대신 새로운 UI
-                    ) : (
-                        <video
-                            className="intro-video"
-                            src="/video.mp4"
-                            autoPlay
-                            muted
-                            loop
-                        />
-                    )}
+                {space ? (
+            <div className="modal-overlay">
+              <SpaceView onClose={closeSpaceModal} />
+            </div>
+          ) : (
+            <video
+              className="intro-video"
+              src="/video.mp4"
+              autoPlay
+              muted
+              loop
+            />
+          )}
                 </div>
             </div>
+
+            {/* 새로운 탭 섹션 추가 */}
+            <div className="tab-section">
+                <TabSection />
+            </div>
+
         </IntroWrap>
     );
 };
