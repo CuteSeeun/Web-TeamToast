@@ -1,4 +1,10 @@
 "use strict";
+// // 2024-12-03 한채경
+// // uploadController.js
+// import { Request, Response } from 'express';
+// import s3 from '../utils/s3'; // S3 인스턴스 가져오기
+// import { GetObjectCommand } from '@aws-sdk/client-s3';
+// import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -18,18 +24,29 @@ const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 // 여러 파일 업로드 컨트롤러
 const uploadFiles = (req, res) => {
-    const files = req.files;
-    if (!files || files.length === 0) {
-        res.status(400).json({ success: false, message: 'No files uploaded' });
-        return;
+    try {
+        const files = req.files;
+        if (!files || files.length === 0) {
+            res.status(400).json({ success: false, message: 'No files uploaded' });
+            return;
+        }
+        ;
+        // Multer-S3가 이미 처리한 데이터를 사용
+        const uploadedFiles = files.map((file) => ({
+            originalFilename: file.originalname, // 원본 파일 이름
+            previewUrl: file.location, // S3에서의 URL
+            key: file.key, // S3 Key
+        }));
+        res.status(200).json({
+            success: true,
+            files: uploadedFiles,
+        });
     }
-    const fileUrls = files.map((file) => file.location);
-    const fileNames = files.map((file) => file.key); // 파일 이름만 추출
-    res.json({
-        success: true,
-        fileUrls,
-        fileNames,
-    });
+    catch (error) {
+        console.error('File processing error:', error);
+        res.status(500).json({ success: false, message: 'File upload failed', error });
+    }
+    ;
 };
 exports.uploadFiles = uploadFiles;
 // 파일 다운로드 URL 생성 컨트롤러
@@ -45,7 +62,7 @@ const getDownloadUrl = (req, res) => __awaiter(void 0, void 0, void 0, function*
             Key: fileName,
         });
         const signedUrl = yield (0, s3_request_presigner_1.getSignedUrl)(s3_1.default, command, { expiresIn: 3600 }); // 유효시간: 1시간
-        res.json({
+        res.status(200).json({
             success: true,
             downloadUrl: signedUrl,
         });

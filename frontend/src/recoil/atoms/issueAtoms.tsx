@@ -1,5 +1,5 @@
 import { atom, selector } from 'recoil';
-import  {filterState, enabledSprintsState} from './sprintAtoms';
+import { filterState, enabledSprintsState } from './sprintAtoms';
 
 //스프린트별 이슈 목록(객체 형태) : 특정 스프린트에 속한 이슈만 필터링
 export const issueListState = atom<{ [key: number]: Issue[] }>({
@@ -19,6 +19,12 @@ export const allIssuesState = atom<Issue[]>({
   default: [],
 });
 
+// export interface FileObject {
+//   originalFilename: string;
+//   previewUrl: string;
+//   key: string;
+// }
+
 export interface Issue {
   isid: number;
   title: string;
@@ -29,9 +35,11 @@ export interface Issue {
   project_id: number;
   manager?: string | null;
   created_by?: string | null;
-  file: string[];
-  priority: Priority; 
+  file: string;
+  priority: Priority;
 }
+
+
 
 // Status ENUM 속성 지정
 export enum Status {
