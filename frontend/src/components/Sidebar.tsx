@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaPlus, FaTasks, FaChartPie, FaClipboardList, FaComments, FaUsers } from 'react-icons/fa';
 import CreateIssueModal from './CreateIssueModal';
-import AccessToken from '../pages/Login/AccessToken';
-import { issueListState, backlogState, Issue, Type } from '../recoil/atoms/issueAtoms';
+import { issueListState, backlogState, Issue, Type, allIssuesState } from '../recoil/atoms/issueAtoms';
 import axios from 'axios';
 import { loadingAtoms } from '../recoil/atoms/loadingAtoms';
+import {sprintState} from '../recoil/atoms/sprintAtoms';
 
 const SidebarContainer = styled.div`
   width: 240px;
@@ -91,9 +91,11 @@ const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false); // 모달창 상태 관련 스테이트
   const [issues, setIssues] = useRecoilState(issueListState);
   const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
-  const [allIssues, setAllIssues] = useState<Issue[]>([]);
-  const [sprints, setSprints] = useState<any[]>([]); // sprints에 적합한 타입을 지정하세요
 
+  const setAllIssues = useSetRecoilState(allIssuesState);
+  const setSprints = useSetRecoilState(sprintState);
+
+  
   // const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
   const setLoading = useSetRecoilState(loadingAtoms);
 
@@ -110,58 +112,10 @@ const Sidebar: React.FC = () => {
   const openModal = () => { setIsOpen(true); };
   const closeModal = () => { setIsOpen(false); };
 
-  // 자식 컴포넌트에서 props를 받아 서버에 데이터 전송
-  const handleSubmit = async (issue: Issue, files: File[]) => {
-    try {
-      const formData = new FormData();
-      files.forEach((file) => formData.append('files', file));
-
-      const issuePromise = AccessToken.post(
-        `http://localhost:3001/issues/new/${spaceId}/${projectId}`, //sid 삭제해야함
-        issue
-      );
-
-      const fileUploadPromise = files.length > 0
-        ? AccessToken.post('http://localhost:3001/upload/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        : Promise.resolve(); // 파일이 없으면 성공으로 간주
-
-      // 병렬 처리
-      const [issueResponse, fileResponse] = await Promise.all([issuePromise, fileUploadPromise]);
-      const newIssue: Issue = issueResponse.data;
-
-      console.log('이슈 생성 성공:', issueResponse.data);
-      if (files.length > 0) console.log('파일 업로드 성공:', fileResponse?.data);
-
-      // 이슈 데이터 업데이트
-      if (newIssue.sprint_id) {
-        // sprint_id가 있는 경우 issues 상태 업데이트
-        setIssues((prevIssues) => {
-          const sprintId = newIssue.sprint_id!;
-          const updatedSprintIssues = prevIssues[sprintId]
-            ? [...prevIssues[sprintId], newIssue]
-            : [newIssue];
-
-          return {
-            ...prevIssues,
-            [sprintId]: updatedSprintIssues,
-          };
-        });
-      } else {
-        // sprint_id가 없는 경우 backlog 상태 업데이트
-        setBacklog((prevBacklog) => [...prevBacklog, newIssue]);
-      }
-    } catch (err) {
-      console.error('이슈 생성 또는 파일 업로드 실패:', err);
-    }
-  };
-
-  // Fetch all issues and sprints
+  // 모든 이슈, 스프린트 디비에서 데이터 가져오기
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-
         setLoading(true);
 
         if (!pid) {
@@ -176,21 +130,16 @@ const Sidebar: React.FC = () => {
         setSprints(sprintsResponse.data);
         console.log('가져온 스프린트 레코드:', sprintsResponse.data);
 
-        // setIsLoading(false); // 데이터 로딩 완료
         setLoading(false);
 
       } catch (error) {
         console.error('Error fetching all data:', error);
-        // setIsLoading(false); // 에러 시에도 로딩 종료
         setLoading(false);
       }
     };
     fetchAllData();
   }, [pid]);
 
-  // if (isLoading) {
-  //   return <div>로딩 중...</div>; // 로딩 중 상태 표시
-  // }
 
   return (
     <SidebarContainer>
@@ -209,7 +158,7 @@ const Sidebar: React.FC = () => {
         <MenuItem to={`/invite/${sid}`}><FaUsers />팀원 초대하기</MenuItem>
       </BottomSection>
 
-      <CreateIssueModal isOpen={isOpen} onClose={closeModal} onSubmit={handleSubmit} pid={pid} />
+      <CreateIssueModal isOpen={isOpen} onClose={closeModal} pid={pid} />
 
     </SidebarContainer>
   );

@@ -35,6 +35,7 @@ const TeamList: React.FC<TeamListProps> = ({
   const currentUser = useRecoilValue(userState);
   const currentUserEmail = currentUser?.email || "";
 
+  // 권한 변경 API 호출
   const handleRoleChange = async (email: string, newRole: string) => {
     try {
       if (newRole === "top_manager") {
@@ -112,7 +113,6 @@ const TeamList: React.FC<TeamListProps> = ({
       alert("멤버 삭제에 실패했습니다.");
     }
   };
-
   return (
     <Styled.TeamMaWrap>
       <div className="title-area">
@@ -136,6 +136,7 @@ const TeamList: React.FC<TeamListProps> = ({
               <span className="name">{member.name}</span>
               <span className="email">{member.email}</span>
             </div>
+
             <div className="action-buttons">
               <select
                 value={member.role}

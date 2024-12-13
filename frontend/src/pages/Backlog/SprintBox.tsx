@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { BsThreeDots } from "react-icons/bs";
-import { AddIssueLink, IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox, DropdownMenu, MenuItem } from "./backlogstyle"; // 스타일 컴포넌트 임포트
+import { IssueTable, SprintControls, SprintHeader, SprintName, SprintPeriod, StyledSprintBox, DropdownMenu, MenuItem } from "./backlogstyle"; // 스타일 컴포넌트 임포트
 import { sprintState, sortedSprintsState, filterState, Sprint, SprintStatus } from '../../recoil/atoms/sprintAtoms';
 import { allIssuesState, Issue } from '../../recoil/atoms/issueAtoms';
 import DragItem from './DragItem';
@@ -14,9 +14,11 @@ import axios from 'axios';
 interface SprintProps {
     sprint: Sprint;
     onDrop: (issue: Issue, newSprintId: number | null) => void;
+    activeMenuId: number | null; // 추가된 속성
+    setActiveMenuId: React.Dispatch<React.SetStateAction<number | null>>; // 추가된 속성
 }
 
-const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
+const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop, activeMenuId, setActiveMenuId }) => {
     const setSprints = useSetRecoilState(sprintState);
     const allIssues = useRecoilValue(allIssuesState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
@@ -76,8 +78,16 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
     });
 
     const toggleMenu = () => {
-        setShowMenu(prev => !prev);
+        setActiveMenuId(prevId => prevId === sprint.spid ? null : sprint.spid);
     };
+
+    useEffect(() => {
+        if (activeMenuId !== sprint.spid) {
+            setShowMenu(false);
+        } else {
+            setShowMenu(true);
+        }
+    }, [activeMenuId, sprint.spid]);
 
     const openModifyModal = () => {
         setCurrentSprint(sprint); // 현재 스프린트를 설정
@@ -91,12 +101,17 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
         setShowMenu(false);
     };
 
+    const formatDate = (dateString: string) => {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return new Date(dateString).toLocaleDateString(undefined, options as any);
+    };
+
     return (
         <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
             <SprintHeader>
                 <div>
                     <SprintName>{sprint.spname}</SprintName>
-                    <SprintPeriod>스프린트 기간 ({sprint.startdate} ~ {sprint.enddate})</SprintPeriod>
+                    <SprintPeriod>스프린트 기간 ({formatDate(sprint.startdate)} ~ {formatDate(sprint.enddate)})</SprintPeriod>
                 </div>
                 <SprintControls>
                     {!shouldHideButton && (
@@ -105,7 +120,7 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                         </button>
                     )}
                     <BsThreeDots className="menu-icon" onClick={toggleMenu} />
-                    <DropdownMenu show={showMenu}>
+                    <DropdownMenu show={showMenu && activeMenuId === sprint.spid}>
                         <MenuItem onClick={openModifyModal}>스프린트 수정</MenuItem>
                         <MenuItem onClick={openDeleteModal}>스프린트 삭제</MenuItem>
                     </DropdownMenu>
@@ -142,9 +157,6 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop }) => {
                     )}
                 </tbody>
             </IssueTable>
-
-            <AddIssueLink>+ 이슈 추가하기</AddIssueLink>
-
             {modifyModalOpen && (
                 <ModalOverlay>
                     <ModalContent>

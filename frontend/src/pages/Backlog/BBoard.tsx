@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // URL에서 값을 가져오기 위해 import
+import { useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { AddSprint, BoardContainer, BoardHeader, BoardTitle, Breadcrumb, Filters, Div, StyledSprintBox, SprintHeader, SprintName, IssueTable } from './backlogstyle';
 import SprintBox from './SprintBox';
-import { sprintState, sortedSprintsState, filterState } from '../../recoil/atoms/sprintAtoms';
+import { sprintState, sortedSprintsState, filterState, Sprint } from '../../recoil/atoms/sprintAtoms';
 import { allIssuesState, backlogState, Issue } from '../../recoil/atoms/issueAtoms';
+import { currentProjectState } from '../../recoil/atoms/projectAtoms'; // currentProjectState import 추가
 import { useDrop } from 'react-dnd';
 import DragItem from './DragItem';
 import SprintCreate from './sprintModal/SprintCreate';
@@ -14,46 +15,38 @@ import axios from 'axios';
 
 const BBoard: React.FC = () => {
     const allIssues = useRecoilValue(allIssuesState);
+    const setIssues = useSetRecoilState(allIssuesState);
     const sortedSprints = useRecoilValue(sortedSprintsState);
     const setSprints = useSetRecoilState(sprintState);
     const [backlog, setBacklog] = useRecoilState<Issue[]>(backlogState);
-    const setIssues = useSetRecoilState(allIssuesState); // 이슈 업데이트를 위한 세터 함수
     const [filter, setFilter] = useRecoilState(filterState);
     const [modalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const currentProject = useRecoilValue(currentProjectState); // 현재 프로젝트 정보 가져오기
+    const [activeMenuId, setActiveMenuId] = useState<number | null>(null);
 
-    //url에서 pid 가져오기
-    const { pid } = useParams<{ pid: string }>(); // URL에서 `pid` 가져오기
+    const { pid } = useParams<{ pid: string }>();
 
-    // 초기 백로그 설정
     useEffect(() => {
         if (!pid) {
             console.error('URL에서 pid를 가져오지 못했습니다.');
             return;
         }
-        const projectId = parseInt(pid); // `pid`를 정수로 변환
+        const projectId = parseInt(pid);
         const projectIssues = allIssues.filter(i => i.project_id === projectId && i.sprint_id === null);
         setBacklog(projectIssues);
-    }, [pid, allIssues, setBacklog]);
+        console.log('컴포넌트 렌더링 되었습니다.');
+        console.log('Recoil State in BBoard:', allIssues);
 
-    const fetchSprints = async () => {
-        if (!pid) console.log('pid없는데?');
-        try {
-            const response = await axios.get(`/sprint/project/${pid}`);
-            setSprints(response.data);
-        } catch (error) {
-            console.error('Error fetching sprints:', error);
-        }
-    };
+    }, [pid, allIssues, setBacklog, setIssues, sortedSprints]); // 의존성 배열에 sprints 추가
 
-    // 드롭 핸들러 함수
     const onDrop = async (issue: Issue, newSprintId: number | null) => {
         if (!pid) {
             console.error('pid가 undefined입니다.');
             return;
         }
         try {
-            const projectId = parseInt(pid); // 여기서 undefined를 처리
+            const projectId = parseInt(pid);
             await axios.put(`/issue/${issue.isid}`, { sprint_id: newSprintId });
 
             const updatedIssues = allIssues.map((i) => {
@@ -63,8 +56,8 @@ const BBoard: React.FC = () => {
                 return i;
             });
 
-            setIssues(updatedIssues); // 업데이트된 이슈로 전체 상태를 업데이트
-            setBacklog(updatedIssues.filter(i => i.project_id === projectId && i.sprint_id === null)); // 백로그 상태 업데이트
+            setIssues(updatedIssues);
+            setBacklog(updatedIssues.filter(i => i.project_id === projectId && i.sprint_id === null));
         } catch (error) {
             console.error(`이슈 업데이트 오류: ${issue.isid} sprint_id:`, error);
         }
@@ -93,7 +86,7 @@ const BBoard: React.FC = () => {
                 <>
                     <BoardHeader>
                         <BoardTitle>백로그</BoardTitle>
-                        <Breadcrumb>프로젝트 &gt; 중고차 직거래 &gt; 백로그</Breadcrumb>
+                        <Breadcrumb>프로젝트 &gt; {currentProject.pname} &gt; 백로그</Breadcrumb> {/* 현재 프로젝트 이름 사용 */}
                         <Filters>
                             <label>
                                 <select
@@ -130,17 +123,21 @@ const BBoard: React.FC = () => {
                             </label>
                         </Filters>
                     </BoardHeader>
-
                     {sortedSprints.filter(sprint => sprint.project_id === parseInt(pid || '0') && sprint.status !== 'end').map(sprint => (
-                        <SprintBox key={sprint.spid} sprint={sprint} onDrop={onDrop} />
+                        <SprintBox
+                            key={sprint.spid}
+                            sprint={sprint}
+                            onDrop={onDrop}
+                            activeMenuId={activeMenuId}
+                            setActiveMenuId={setActiveMenuId}
+                        />
                     ))}
-
                     <Div>
                         <AddSprint onClick={() => setModalOpen(true)}>스프린트 생성</AddSprint>
                         {modalOpen && (
                             <ModalOverlay>
                                 <ModalContent>
-                                    <SprintCreate onClose={() => setModalOpen(false)} onSprintCreated={fetchSprints} />
+                                    <SprintCreate onClose={() => setModalOpen(false)} onSprintCreated={() => setSprints([...sortedSprints])} />
                                 </ModalContent>
                             </ModalOverlay>
                         )}

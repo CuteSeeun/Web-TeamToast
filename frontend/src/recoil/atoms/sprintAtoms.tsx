@@ -5,8 +5,6 @@ import { atom, selector } from 'recoil';
 export type SprintStatus = 'disabled' | 'enabled' | 'end';
 
 export interface Sprint {
-    created_by: any;
-    manager: any;
     spid: number;
     spname: string;
     status: SprintStatus;
@@ -20,6 +18,7 @@ interface Filter {
     manager: string;
     status: string;
     priority: string;
+    type: string;
 }
 
 export const sprintState = atom<Sprint[]>({
@@ -29,7 +28,7 @@ export const sprintState = atom<Sprint[]>({
 
 export const filterState = atom<Filter>({
     key: 'filterState',
-    default: { manager: '', status: '', priority: '' }
+    default: { manager: '', status: '', priority: '', type: '' }
 });
 
 export const sortedSprintsState = selector<Sprint[]>({
@@ -42,4 +41,13 @@ export const sortedSprintsState = selector<Sprint[]>({
             return 0;
         });
     }
+});
+
+// enabled 상태의 스프린트만 가져오는 셀렉터 추가
+export const enabledSprintsState = selector<Sprint[]>({
+    key: 'enabledSprintsState',
+    get: ({ get }) => {
+        const sprints = get(sprintState); // 모든 스프린트를 가져옴
+        return sprints.filter((sprint) => sprint.status === 'enabled'); // enabled 상태만 필터링
+    },
 });

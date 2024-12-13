@@ -23,6 +23,8 @@ import singleIssueRouter from './routes/BIssueRouter';
 import BuserRouter from './routes/BuserRouter';
 import MessageRouter from './routes/MessageRouter';
 import uploadRouter from './routes/uploadRouter';
+import commentRouter from './routes/commentRouter';
+import AlarmRouter from './routes/AlarmRouter';
 
 
 // 미들웨어 설정
@@ -43,7 +45,7 @@ app.use("/team", teamRouter);
 app.use('/issue', SissueRouter);  // 올바른 라우트 설정
 app.use('/sissue', singleIssueRouter); // 올바른 라우트 설정
 app.use('/user', BuserRouter);
-app.use('/sprint', sprintRouter); 
+app.use('/sprint', sprintRouter);
 app.use('/projects', projectRouter);
 app.use('/issues', issueRouter);
 app.use('/editUser', userRouter); // 로그인 회원가입 
@@ -51,6 +53,8 @@ app.use('/channel', ChatTapMenuRouter);
 app.use('/space', spaceRouter);
 app.use('/messages', MessageRouter);
 app.use('/upload', uploadRouter);
+app.use('/comment', commentRouter);
+app.use('/alarm',AlarmRouter);
 
 // HTTP 서버 생성
 const httpServer = createServer(app);
