@@ -95,13 +95,15 @@ const IDBoard: React.FC = () => {
     }
   }, [issue]);
 
-
   if (!issue) {
     return <div>이슈를 찾을 수 없습니다.</div>;
   }
 
   // 해당 이슈와 관련된 스프린트를 찾기
   const sprint = sprints.find(sprint => sprint.spid === issue.sprint_id) || { spname: '' };
+
+  // Sprint 이름을 결정 
+  const sprintName = sprint.spname || (issue.sprint_id === null ? '백로그' : '');
 
   // created_by와 manager의 첫 글자 추출
   const firstLetterCreatedBy = issue.created_by ? issue.created_by.charAt(0).toUpperCase() : '';
@@ -250,7 +252,7 @@ const IDBoard: React.FC = () => {
     <BoardContainer>
       <BoardHeader>
         <BoardTitle>{issue.title}</BoardTitle>
-        <Breadcrumb>프로젝트 &gt; {projectName} &gt; {sprint.spname} &gt; {issue.title}</Breadcrumb>
+        <Breadcrumb>프로젝트 &gt; {projectName} &gt; {sprintName} &gt; {issue.title}</Breadcrumb>
       </BoardHeader>
 
       <DetailMainWrapper>
@@ -271,7 +273,7 @@ const IDBoard: React.FC = () => {
                 <Label>스프린트</Label>
                 <DropdownContainer className="dropdown-container">
                   <DropdownLabel onClick={() => handleToggleDropdown('sprint')}>
-                    {selectedValues.sprint || sprint.spname}
+                    {selectedValues.sprint || sprintName}
                   </DropdownLabel>
                   {isDropdownOpen === 'sprint' && (
                     <DropdownList>
