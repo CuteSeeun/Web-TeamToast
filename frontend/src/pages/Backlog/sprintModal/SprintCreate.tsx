@@ -1,5 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useSetRecoilState } from 'recoil';
+import { sprintState, Sprint } from '../../../recoil/atoms/sprintAtoms';
 import { FormRow, FormGroup, Label, Input, Head, ButtonGroup } from './ModalStyle';
 
 interface ModalProps {
@@ -8,6 +11,10 @@ interface ModalProps {
 }
 
 const SprintCreate: React.FC<ModalProps> = ({ onClose, onSprintCreated }) => {
+    const { pid } = useParams<{ pid: string }>(); // URL에서 pid 추출
+    const projectID = pid ?? '1'; // pid가 undefined일 경우 기본 값 '1'을 사용
+    const setSprints = useSetRecoilState(sprintState); // Recoil 스프린트 상태 설정
+
     const [Sprint, setSprint] = useState({
         spname: '',
         startDate: '',
@@ -19,8 +26,9 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose, onSprintCreated }) => {
         endMonth: '',
         endDay: '',
         goal: '',
-        project_id: 1, // project_id를 1로 지정
+        project_id: parseInt(projectID, 10), // projectID를 정수로 변환하여 사용
     });
+
     const [Error, setError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,22 +56,35 @@ const SprintCreate: React.FC<ModalProps> = ({ onClose, onSprintCreated }) => {
         const formattedStartDate = `${Sprint.startYear}-${Sprint.startMonth}-${Sprint.startDay} 00:00:00`;
         const formattedEndDate = `${Sprint.endYear}-${Sprint.endMonth}-${Sprint.endDay} 23:59:59`;
 
+        const requestData = {
+            ...Sprint,
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+            project_id: Sprint.project_id,
+        };
+
+        console.log('Request Data:', requestData); // 요청 데이터를 콘솔에 출력
+
         try {
-            const response = await axios.post('/sprint/createSprint', {
-                ...Sprint,
-                startDate: formattedStartDate,
-                endDate: formattedEndDate,
-                project_id: Sprint.project_id, // project_id를 포함하여 서버로 전송
-            });
+            const response = await axios.post(`/sprint/createSprint/${projectID}`, requestData);
             if (response.data.success) {
                 alert('스프린트가 생성되었습니다');
-                onSprintCreated(); // 스프린트 생성 후 상태 업데이트 콜백 호출
+                const newSprint: Sprint = {
+                    spid: response.data.spid, // 서버에서 생성된 spid를 사용
+                    spname: Sprint.spname,
+                    status: 'disabled', // 기본 상태 설정
+                    goal: Sprint.goal,
+                    enddate: formattedEndDate,
+                    startdate: formattedStartDate,
+                    project_id: Sprint.project_id
+                };
+                setSprints(prevSprints => [...prevSprints, newSprint]); // 새로운 스프린트를 리스트의 마지막에 추가
                 onClose(); // 모달 닫기
             } else {
                 alert(`${response.data.message}`);
             }
         } catch (error) {
-            console.error(error);
+            console.error('Axios error:', error);
         }
     };
 

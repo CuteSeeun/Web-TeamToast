@@ -1,4 +1,3 @@
-// pages/ActiveSprint.tsx
 import React from 'react';
 import IBoard from './IBoard';
 

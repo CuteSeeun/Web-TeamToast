@@ -2,91 +2,98 @@ import styled from 'styled-components';
 
 
 export const SpaceAllWrap = styled.div`
-   width: 40%;
+    width: 40%;
   margin: 100px auto;
   min-height: 500px;
   padding: 40px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
 
   .spaceTop {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    position: relative;
-  }
-
-  h2 {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    font-size: 32px;
-    font-weight: 400;
-    margin-bottom: 40px;
-    left: 0;
-  }
-
-  .create-btn {
-    margin-top: 50px;
-    display: flex;
     align-items: center;
-    width: 162px;
-    height: 50px;
-    gap: 8px;
-    padding: 8px 16px;
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    background: white;
-    color: #666;
-    cursor: pointer;
+    position: relative;
+    margin-bottom: 20px;
 
-    &:hover {
-      background: #f5f5f5;
+    h2 {
+      font-size: 32px;
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .create-btn {
+      position: absolute;
+      bottom: -50px; /* 제목 아래에 위치 */
+      right: 0; /* 오른쪽 정렬 */
+      width: 162px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      background: #038c8c;
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+      &:hover {
+        background: #017276;
+      }
     }
   }
 
   .space-list {
-    margin-top: 60px;
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 300px); /* 스크롤 가능한 높이 제한 */
+    margin-top: 60px; /* 버튼과 목록 간 여백 */
+  }
 
-    .centered-message {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 250px; /* 메시지를 중앙에 위치시키기 위해 충분한 높이 설정 */
-      text-align: center;
-      font-size: 25px;
-      color: #999;
-      font-weight: 900;
+  .centered-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 250px;
+    text-align: center;
+    font-size: 25px;
+    color: #999;
+    font-weight: 900;
+  }
+
+  .space-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+
+    .color-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      margin-right: 16px;
     }
 
-    .space-item {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 16px;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
-      text-decoration: none;
-      color: inherit;
-
-      .color-box {
-        width: 50px;
-        height: 50px;
-        border-radius: 8px;
-        margin-right: 16px;
+    .space-info {
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
       }
+    }
 
-      .space-info {
-        h3 {
-          margin: 0;
-          font-size: 18px;
-          font-weight: 500;
-        }
-      }
-
-      &:hover {
-        background: #f9f9f9;
-      }
+    &:hover {
+      background: #f9f9f9;
     }
   }
 `

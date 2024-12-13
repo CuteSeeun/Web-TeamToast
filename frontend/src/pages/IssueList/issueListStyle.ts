@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Link } from 'react-router-dom';
 
 export const BoardContainer = styled.div`
 //   position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
@@ -7,7 +8,6 @@ export const BoardContainer = styled.div`
   padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
   overflow: hidden; /* BoardContainer에서 스크롤 막기 */
 `;
-
 export const BoardHeader = styled.div`
   display: flex;
   flex-direction: column;
@@ -15,24 +15,20 @@ export const BoardHeader = styled.div`
   align-items: flex-start;
   padding: 20px;
 `;
-
 export const BoardTitle = styled.h1`
   font-size: 24px;
   font-weight: bold;
 `;
-
 export const Breadcrumb = styled.div`
   font-size: 14px;
   color: #6c757d;
   margin-top: 8px; /* 제목과의 간격 */
 `;
-
 export const FiltersContainer = styled.div`
   display: flex;
   align-items: center;
   margin-top: 50px; /* 네비게이션 텍스트와의 간격 */
 `;
-
 export const Filters = styled.div`
   display: flex;
   align-items: center;
@@ -50,7 +46,6 @@ export const Filters = styled.div`
     }
   }
 `;
-
 export const SearchContainer = styled.div`
   display: flex;
   align-items: center;
@@ -87,7 +82,6 @@ export const SearchContainer = styled.div`
     }
   }
 `;
-
 export const TableContainer = styled.div`
   margin-top: 20px;
   max-height: 400px; /* 표의 최대 높이 */
@@ -95,12 +89,9 @@ export const TableContainer = styled.div`
   border: 1px solid #dee2e6; /* 테두리 */
   border-radius: 8px; /* 테두리 둥글게 */
 `;
-
 export const IssueTable = styled.table`
   width: 100%;
-//border-collapse: collapse;
-
-
+border-collapse: collapse;
   th {
     background-color: #f8f9fa; /* 헤더 배경색 */
     text-align: left;
@@ -109,17 +100,11 @@ export const IssueTable = styled.table`
     font-weight: bold;
     border-bottom: 1px solid #dee2e6;
   }
-
   td {
     padding: 12px;
     font-size: 14px;
     border-bottom: 1px solid #dee2e6;
   }
-
-  tr:hover {
-    background-color: #f1f3f5; /* 행에 마우스 올렸을 때 배경색 */
-  }
-
   .status {
     display: inline-block;
     padding: 4px 8px;
@@ -168,15 +153,23 @@ export const IssueTable = styled.table`
     color: white;
   }
 `;
-
 export const TableRow = styled.tr`
   td:first-child {
     text-align: center; /* 유형 아이콘 중앙 정렬 */
   }
-
   img {
     border-radius: 50%;
     width: 24px;
     height: 24px;
+  }
+`;
+export const StyledLink = styled(Link)`
+  font-weight: bold; /* 볼드체 */
+  text-decoration: none; /* 링크 밑줄 제거 */
+  color: inherit; /* 부모 요소의 색상 상속 */
+  &:hover {
+    background-color:rgb(156, 210, 210); /* 호버 시 배경색 회색 */
+    border-radius: 4px; /* 배경색 적용 시 살짝 둥글게 */
+    padding: 4px; /* 호버 시 내부 여백 추가 */
   }
 `;

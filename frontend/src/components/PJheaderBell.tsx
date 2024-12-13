@@ -28,7 +28,6 @@ const PJheaderBell = () => {
                 })
                 setNotifications(response.data);
                 setLoading(false);
-
             } catch (error) {
                 console.error('데이터 없슴 : ',error);
                 setLoading(false);
@@ -69,12 +68,15 @@ const PJheaderBell = () => {
       {/* 알림 팝업 */}
       {popOpen && (
         <NotificationsPopup>
-          <span className='read'>전체읽음</span>
+          {/* <span className='read'>전체읽음</span> */}
           {loading ? (
             <div className="loading-message">로딩 중...</div> // 로딩 메시지
           ) : notifications.length > 0 ? (
             notifications.map((notification) => (
-              <NotificationCard key={notification.isid} onClick={() => notificationClick(notification.isid ,notification.project_id)}>
+              <NotificationCard key={notification.isid}
+              onClick={async() => {await notificationClick(notification.isid ,notification.project_id)
+              setPopOpen(false);
+              }}>
                 <Link to={`/issue/${notification.isid}`}
                  style={{ textDecoration: 'none', color: 'inherit' }}
                 >
