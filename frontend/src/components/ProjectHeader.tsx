@@ -47,10 +47,10 @@ const ProjectHeader = ({
   // 팀 멤버 데이터를 가져오는 함수
   useEffect(() => {
     const fetchTeamMembers = async () => {
-    //   if (!sid) {
-    //     console.error("spaceId가 설정되지 않았습니다.");
-    //     return;
-    //   }
+      if (!sid) {
+        console.error("spaceId가 설정되지 않았습니다.");
+        return;
+      }
       try {
         const response = await axios.get("http://localhost:3001/team/members", {
           params: { spaceId : sid },

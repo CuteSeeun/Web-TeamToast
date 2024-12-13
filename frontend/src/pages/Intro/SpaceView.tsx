@@ -54,10 +54,10 @@ const SpaceView: React.FC<SpaceViewProps> = ({onClose}) => {
     const handleSelectSpace = async (spaceId: string) => {
         try {
             await AccessToken.post('/space/select-space', { spaceId });
-            sessionStorage.setItem('sid',spaceId);
+            await sessionStorage.setItem('sid',spaceId);
             const selectSpace = spaces.find(space=>space.spaceId === spaceId);
             if(selectSpace){
-                sessionStorage.setItem('userRole',selectSpace.role);
+               await sessionStorage.setItem('userRole',selectSpace.role);
               }
               // 스토리지 이벤트 강제 발생
               // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.
