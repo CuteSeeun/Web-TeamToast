@@ -104,7 +104,6 @@ const IDBoard: React.FC = () => {
 
   // Sprint 이름을 결정 
   const sprintName = sprint.spname || (issue.sprint_id === null ? '백로그' : '');
-
   // created_by와 manager의 첫 글자 추출
   const firstLetterCreatedBy = issue.created_by ? issue.created_by.charAt(0).toUpperCase() : '';
   const firstLetterManager = issue.manager ? issue.manager.charAt(0).toUpperCase() : '';
@@ -147,7 +146,9 @@ const IDBoard: React.FC = () => {
     try {
       // 파일 업로드 처리
       const formData = new FormData();
-      selectedFiles.forEach((file) => formData.append('files', file));
+      selectedFiles.forEach((file: File) => formData.append('files', file));
+
+      console.log('Form Data:', formData); // 업로드될 파일 데이터 확인
 
       const fileUploadPromise = selectedFiles.length > 0
         ? axios.post('/upload/upload', formData, {
@@ -158,11 +159,23 @@ const IDBoard: React.FC = () => {
       const [fileResponse] = await Promise.all([fileUploadPromise]);
 
       // 업로드된 파일 정보 처리
-      const uploadedFiles = fileResponse.data.files.map((file: { originalFilename: string, previewUrl: string, key: string }) => ({
+      interface UploadedFile {
+        originalFilename: string;
+        previewUrl: string;
+        key: string;
+      }
+
+      const uploadedFiles: UploadedFile[] = fileResponse.data.files.map((file: UploadedFile) => ({
         originalFilename: file.originalFilename,
         previewUrl: file.previewUrl,
         key: file.key
       }));
+
+      console.log('Uploaded Files:', uploadedFiles); // 업로드된 파일 정보 확인
+
+      // 기존 파일 목록과 새로 업로드된 파일 병합
+      const existingFiles = issue.file ? JSON.parse(issue.file) : [];
+      const allFiles = [...existingFiles, ...uploadedFiles];
 
       const updatedIssue = {
         ...issue,
@@ -174,7 +187,7 @@ const IDBoard: React.FC = () => {
         status: selectedValues.status as Status || issue.status,
         priority: selectedValues.priority as Priority || issue.priority,
         detail: selectedValues.detail || issue.detail,
-        file: uploadedFiles.length > 0 ? JSON.stringify(uploadedFiles) : null,
+        file: JSON.stringify(allFiles),
       };
 
       // 이슈 업데이트 요청
@@ -189,6 +202,12 @@ const IDBoard: React.FC = () => {
       ));
       alert('수정되었습니다.');
 
+      // 상태 업데이트: 새로 업로드한 파일 포함
+      setInitialFiles((prevFiles) => [...prevFiles, ...uploadedFiles.map(file => file.previewUrl)]);
+      setInitialFileNames((prevFileNames) => [...prevFileNames, ...uploadedFiles]);
+      console.log('Initial Files:', [...initialFiles, ...uploadedFiles.map(file => file.previewUrl)]);
+      console.log('Initial File Names:', [...initialFileNames, ...uploadedFiles]);
+
       // 상태 초기화
       setSelectedFiles([]); // 파일 선택 후 초기화
       setPreviews([]);
@@ -196,8 +215,6 @@ const IDBoard: React.FC = () => {
       console.error('이슈 수정 또는 파일 업로드 실패:', error);
     }
   };
-
-
 
   // --------------------------------------------------------------------
 
@@ -246,7 +263,6 @@ const IDBoard: React.FC = () => {
       alert('파일 다운로드 중 오류가 발생했습니다.');
     }
   };
-
 
   return (
     <BoardContainer>
