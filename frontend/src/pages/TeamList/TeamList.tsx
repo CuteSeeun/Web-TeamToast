@@ -159,7 +159,8 @@ const TeamList: React.FC<TeamListProps> = ({
                   member.role === "top_manager" // 최고관리자인 경우 비활성화
                 }
                 title={
-                  currentUserRole !== "top_manager"
+                  currentUserRole !== "top_manager" &&
+                  currentUserRole !== "manager"
                     ? "삭제 권한이 없습니다."
                     : member.email === currentUserEmail
                     ? "본인의 계정을 삭제할 수 없습니다."

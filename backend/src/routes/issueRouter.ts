@@ -119,7 +119,7 @@ router.post('/new/:pid', async (req: Request, res: Response): Promise<void> => {
             pid,
             manager || null,
             created_by || null,
-            JSON.stringify(file).length !== 0 ? file : null,
+            JSON.parse(file).length !== 0 ? file : null,
             priority,
         ]);
 

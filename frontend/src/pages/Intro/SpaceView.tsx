@@ -62,6 +62,8 @@ const SpaceView: React.FC<SpaceViewProps> = ({onClose}) => {
               // 스토리지 이벤트 강제 발생
               // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.
               window.dispatchEvent(new Event('storage'));
+              //페이지 이동은 모든 저장 작업이 완료된
+              navigate(`/projectlist/${spaceId}`);
         } catch (err) {
             console.error('스페이스 선택 오류:', err);
         }
