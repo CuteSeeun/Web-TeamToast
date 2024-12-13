@@ -39,17 +39,39 @@ const updateRole = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).json({ message: "Missing required fields" });
         return;
     }
+    const connection = yield dbpool_1.default.getConnection();
     try {
-        const [result] = yield dbpool_1.default.execute(`UPDATE UserRole SET role = ? WHERE user = ? AND space_id = ?`, [role, email, spaceId]);
+        yield connection.beginTransaction();
+        // 역할 업데이트
+        const [result] = yield connection.execute(`UPDATE UserRole SET role = ? WHERE user = ? AND space_id = ?`, [role, email, spaceId]);
         if (result.affectedRows === 0) {
             res.status(404).json({ message: "No matching user found" });
+            yield connection.rollback();
             return;
         }
-        res.status(200).json({ message: "Role updated successfully" });
+        // 만약 역할이 top_manager로 변경되었다면 Subscription 테이블의 이메일도 업데이트
+        if (role === "top_manager") {
+            const [updateSubscription] = yield connection.execute(`UPDATE Subscription SET email = ? WHERE spaceId = ?`, [email, spaceId]);
+            if (updateSubscription.affectedRows === 0) {
+                res.status(404).json({
+                    message: "No subscription found for the given spaceId",
+                });
+                yield connection.rollback();
+                return;
+            }
+        }
+        yield connection.commit();
+        res
+            .status(200)
+            .json({ message: "Role and subscription updated successfully" });
     }
     catch (error) {
-        console.error("Error updating role:", error);
-        res.status(500).json({ message: "Failed to update role" });
+        console.error("Error updating role and subscription:", error);
+        yield connection.rollback();
+        res.status(500).json({ message: "Failed to update role and subscription" });
+    }
+    finally {
+        connection.release();
     }
 });
 exports.updateRole = updateRole;

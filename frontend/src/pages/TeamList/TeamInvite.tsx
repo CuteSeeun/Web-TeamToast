@@ -48,7 +48,7 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
     }
     try {
       await onInvite(email, role); // 초대 요청 수행
-      onClose(); // 성공 시 모달 닫기
+      //onClose(); // 성공 시 모달 닫기
     } catch (error) {
       console.error("Invite failed:", error);
     }
@@ -100,7 +100,9 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
               onChange={(e) => setRole(e.target.value)}
               disabled={remainingInvites === 0}
             >
-              <option value="manager">관리자</option>
+              {currentUserRole === "top_manager" && (
+                <option value="manager">관리자</option>
+              )}
               <option value="normal">팀원</option>
             </select>
           </div>
@@ -137,7 +139,11 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
             <button className="cancel" onClick={onClose}>
               취소
             </button>
-            <button className="invite" onClick={handleInviteClick}>
+            <button
+              className="invite"
+              onClick={handleInviteClick}
+              disabled={!email || !role}
+            >
               초대
             </button>
           </div>

@@ -18,4 +18,6 @@ router.post("/change-to-free", subscriptionController_1.changeToFreePlan);
 router.post("/change-to-paid", subscriptionController_1.upgradeToPaidPlan);
 //추가 인원 변경
 router.post("/updatedLimit", subscriptionController_1.updatedLimit);
+//추가 인원 변경
+router.post("/updatedLimit", subscriptionController_1.updatedLimit);
 exports.default = router;

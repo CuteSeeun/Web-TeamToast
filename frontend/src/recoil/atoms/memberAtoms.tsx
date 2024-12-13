@@ -19,3 +19,9 @@ export const teamMembersState = atom<TeamMember[]>({
   key: "teamMembersState",
   default: [], // 초기값: 빈 배열
 });
+
+// 새로운 userRoleState 추가
+export const currentUserRoleState = atom<string>({
+  key: "currentUserRoleState",
+  default: "normal", // 초기값
+});

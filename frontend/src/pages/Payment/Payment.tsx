@@ -4,8 +4,12 @@ import { PaymentWrap } from "./priceStyle";
 import { useRecoilValue } from "recoil";
 import { userState } from "../../recoil/atoms/userAtoms"; // Recoil 상태 가져오기
 import { useNavigate } from "react-router-dom";
+import { currentUserRoleState } from "../../recoil/atoms/memberAtoms";
 
-const Payment = () => {
+const Payment: React.FC = () => {
+  const currentUserRole = useRecoilValue(currentUserRoleState);
+  const user = useRecoilValue(userState);
+  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"basic" | "team">("basic");
   const [cardInfo, setCardInfo] = useState<string | null>(null);
@@ -18,12 +22,10 @@ const Payment = () => {
   const [loading, setLoading] = useState(true); // 로딩 상태 추가
   const unitPrice = 3000; // 인당 금액
 
-  // Recoil에서 사용자 정보 가져오기
-  const user = useRecoilValue(userState);
-
   // spaceId는 세션 스토리지에서 가져오기
   const spaceId = sessionStorage.getItem("sid");
-  const navigate = useNavigate(); // 페이지 이동 훅
+
+  // 관리자 확인 및 데이터 로딩
 
   const calculateMonthlyFee = (additional: number) => {
     setMonthlyFee(additional * unitPrice); // 추가 인원당 요금 계산
@@ -72,55 +74,50 @@ const Payment = () => {
     []
   );
 
-  // 최고관리자 상태 확인 함수
+  useEffect(() => {
+    if (isAdmin && user?.email && spaceId) {
+      fetchAllDetails(user.email, spaceId);
+    }
+  }, [isAdmin, user?.email, spaceId, fetchAllDetails]);
+
   const checkAdminStatus = useCallback(async () => {
     if (!user?.email || !spaceId) {
+      console.warn("사용자 이메일 또는 Space ID가 누락되었습니다.");
       setLoading(false);
       return;
     }
     try {
-      await fetchAllDetails(user.email, spaceId); // 데이터 강제 갱신
       const response = await axios.get(
         "http://localhost:3001/subscription/check-admin",
         {
           params: { userEmail: user.email, spaceId },
         }
       );
-      console.log("Admin check response:", response.data); // 디버깅 로그 추가
-      setIsAdmin(response.data.isAdmin);
-      if (response.data.isAdmin) {
-        sessionStorage.setItem("userRole", "top_manager"); // 최고관리자 역할 설정
-      } else {
-        sessionStorage.setItem("userRole", "normal");
-      }
+      const isAdmin = response.data.isAdmin;
+      setIsAdmin(isAdmin);
+      sessionStorage.setItem("userRole", isAdmin ? "top_manager" : "normal");
+      console.log("Admin status 확인:", isAdmin);
     } catch (error) {
-      console.error("Failed to check admin status:", error);
+      console.error("Admin status 확인 실패:", error);
     } finally {
-      setLoading(false);
+      setLoading(false); // 로딩 상태 해제
     }
-  }, [user?.email, spaceId, fetchAllDetails]);
-
-  // 초기 관리자 확인 및 데이터 로딩
-  useEffect(() => {
-    setLoading(true); // 로딩 시작
-    checkAdminStatus();
-  }, [checkAdminStatus]);
-
-  useEffect(() => {
-    if (loading) {
-      // 로딩 중일 때는 아무 작업도 하지 않음
-      return;
-    }
-
-    if (!isAdmin) {
-      alert("구독 관리에 접근할 권한이 없습니다.");
-      navigate("/team");
-    }
-  }, [loading, isAdmin, navigate]);
+  }, [user?.email, spaceId]);
 
   const handlePlanSelect = (plan: "basic" | "team") => {
     setSelectedPlan(plan);
   };
+
+  useEffect(() => {
+    const role = sessionStorage.getItem("userRole");
+    if (role) {
+      setIsAdmin(role === "top_manager");
+      setLoading(false);
+      console.log("현재 역할:", role);
+    } else {
+      checkAdminStatus();
+    }
+  }, [currentUserRole, checkAdminStatus]);
 
   const handleFreePlanChange = async () => {
     try {
@@ -184,7 +181,7 @@ const Payment = () => {
         throw new Error("subscriptionId가 유효하지 않습니다."); // 추가 확인
 
       const orderName = "Team Subscription Fee";
-      const orderId = `ORDER-${Date.now()}`; // 고유 주문 ID 생성
+      const orderId = `ORDER-${Date.now()}`;
       const amount = additionalMembers * unitPrice; // 결제 금액 계산
 
       // 현재 인원과 변경된 인원을 비교하여 메시지 동적 생성
@@ -247,8 +244,14 @@ const Payment = () => {
     }
   };
 
-  if (!user?.email || !spaceId || !subscriptionId) {
-    return <div>데이터를 불러오는 중입니다...</div>;
+  if (loading) {
+    return <div>로딩 중...</div>; // 로딩 상태 처리
+  }
+
+  if (!isAdmin) {
+    alert("구독 관리에 접근할 권한이 없습니다.");
+    navigate("/team");
+    return null; // 접근 권한 없으면 리다이렉트
   }
 
   const formatDate = (dateString: string | null): string => {
@@ -261,6 +264,16 @@ const Payment = () => {
   };
   // "결제 예정일" 변수로 저장
   const formattedNextBillingDate = formatDate(nextBillingDate);
+
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (!isAdmin) {
+    alert("구독 관리에 접근할 권한이 없습니다.");
+    navigate("/team");
+    return null;
+  }
 
   return (
     <PaymentWrap>
@@ -365,7 +378,7 @@ const Payment = () => {
           </div>
         </div>
       ) : (
-        <p>카드 정보가 없습니다</p>
+        <p></p>
       )}
     </PaymentWrap>
   );

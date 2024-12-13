@@ -1,45 +1,59 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  teamMembersState,
+  currentUserRoleState,
+} from "../../recoil/atoms/memberAtoms";
+import { userState } from "../../recoil/atoms/userAtoms";
 import TeamList from "./TeamList";
 import TeamInviteModal from "./TeamInvite";
 
 const TeamManagement: React.FC = () => {
-  const spaceId = sessionStorage.getItem("sid");
-  const numericSpaceId = spaceId ? Number(spaceId) : 0; // 숫자로 변환, null이면 기본값 0
-  const [teamMembers, setTeamMembers] = useState([]);
+  const [teamMembers, setTeamMembers] = useRecoilState(teamMembersState);
+  const [currentUserRole, setCurrentUserRole] =
+    useRecoilState(currentUserRoleState);
+  const currentUser = useRecoilValue(userState);
+  const spaceId = sessionStorage.getItem("sid") || "0"; // sessionStorage에서 spaceId 가져오기
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [reload, setReload] = useState(false);
-  const [inviteError, setInviteError] = useState<string | null>(null); // 에러 메시지 상태 추가
-  // 현재 사용자 역할 가져오기
-  //const currentUserRole = sessionStorage.getItem("userRole") || "normal"; // 기본값 'normal'
-  const [currentUserRole, setCurrentUserRole] = useState<string>("normal");
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   // 팀 멤버 목록 가져오기
   const fetchTeamMembers = useCallback(async () => {
-    if (!spaceId) return;
     try {
       const response = await axios.get("http://localhost:3001/team/members", {
         params: { spaceId },
       });
       setTeamMembers(response.data);
-    } catch (err: any) {
-      console.error(
-        "Failed to fetch team members:",
-        err.response?.data?.message
-      );
+    } catch (error) {
+      console.error("Failed to fetch team members:", error);
     }
-  }, [spaceId]);
+  }, [spaceId, setTeamMembers]);
+
+  // sessionStorage에서 userRole 가져오기
+  useEffect(() => {
+    const storedRole = sessionStorage.getItem("userRole");
+    if (storedRole) setCurrentUserRole(storedRole);
+  }, [setCurrentUserRole]);
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, [fetchTeamMembers]);
 
   // 초대 API 호출
   const handleInvite = async (email: string, role: string) => {
+    if (currentUserRole === "normal") {
+      alert("팀원은 멤버를 초대할 수 없습니다.");
+      return;
+    }
     try {
       await axios.post("http://localhost:3001/team/invite", {
-        space_id: numericSpaceId,
+        space_id: Number(spaceId),
         email,
         role,
       });
       setInviteError(null); // 초대 성공 시 에러 메시지 초기화
-      handleReload(); // 초대 성공 시 목록 갱신
+      fetchTeamMembers(); // 초대 성공 시 목록 갱신
     } catch (error: any) {
       if (error.response?.status === 409) {
         const errorMessage = error.response.data.message;
@@ -72,46 +86,24 @@ const TeamManagement: React.FC = () => {
     }
   };
 
-  // 목록 갱신 트리거
-  const handleReload = () => {
-    setReload(!reload);
-  };
-
-  useEffect(() => {
-    fetchTeamMembers();
-  }, [fetchTeamMembers, reload]);
-
-  useEffect(() => {
-    const storedRole = sessionStorage.getItem("userRole");
-    if (storedRole) {
-      setCurrentUserRole(storedRole);
-    }
-  }, []);
-
   return (
     <div>
-      {/* TeamList 컴포넌트 */}
       <TeamList
-        spaceId={numericSpaceId} // 숫자로 변환된 값 사용
+        spaceId={Number(spaceId)}
         teamMembers={teamMembers}
-        onOpenInviteModal={() => {
-          setInviteError(null); // 모달 열릴 때 에러 메시지 초기화
-          setIsInviteModalOpen(true);
-        }}
-        onReload={handleReload}
-        currentUserRole={currentUserRole} // 현재 사용자의 역할 전달
-        //spaceId={spaceId}
+        setTeamMembers={setTeamMembers}
+        currentUserRole={currentUserRole}
+        setCurrentUserRole={setCurrentUserRole} // 추가
+        onOpenInviteModal={() => setIsInviteModalOpen(true)}
       />
-
-      {/* TeamInviteModal 컴포넌트 */}
       <TeamInviteModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         onInvite={handleInvite}
-        spaceId={numericSpaceId} // 숫자로 변환된 값 사용
-        onInviteSuccess={handleReload}
-        errorMessage={inviteError} // 에러 메시지 전달
-        currentUserRole={currentUserRole} // 현재 사용자의 역할 전달
+        spaceId={Number(spaceId)}
+        onInviteSuccess={fetchTeamMembers} // 추가된 속성
+        errorMessage={inviteError}
+        currentUserRole={currentUserRole} // 추가된 속성
       />
     </div>
   );

@@ -28,4 +28,7 @@ router.post("/change-to-paid", upgradeToPaidPlan);
 //추가 인원 변경
 router.post("/updatedLimit", updatedLimit);
 
+//추가 인원 변경
+router.post("/updatedLimit", updatedLimit);
+
 export default router;
