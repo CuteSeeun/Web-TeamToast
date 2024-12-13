@@ -73,7 +73,7 @@ const inviteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const [user] = yield dbpool_1.default.execute("SELECT uname FROM `User` WHERE email = ?", [email]);
         if (user.length === 0) {
             res.status(409).json({
-                message: "초대할 사용자가 아직 TeamToast에 가입하지 않았습니다. 해당 사용자를 초대하려면 TeamToast에 먼저 회원가입을 완료해야 합니다.",
+                message: "초대할 사용자가 아직 TeamToast에 가입하지 않았습니다.",
             });
             return;
         }
@@ -86,7 +86,10 @@ const inviteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         // UserRole 테이블에 데이터 삽입 (uname 포함)
         yield dbpool_1.default.execute("INSERT INTO `UserRole` (`role`, `user`, `space_id`, `uname`) VALUES (?, ?, ?, ?)", [role, email, spaceId, uname]);
-        res.status(200).json({ message: "사용자가 성공적으로 초대되었습니다.",
+        res
+            .status(200)
+            .json({
+            message: "사용자가 성공적으로 초대되었습니다.",
             member: { name: uname, email, role },
         });
     }

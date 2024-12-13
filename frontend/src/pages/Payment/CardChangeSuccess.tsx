@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { UpgradeSuccessWrap } from "./priceStyle"; // 성공/실패 공용 스타일 사용
@@ -11,9 +11,11 @@ const CardChangeSuccess: React.FC = () => {
 
   const authKey = searchParams.get("authKey"); // Toss Payments에서 반환된 인증 키
   const customerKey = searchParams.get("customerKey"); // 고객 고유 키
-  const spaceId = 25; // TODO: 실제 스페이스 ID로 대체. 현재 더미 데이터 사용 중
+  // spaceId는 세션 스토리지에서 가져오기
+  const spaceId = sessionStorage.getItem("sid");
 
-  const postAuthKeyToServer = async () => {
+  // postAuthKeyToServer를 useCallback으로 메모이제이션
+  const postAuthKeyToServer = useCallback(async () => {
     if (!authKey || !customerKey || !spaceId) {
       setErrorMessage("authKey, customerKey 또는 spaceId가 누락되었습니다.");
       console.error(
@@ -56,11 +58,12 @@ const CardChangeSuccess: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [authKey, customerKey, spaceId]); // 의존성 배열 추가
 
+  // useEffect에서 postAuthKeyToServer 호출
   useEffect(() => {
     postAuthKeyToServer();
-  }, [authKey, customerKey]);
+  }, [postAuthKeyToServer]); // useCallback으로 메모이제이션된 함수 사용
 
   const handleNavigateToSubscription = () => {
     navigate("/payment");

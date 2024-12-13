@@ -86,8 +86,7 @@ export const inviteUser = async (
 
     if (user.length === 0) {
       res.status(409).json({
-        message:
-          "초대할 사용자가 아직 TeamToast에 가입하지 않았습니다. 해당 사용자를 초대하려면 TeamToast에 먼저 회원가입을 완료해야 합니다.",
+        message: "초대할 사용자가 아직 TeamToast에 가입하지 않았습니다.",
       });
       return;
     }
@@ -111,9 +110,12 @@ export const inviteUser = async (
       [role, email, spaceId, uname]
     );
 
-    res.status(200).json({ message: "사용자가 성공적으로 초대되었습니다." ,
-      member :{name:uname,email,role},
-    });
+    res
+      .status(200)
+      .json({
+        message: "사용자가 성공적으로 초대되었습니다.",
+        member: { name: uname, email, role },
+      });
   } catch (error) {
     if (error instanceof Error) {
       console.error("초대 처리 중 오류 발생:", error.message);
@@ -127,7 +129,5 @@ export const inviteUser = async (
 // // 이메일 가져와서 이름 끄집어냄
 // export const checkName = async(req:Request , res:Response) =>{
 //   const {email} = req.body;
-
-
 
 // }

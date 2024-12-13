@@ -5,9 +5,11 @@ import styled from 'styled-components';
 import Task from './Task';
 import DropZoneComponent from './DropZone';
 import { useDrop } from 'react-dnd';
+import { Issue } from '../../recoil/atoms/issueAtoms';
 
 type ColumnKey = "backlog" | "inProgress" | "done" | "qa";
-type Task = { id: string; title: string; type: 'task' | 'bug' };
+type Task = Pick<Issue, 'isid' | 'title' | 'type' | 'manager'>;
+
 
 //각 컬럼보드
 const ColumnContainer = styled.div`
@@ -66,11 +68,8 @@ interface ColumnProps {
   onAddIssue: () => void; // 상위로부터 받는 콜백
 }
 
-// const Column: React.FC<{
-//   title: string; tasks: Task[]; columnId: ColumnKey; onAddIssue;
-//   onMoveTask: (fromColumn: ColumnKey, toColumn: ColumnKey, fromIndex: number, toIndex: number) => void;
-// }> = ({ title, tasks, columnId, onMoveTask }) => {
-  const Column: React.FC<ColumnProps> = ({ title, tasks, columnId, onMoveTask, onAddIssue }) => {
+
+const Column: React.FC<ColumnProps> = ({ title, tasks, columnId, onMoveTask, onAddIssue }) => {
 
   const [{ isOver }, dropRef] = useDrop({
     accept: "TASK",
@@ -82,7 +81,6 @@ interface ColumnProps {
       isOver: monitor.isOver(),
     }),
   });
-
 
   //어느 곳에 드랍되었는지를 판별하는 함수
   const handleDropTask = (dragIndex: number,
@@ -120,18 +118,22 @@ interface ColumnProps {
 
   return (
     <ColumnContainer ref={dropRef} style={{ border: `2px solid ${borderColor}` }}>
-      <ColumnTitle>
-        {title} ({tasks.length})
-      </ColumnTitle>
+      <ColumnTitle>{title} ({tasks.length})</ColumnTitle>
       {tasks.map((task, index) => (
-        <React.Fragment key={index}>
+        <React.Fragment key={task.isid}>
           <DropZoneComponent index={index} columnId={columnId} onDropTask={handleDropTask} />
-          <Task id={`task-${index}`} title={task.title}
-            index={index} columnId={columnId} type={task.type} />
+          <Task
+            isid={task.isid}
+            title={task.title}
+            index={index}
+            columnId={columnId}
+            type={task.type === '작업' ? 'task' : 'bug'} // 여기서 매핑
+            manager={task.manager ?? undefined} // manager가 null일 수 있으니 ??
+          />
         </React.Fragment>
       ))}
 
-<AddIssueButton className="add-issue-button" onClick={onAddIssue}>+ 이슈 생성하기</AddIssueButton>
+      <AddIssueButton className="add-issue-button" onClick={onAddIssue}>+ 이슈 생성하기</AddIssueButton>
     </ColumnContainer>
   );
 };

@@ -1,38 +1,65 @@
-import React, { useState } from "react";
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { teamMembersState } from "../../recoil/atoms/memberAtoms";
-import { spaceIdState } from "../../recoil/atoms/spaceAtoms";
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { useRecoilState, useRecoilValue } from "recoil";
+import {
+  teamMembersState,
+  currentUserRoleState,
+} from "../../recoil/atoms/memberAtoms";
+import { userState } from "../../recoil/atoms/userAtoms";
 import TeamList from "./TeamList";
 import TeamInviteModal from "./TeamInvite";
-import axios from "axios";
-import { response } from "express";
 
 const TeamManagement: React.FC = () => {
-  const setTeamMembers = useSetRecoilState(teamMembersState); // Recoil에서 팀 멤버 데이터 가져오기
-  // const spaceId = useRecoilValue(spaceIdState); // Recoil에서 현재 스페이스 ID 가져오기
-  const spaceId = sessionStorage.getItem('sid');
+  const [teamMembers, setTeamMembers] = useRecoilState(teamMembersState);
+  const [currentUserRole, setCurrentUserRole] =
+    useRecoilState(currentUserRoleState);
+  const currentUser = useRecoilValue(userState);
+  const spaceId = sessionStorage.getItem("sid") || "0"; // sessionStorage에서 spaceId 가져오기
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [inviteError, setInviteError] = useState<string | null>(null); // 에러 메시지 상태 추가
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
+  // 팀 멤버 목록 가져오기
+  const fetchTeamMembers = useCallback(async () => {
+    try {
+      const response = await axios.get("http://localhost:3001/team/members", {
+        params: { spaceId },
+      });
+      setTeamMembers(response.data);
+    } catch (error) {
+      console.error("Failed to fetch team members:", error);
+    }
+  }, [spaceId, setTeamMembers]);
 
+  // sessionStorage에서 userRole 가져오기
+  useEffect(() => {
+    const storedRole = sessionStorage.getItem("userRole");
+    if (storedRole) setCurrentUserRole(storedRole);
+  }, [setCurrentUserRole]);
+
+  useEffect(() => {
+    fetchTeamMembers();
+  }, [fetchTeamMembers]);
 
   // 초대 API 호출
   const handleInvite = async (email: string, role: string) => {
+    if (currentUserRole === "normal") {
+      alert("팀원은 멤버를 초대할 수 없습니다.");
+      return;
+    }
     try {
-     const response = await axios.post("http://localhost:3001/team/invite", {
+      await axios.post("http://localhost:3001/team/invite", {
         space_id: Number(spaceId),
         email,
         role,
       });
-      const newMember = response.data.member; // 반환된 새 멤버 데이터값
-      setTeamMembers((plus)=> [...plus , newMember]); // 리코일에 바로추가
-
       setInviteError(null); // 초대 성공 시 에러 메시지 초기화
-      // 갱신은 ProjectHeader의 fetchTeamMembers가 수행
-      alert('초대가 성공적으로 완료되었습니다.')
+      fetchTeamMembers(); // 초대 성공 시 목록 갱신
     } catch (error: any) {
       if (error.response?.status === 409) {
         const errorMessage = error.response.data.message;
+
+        // 디버깅용 로그 추가
+        console.log("Error message received:", errorMessage);
 
         if (errorMessage === "이미 초대된 사용자입니다.") {
           setInviteError(
@@ -55,33 +82,28 @@ const TeamManagement: React.FC = () => {
       } else {
         setInviteError("초대에 실패했습니다. 다시 시도해주세요.");
       }
+      throw error; // 초대 실패 시 예외 던지기
     }
   };
 
   return (
     <div>
-      {/* TeamList 컴포넌트 */}
       <TeamList
-        // teamMembers={teamMembers} // Recoil에서 가져온 데이터를 전달
-        onOpenInviteModal={() => {
-          setInviteError(null); // 모달 열릴 때 에러 메시지 초기화
-          setIsInviteModalOpen(true);
-        }}
-        spaceId={spaceId ? Number(spaceId) : 0} // spaceId가 null일 경우 기본값 0 설정
+        spaceId={Number(spaceId)}
+        teamMembers={teamMembers}
+        setTeamMembers={setTeamMembers}
+        currentUserRole={currentUserRole}
+        setCurrentUserRole={setCurrentUserRole} // 추가
+        onOpenInviteModal={() => setIsInviteModalOpen(true)}
       />
-
-      {/* TeamInviteModal 컴포넌트 */}
       <TeamInviteModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         onInvite={handleInvite}
-        onInviteSuccess={() => {
-          // 초대 성공 시 호출될 동작
-          console.log("초대 성공");
-          window.location.reload(); // 간단히 페이지를 새로고침하거나 Recoil 상태 갱신
-        }}
-        spaceId={spaceId ? Number(spaceId) : 0} // spaceId가 null일 경우 기본값 0 설정
-        errorMessage={inviteError} // 에러 메시지 전달
+        spaceId={Number(spaceId)}
+        onInviteSuccess={fetchTeamMembers} // 추가된 속성
+        errorMessage={inviteError}
+        currentUserRole={currentUserRole} // 추가된 속성
       />
     </div>
   );

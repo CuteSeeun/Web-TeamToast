@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import { ImAttachment, ImSmile, ImCompass } from "react-icons/im";
 import { IoPersonAddOutline, IoNotificationsOutline, IoNotificationsOffOutline, IoNotificationsCircleOutline, IoNotificationsOffCircleOutline, IoLogOutOutline } from "react-icons/io5";
@@ -12,8 +12,6 @@ import chatAlert from '../../assets/images/chatAlert.svg';
 import { sendMessage, onMessage, offMessage } from '../../socketClient'; // 소켓 메시지 전송 함수 가져오기
 import ExitModal from './ExitModal';
 import AddFriendModal from './AddFriendModal'; // AddFriendModal 가져오기
-// import { Picker } from "@emoji-mart/react";
-// import "emoji-mart/css/emoji-mart.css"; // 최신 스타일 가져오기
 
 const ProfileImage = styled.div`
    width: 30px;
@@ -27,7 +25,6 @@ const ProfileImage = styled.div`
    font-weight: bold;
    color: white;
  `;
-// 컨테이너 스타일
 const ChatContainer = styled.div`
   display: flex;
   flex: 1;
@@ -37,8 +34,6 @@ const ChatContainer = styled.div`
   background-color: #ffffff;
   /* border: 1px solid #ddd; */
 `;
-
-// 헤더 스타일
 const ChatHeader = styled.div`
   padding: 10px 20px;
   background-color: #fff;
@@ -46,8 +41,6 @@ const ChatHeader = styled.div`
   font-size: 18px;
   font-weight: bold;
 `;
-
-// 메시지 목록 스타일
 const MessageList = styled.div`
   flex: 1;
   padding: 20px;
@@ -64,7 +57,6 @@ const MessageItem = styled.div<{ isMine: boolean }>`
   align-items: flex-start;
   gap: 10px;
 `;
-
 const MessageBubble = styled.div<{ isMine: boolean }>`
   max-width: 60%;
   padding: 10px 15px;
@@ -75,7 +67,6 @@ const MessageBubble = styled.div<{ isMine: boolean }>`
   font-size: 14px;
   white-space: pre-wrap;
 `;
-
 const MessageTime = styled.span`
   font-size: 12px;
   color: #aaa;
@@ -91,7 +82,6 @@ const InputContainer = styled.div`
   /* border-top: 1px solid #ddd; */
   position: relative; /* 아이콘 배치를 위해 추가 */
 `;
-
 const InputField = styled.input`
   flex: 1;
   /* background: pink; */
@@ -103,7 +93,6 @@ const InputField = styled.input`
   padding: 15px 15px 15px 15px; /*왼쪽 공간 확보*/
   padding-right: 120px; /* 오른쪽 아이콘 공간 확보 */
 `;
-
 const InputIcon = styled.div`
   position: absolute;
   right: 25px; /* InputField 내부 아이콘 위치 */
@@ -118,7 +107,6 @@ const InputIcon = styled.div`
     color: #007bff;
   }
 `;
-
 const StyledAttachmentIcon = styled(ImAttachment)`
   font-size: 18px;
   color: #aaa;
@@ -128,7 +116,6 @@ const StyledAttachmentIcon = styled(ImAttachment)`
     color: #007bff; /* 호버 시 색상 변경 */
   }
 `;
-
 const StyledSmileIcon = styled(ImSmile)`
   font-size: 18px;
   color: #aaa;
@@ -138,7 +125,6 @@ const StyledSmileIcon = styled(ImSmile)`
     color: #007bff; /* 호버 시 색상 변경 */
   }
 `;
-
 const StyledCompassIcon = styled(ImCompass)`
   font-size: 18px;
   background-color: #038c8c; /* 배경 색상 */
@@ -151,7 +137,6 @@ const StyledCompassIcon = styled(ImCompass)`
     background-color: #026b6b; /* 호버 시 배경 색상 변경 */
   }
 `;
-
 const ChatHeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -162,13 +147,11 @@ const ChatHeaderContainer = styled.div`
   font-size: 18px;
   font-weight: bold;
 `;
-
 const HeaderTitle = styled.div`
   flex: 1;
   font-size: 18px;
   font-weight: bold;
 `;
-
 const HeaderIcons = styled.div`
   display: flex;
   gap: 15px;
@@ -183,7 +166,6 @@ const HeaderIcons = styled.div`
     }
   }
 `;
-
 // 임시 아이콘 스타일
 const TemporaryIcon = styled.div<{ fading: boolean }>`
   position: fixed;
@@ -236,19 +218,19 @@ interface Message {
 
 
 const ChatContainerComponent: React.FC = () => {
-  // const selectedChannel = useRecoilValue(selectedChannelAtom); // 선택된 채널 구독
-  // const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom);
-  const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom);
-  const loggedInUser = useRecoilValue(userState);//로그인한 유저 이메일은 userState에서 가져온다
-  const [newMessages, setNewMessages] = useState<Array<any>>([]); // 추가 메시지 상태
-  const [currentInput, setCurrentInput] = useState(''); // 입력 필드 상태
-  const [channels, setChannels] = useRecoilState(channelAtom); // 전체 채널 상태 관리
-  const [isExitModalOpen, setExitModalOpen] = useState(false); // 나가기 모달 상태 관리
-  const [isNotificationsOn, setNotificationsOn] = useState(true); // 알림 상태 관리
-  const [temporaryIcon, setTemporaryIcon] = useState<React.ReactNode | null>(null); // 화면 중앙에 표시할 아이콘(알림 설정)
-  const [isFading, setFading] = useState(false); // 페이드아웃 상태 관리
-  const [isFriendModalOpen, setFriendModalOpen] = useState(false); // 대화상대 초대 모달 상태
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 선택기 상태
+  const [selectedChannel, setSelectedChannel] = useRecoilState(selectedChannelAtom);//사용자가 선택한 채널의 정보를 저장
+  const loggedInUser = useRecoilValue(userState);//로그인한 유저 이메일은 userState에서 가져온다 : 현재 로그인한 사용자의 정보를 저장
+  const [newMessages, setNewMessages] = useState<Array<any>>([]); // 추가 메시지 상태 : 새로운 메시지들을 저장. 메시지가 추가될 때 업데이트된다다
+  const [currentInput, setCurrentInput] = useState(''); // 입력 필드 상태 : 입력창의 텍스트 상태를 관리
+  const [channels, setChannels] = useRecoilState(channelAtom); // 전체 채널 상태 관리 : 전체 채널 목록과 각 채널의 메시지 상태를 관리
+  const [isExitModalOpen, setExitModalOpen] = useState(false); // 나가기 모달 상태 관리 : 채팅방 퇴장 모달의 열림/닫힘 상태를 관리
+  const [isNotificationsOn, setNotificationsOn] = useState(true); // 알림 상태 관리 : 알림 설정 상태를 관리
+  const [temporaryIcon, setTemporaryIcon] = useState<React.ReactNode | null>(null); //화면중앙의 아이콘(알림 설정) : 알림 상태 변경 시 임시로 화면 중앙에 표시할 아이콘을 저장.
+  const [isFading, setFading] = useState(false); // 페이드아웃 상태 관리 : 임시 아이콘의 페이드아웃 애니메이션 상태를 관리
+  const [isFriendModalOpen, setFriendModalOpen] = useState(false); // 대화상대 초대 모달 상태 : 대화상태 초대 모달 열림/닫힘 상태 관리
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 선택기 상태 : 이모티콘 선택기의 표시 상태를 관리
+  // const messageListRef = useRef<HTMLDivElement | null>(null); // 메시지 리스트 참조
+  //selectedChannel과 newMesages : selectedChannel의 메시지 리스트를 업데이트할 때 새 메시지를 추가한다. 
 
 
   // 채팅방 퇴장 모달을 열거나 닫는 핸들러
@@ -356,7 +338,7 @@ const ChatContainerComponent: React.FC = () => {
     return () => {
       // offMessage();
     };
-  }, [selectedChannel]);
+  }, [selectedChannel, newMessages]);
 
   // 메시지 전송 핸들러 _ 메시지 추가할 때 selectedChannel상태 업데이트
   const handleSendMessage = () => {
@@ -395,6 +377,13 @@ const ChatContainerComponent: React.FC = () => {
     setCurrentInput('');
   };
 
+  // 메시지가 추가되거나 렌더링될 때 스크롤을 가장 아래로 설정
+  // useEffect(() => {
+  //   if (messageListRef.current) {
+  //     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+  //   }
+  // }, [selectedChannel?.messages]); // 메시지가 변경될 때 실행
+
   return (
     <ChatContainer>
 
@@ -410,8 +399,6 @@ const ChatContainerComponent: React.FC = () => {
             )}
             <IoLogOutOutline onClick={OpenExitModal} />
           </HeaderIcons>
-
-
         )}
 
         {isFriendModalOpen && (
@@ -462,8 +449,8 @@ const ChatContainerComponent: React.FC = () => {
         )}
       </MessageList>
 
-      {
-        selectedChannel?.rname ? (
+
+      {selectedChannel?.rname ? (
           <InputContainer>
             <InputField placeholder="메시지 입력" value={currentInput}
               onChange={(e) => setCurrentInput(e.target.value)}

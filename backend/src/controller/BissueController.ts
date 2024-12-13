@@ -160,7 +160,7 @@ export const updateIssueDetail = async (req: Request, res: Response): Promise<vo
         return;
     }
 
-    const { title, detail, type, status, manager, created_by, sprint_id } = req.body;
+    const { title, detail, type, status, manager, created_by, sprint_id, file } = req.body;
 
     try {
         // Convert uname to email for manager
@@ -179,6 +179,7 @@ export const updateIssueDetail = async (req: Request, res: Response): Promise<vo
         }
         const createdByEmail = createdByResult[0].email;
 
+        // SQL 쿼리에서 sprint_id가 null일 경우를 처리
         const query = `
             UPDATE Issue 
             SET title = ?, 
@@ -187,16 +188,21 @@ export const updateIssueDetail = async (req: Request, res: Response): Promise<vo
                 status = ?, 
                 manager = ?, 
                 created_by = ?, 
-                sprint_id = ?
+                sprint_id = ${sprint_id === null ? 'NULL' : '?'}, 
+                file = ?
             WHERE isid = ?
         `;
 
-        const [result]: any = await pool.query(query, [title, detail, type, status, managerEmail, createdByEmail, sprint_id, issueId]);
+        const queryParams = [title, detail, type, status, managerEmail, createdByEmail];
+        if (sprint_id !== null) queryParams.push(sprint_id);
+        queryParams.push(file, issueId); // file과 issueId를 queryParams에 추가
+
+        const [result]: any = await pool.query(query, queryParams);
 
         res.status(200).json({ message: 'Issue updated successfully', result });
     } catch (error) {
+        console.error('Error updating issue:', error);
         res.status(500).json({ message: 'Error updating issue', error });
     }
-}
-
+};
 
