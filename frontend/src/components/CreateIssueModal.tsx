@@ -10,6 +10,7 @@ import { managerAtoms } from '../recoil/atoms/managerAtoms';
 import { teamMembersState } from '../recoil/atoms/memberAtoms';
 import axios from 'axios';
 import { notificationsAtom } from "../recoil/atoms/notificationsAtom";
+import noImagePath from '../assets/images/noImage.png';
 
 interface IssueModalProps {
   isOpen: boolean;
@@ -20,7 +21,7 @@ interface IssueModalProps {
 export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => {
   const sprints = useRecoilValue(sprintState);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<{ type: string; url: string }[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { pid, isOpen, onClose } = props; // pid 추출
    
@@ -71,9 +72,23 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
 
     setSelectedFiles((prev) => [...prev, ...uniqueFiles]); // 선택된 파일 저장
 
-    // 미리보기 URL 생성
-    const newPreviews = uniqueFiles.map((file) => URL.createObjectURL(file));
-    setPreviews((prev) => [...prev, ...newPreviews]); // 미리보기 상태 업데이트
+        // 미리보기 URL 생성
+        const maxFileSize = 50 * 1024 * 1024; // 50MB
+        const newPreviews = uniqueFiles.map((file) => {
+            const isImage = file.type.startsWith('image/');
+            const isLargeFile = file.size > maxFileSize;
+        
+            if (isLargeFile) {
+                return { type: 'default', url: noImagePath };
+            }
+        
+            if (isImage) {
+                return { type: 'image', url: URL.createObjectURL(file) };
+            } else {
+                return { type: 'default', url: noImagePath };
+            }
+        });
+        setPreviews((prev) => [...prev, ...newPreviews]); // 미리보기 상태 업데이트
 
     // 파일 입력 필드 초기화
     if (fileInputRef.current) {
@@ -218,7 +233,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
   // 메모리 누수 방지
   useEffect(() => {
     return () => {
-      previews.forEach((preview) => URL.revokeObjectURL(preview));
+      previews.forEach(({ url }) => URL.revokeObjectURL(url));
     };
   }, [previews]);
 
@@ -373,13 +388,13 @@ return (
               />
 
               {/* 파일 미리보기 영역 */}
-              {previews.map((src, index) => (
+              {previews.map(({ type, url }, index) => (
                 <div
                   className="preview-wrap"
                   key={`${selectedFiles[index]?.name}_${selectedFiles[index]?.lastModified}_${selectedFiles[index]?.size}`}
                   onClick={() => handleFileDelete(index)}
                   >
-                  <div className="img-wrap"><img src={src} alt={`Preview ${index}`} /></div>
+                  <div className="img-wrap"><img src={url} alt={`Preview ${index}`} /></div>
                   <IoCloseOutline className="file-btn" />
                   <p className="file-name">{selectedFiles[index]?.name}</p>
                 </div>
