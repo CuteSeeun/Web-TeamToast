@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
@@ -27,11 +27,12 @@ const ProjectHeader = ({
     const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
 
-    const alarmOnOff = useRecoilValue(notificationsAtom);
-    const setAlarmOnOff = useSetRecoilState(notificationsAtom);
+    const [alarmOnOff ,setAlarmOnOff] = useRecoilState(notificationsAtom);
+    // const alarmOnOff = useRecoilValue(notificationsAtom);
+    // const setAlarmOnOff = useSetRecoilState(notificationsAtom);
 
     const sid = sessionStorage.getItem('sid');
-   
+
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
         if(confirmed){
@@ -108,13 +109,13 @@ const ProjectHeader = ({
                 const response = await axios.get('http://localhost:3001/alarm/notifications',{
                     params:{userEmail:user?.email},
                 });
-                setAlarmOnOff(response.data); // 상태 업데이트
+                await setAlarmOnOff(response.data); // 상태 업데이트
             } catch (error) {
                 console.error("알림 데이터 가져오기 오류: ", error);
             }
         }
         fetchNotification();
-    },[setAlarmOnOff]);
+    },[]);
 
 
     

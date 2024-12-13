@@ -6,7 +6,6 @@ import { Issue, Type, Status, Priority } from '../recoil/atoms/issueAtoms';
 import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
 import { sprintState } from "../recoil/atoms/sprintAtoms";
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { managerAtoms } from '../recoil/atoms/managerAtoms';
 import { teamMembersState } from '../recoil/atoms/memberAtoms';
 import axios from 'axios';
 import { notificationsAtom } from "../recoil/atoms/notificationsAtom";
@@ -24,7 +23,6 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const { pid, isOpen, onClose } = props; // pid 추출
    
-    const setManager = useSetRecoilState(managerAtoms);//담당자 아톰 상태 업데이트 함수
     const setNotifications = useSetRecoilState(notificationsAtom); // 알림 업데이트
 
     const teamMembers = useRecoilValue(teamMembersState);//스페이스 내 멤버 목록
@@ -142,8 +140,6 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
         try {
             // `manager` 값이 존재하면 managerAtoms에 저장
             if (updatedIssue.manager) {
-                setManager(updatedIssue.manager);
-                console.log('업데이트된 담당자 아톰:', setManager);
             }
 
             // Issue 데이터 전송
@@ -160,8 +156,6 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
 
             console.log('이슈 생성 성공:', newIssue);
             if (newIssue.manager) {
-                setManager(newIssue.manager); // 담당자 업데이트
-
                  // 알림 추가
                 const newNotification = {
                     isid: newIssue.isid,
