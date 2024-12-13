@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { ProjectHeaderWrap, Logo } from '../styles/HeaderStyle';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { userState } from '../recoil/atoms/userAtoms';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
@@ -27,18 +27,18 @@ const ProjectHeader = ({
     const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
     const navigate = useNavigate();
 
-    const alarmOnOff = useRecoilValue(notificationsAtom);
-    const setAlarmOnOff = useSetRecoilState(notificationsAtom);
+    const [alarmOnOff ,setAlarmOnOff] = useRecoilState(notificationsAtom);
+    // const alarmOnOff = useRecoilValue(notificationsAtom);
+    // const setAlarmOnOff = useSetRecoilState(notificationsAtom);
 
     const sid = sessionStorage.getItem('sid');
-   
+
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
         if(confirmed){
+            localStorage.clear();
+            sessionStorage.clear();
             setUser(null);
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('currentSpaceUuid');
-            localStorage.removeItem('userRole');
             setUserRole(null);
             navigate('/');
         }
@@ -57,7 +57,7 @@ const ProjectHeader = ({
         });
         setTeamMembers(response.data); // 팀 멤버 상태 갱신
       } catch (error) {
-        console.error("팀원 데이터를 가져오는 중 오류 발생:", error);
+        console.log("팀원 데이터를 가져오는 중 오류 발생:", error);
       }
     };
 
@@ -86,7 +86,7 @@ const ProjectHeader = ({
      const handleProjectGo = async () => {
         if (!sid) {
             console.error('현재 선택된 스페이스가 없습니다.');
-            navigate('/space');
+            navigate('/');
             return;
         }
         try {
@@ -95,11 +95,11 @@ const ProjectHeader = ({
                 navigate(`/projectlist/${sid}`);
             } else {
                 console.error('스페이스 정보를 찾을 수 없습니다.');
-                navigate('/space');
+                navigate('/');
             }
         } catch (error) {
             console.error('스페이스 정보 조회 실패:', error);
-            navigate('/space');
+            navigate('/');
         }
     };
 
@@ -109,13 +109,13 @@ const ProjectHeader = ({
                 const response = await axios.get('http://localhost:3001/alarm/notifications',{
                     params:{userEmail:user?.email},
                 });
-                setAlarmOnOff(response.data); // 상태 업데이트
+                await setAlarmOnOff(response.data); // 상태 업데이트
             } catch (error) {
                 console.error("알림 데이터 가져오기 오류: ", error);
             }
         }
         fetchNotification();
-    },[setAlarmOnOff]);
+    },[]);
 
 
     
@@ -123,7 +123,7 @@ const ProjectHeader = ({
         <ProjectHeaderWrap>
              <div className='headerProject'>
                 <div className="leftPro">
-                   <Link to='/space'><Logo><LogoIcon /></Logo></Link> 
+                   <Link to='/'><Logo><LogoIcon /></Logo></Link> 
                     <nav>
                         <div className="menu-wrap">
                             <span className="menu-text" onClick={handleProjectGo}>프로젝트</span>

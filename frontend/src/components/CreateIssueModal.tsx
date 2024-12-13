@@ -396,7 +396,6 @@ import { Issue, Type, Status, Priority } from '../recoil/atoms/issueAtoms';
 import { IoChevronDownOutline, IoCloseOutline, IoAddOutline } from "react-icons/io5";
 import { sprintState } from "../recoil/atoms/sprintAtoms";
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { managerAtoms } from '../recoil/atoms/managerAtoms';
 import { teamMembersState } from '../recoil/atoms/memberAtoms';
 import axios from 'axios';
 import { notificationsAtom } from "../recoil/atoms/notificationsAtom";
@@ -516,6 +515,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
     e.preventDefault();
     const formData = new FormData();// 파일 데이터 업로드 준비
     selectedFiles.forEach((file) => formData.append("files", file));
+
 
     if ([(issue.title || '').trim(), issue.type, issue.status, issue.project_id, issue.priority].some((field) => !field)) {
       alert('필수 데이터가 누락되었습니다.');

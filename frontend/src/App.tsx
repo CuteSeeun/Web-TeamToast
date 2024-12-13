@@ -38,8 +38,8 @@ const App: React.FC = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
-            <Route index element={<Intro />} />
-            <Route path="/login" element={<Login />} />
+            <Route index element={<Intro />}/>
+            <Route path="/login" element={<Login />}/>
             <Route path="/join" element={<Join />} />
             <Route path="/rate" element={<RatePlan />} />
             <Route path="/space" element={<SpaceAll />} />

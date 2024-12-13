@@ -131,13 +131,18 @@ export const getCurrentSpace = async (req: Request, res: Response): Promise<void
             return;
         }
 
-        // UUID와 UserRole을 기준으로 Space 조회
+        // UserRole을 기준으로 Space 조회
         const [result]: any = await connection.query(
+            // `SELECT s.sid AS spaceId, s.sname AS spaceName
+            //  FROM Space s 
+            //  JOIN UserRole ur ON s.sid = ur.space_id 
+            //  WHERE ur.user = ?
+            //  ORDER BY s.last_accessed_at DESC LIMIT 1`,
             `SELECT s.sid AS spaceId, s.sname AS spaceName
-             FROM Space s 
-             JOIN UserRole ur ON s.sid = ur.space_id 
-             WHERE ur.user = ?
-             ORDER BY s.last_accessed_at DESC LIMIT 1`,
+            FROM Space s 
+            JOIN UserRole ur ON s.sid = ur.space_id 
+            WHERE ur.user = ?
+            LIMIT 1`, // 최신 하나만 가져오도록 수정
             [userEmail]
         );
 
@@ -171,9 +176,10 @@ export const selectSpace = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
-         // UUID로 Space를 선택하고 마지막 접근 시간 업데이트
+         //Space를 선택하고 마지막 접근 시간 업데이트
         const [result]: any = await connection.query(
-            `UPDATE Space SET last_accessed_at = NOW() WHERE sid = ?`,
+            // `UPDATE Space SET last_accessed_at = NOW() WHERE sid = ?`,
+            `SELECT sid FROM Space WHERE sid = ?`,
             [spaceId]
         );
 
