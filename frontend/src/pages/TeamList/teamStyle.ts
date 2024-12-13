@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const TeamMaWrap = styled.div`
-max-width: 800px;
+  max-width: 800px;
   margin: 0 auto;
   position: relative;
 
@@ -33,7 +33,7 @@ max-width: 800px;
       gap: 4px;
       font-size: 14px;
       cursor: pointer;
-      
+
       &:hover {
         background: #f5f5f5;
       }
@@ -52,27 +52,12 @@ max-width: 800px;
     padding: 8px 12px;
     border-bottom: 1px solid #f0f0f0;
 
-    .profile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #333; /* 검은 배경 */
-    color: #fff; /* 흰 글자 */
-    font-size: 14px;
-    font-weight: bold;
-    text-transform: uppercase; /* 대문자 */
-    margin-right: 12px;
-  }
-   
-    /* img {
+    img {
       width: 32px;
       height: 32px;
       border-radius: 50%;
       margin-right: 12px;
-    } */
+    }
 
     .info {
       display: flex;
@@ -155,5 +140,4 @@ max-width: 800px;
       }
     }
   }
-
-`
+`;

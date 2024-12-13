@@ -1,91 +1,90 @@
-
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const PriceCard = styled.div`
   border: 1px solid #ccc;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 350px;
-    height: auto;
-    margin-top: 50px;
-    background-color: #fff;
-    padding: 20px;
-    text-align: center;
-    box-sizing: border-box;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  margin-top: 50px;
+  background-color: #fff;
+  padding: 20px;
+  text-align: center;
+  box-sizing: border-box;
 
-    h2 {
-        font-size: 28px;
-        margin-bottom: 15px;
+  h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  button {
+    height: 45px;
+    width: 80%;
+    margin-top: 15px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 40px;
+    background-color: #007bff;
+  }
+
+  .freebtn {
+    background-color: #038c8c;
+    cursor: default;
+  }
+
+  .teambtn {
+    background-color: #05a6a6;
+
+    &:hover {
+      background-color: #038c8c;
+    }
+  }
+
+  p {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #333;
+    text-align: left;
+    padding-left: 15px;
+    line-height: 1.5;
+
+    span {
+      font-weight: 600;
+    }
+  }
+
+  ul {
+    margin-top: 10px;
+    padding-left: 30px;
+    list-style: none;
+
+    li {
+      margin-bottom: 10px;
+      display: flex; /* 플렉스 컨테이너로 변경 */
+      align-items: center; /* 텍스트와 * 정렬 */
+      line-height: 1.5;
+
+      &:before {
+        content: "•";
+        color: #038c8c;
         font-weight: bold;
+        margin-right: 8px; /* 텍스트와 기호 간격 */
+        flex-shrink: 0; /* 크기 고정 */
+      }
     }
+  }
 
-    button {
-        height: 45px;
-        width: 80%;
-        margin-top: 15px;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-        font-weight: bold;
-        color: #fff;
-        margin-bottom: 40px;
-        background-color: #007bff;
-    }
-
-    .freebtn {
-        background-color: #038c8c;
-        cursor: default;
-    }
-
-    .teambtn {
-        background-color: #05a6a6;
-
-        &:hover {
-            background-color: #038c8c;
-        }
-    }
-
-    p {
-        margin-top: 15px;
-        font-size: 16px;
-        color: #333;
-        text-align: left;
-        padding-left: 15px;
-        line-height: 1.5;
-
-        span {
-            font-weight: 600;
-        }
-    }
-
-    ul {
-        margin-top: 10px;
-        padding-left: 30px;
-        list-style: none;
-
-        li {
-            margin-bottom: 10px;
-            display: flex; /* 플렉스 컨테이너로 변경 */
-            align-items: center; /* 텍스트와 * 정렬 */
-            line-height: 1.5;
-
-            &:before {
-                content: '•';
-                color: #038c8c;
-                font-weight: bold;
-                margin-right: 8px; /* 텍스트와 기호 간격 */
-                flex-shrink: 0; /* 크기 고정 */
-            }
-        }
-    }
-
-    .description {
-        margin-top: 20px;
-        font-size: 15px;
-        color: #555;
-    }
-`
+  .description {
+    margin-top: 20px;
+    font-size: 15px;
+    color: #555;
+  }
+`;
 
 export const PaymentWrap = styled.div`
   padding: 20px;
@@ -94,6 +93,15 @@ export const PaymentWrap = styled.div`
   margin: 60px auto;
 
   .plan-section,
+  .billing-info {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .billing-info p {
+    margin: 5px 0;
+  }
   .card-section {
     background: #ffffff;
     padding: 30px;
@@ -103,7 +111,23 @@ export const PaymentWrap = styled.div`
     margin-bottom: 30px;
   }
 
-  .plan-section .section-header,
+  .plan-section .section-header {
+    display: flex; /* Flexbox 활성화 */
+    justify-content: space-between; /* 좌우 정렬 */
+    align-items: center; /* 세로 정렬 */
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+  }
+
+  .billing-date {
+    font-size: 16px; /* 결제 예정일 폰트 크기 */
+    color: #555; /* 텍스트 색상 */
+  }
+
   .card-section .card-info h2 {
     font-size: 24px;
     font-weight: bold;
