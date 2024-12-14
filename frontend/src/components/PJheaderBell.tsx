@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GoBell } from "react-icons/go";
 import { NotificationCard, NotificationsPopup } from '../styles/HeaderStyle';
 import { Link } from 'react-router-dom';
@@ -16,28 +16,37 @@ const PJheaderBell = () => {
     console.log(notifications);
     
 
-    const toggleOnPopup = async() =>{
-        setPopOpen(true);
-
-        //팝업이 열릴 때만 서버에서 알림 데이터 가져옴
-        if(notifications.length === 0){
-            try {
-                setLoading(true);
-                const response = await axios.get('http://localhost:3001/alarm/notifications',{
-                  params: {userEmail: user?.email},
-                })
-                setNotifications(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('데이터 없슴 : ',error);
-                setLoading(false);
-            }
+    useEffect(()=>{
+      const fetchNotification = async()=>{
+        try {
+          const response = await axios.get('http://localhost:3001/alarm/notifications',{
+            params:{userEmail : user?.email},
+          });
+          setNotifications(response.data);
+        } catch (error) {
+          console.error('알림 데이터를 가져오지 못했습니다.',error);
         }
-    }
-
-    const toggleDownPopup = () => {
-            setPopOpen(false); // 팝업 닫기
       };
+      fetchNotification();
+    },[user?.email , setNotifications]);
+
+    // const toggleOnPopup = async() =>{
+    //     setPopOpen(true);
+    //     if(notifications.length === 0){
+    //         try {
+    //             setLoading(true);
+    //             const response = await axios.get('http://localhost:3001/alarm/notifications',{
+    //               params: {userEmail: user?.email},
+    //             })
+    //             setNotifications(response.data);
+    //             setLoading(false);
+    //         } catch (error) {
+    //             console.error('데이터 없슴 : ',error);
+    //             setLoading(false);
+    //         }
+    //     }
+    // }
+
 
       // 알림 클릭 시 읽음 처리 및 세션 저장
       const notificationClick =async(notiId:number,projectId:number)=>{
@@ -55,8 +64,8 @@ const PJheaderBell = () => {
     return (
         <div
         style={{ position: 'relative' }}
-        onMouseEnter={toggleOnPopup} // 팝업 열림
-        onMouseLeave={toggleDownPopup} // 팝업 닫힘
+        onMouseEnter={()=>setPopOpen(true)} // 팝업 열림
+        onMouseLeave={()=>setPopOpen(false)} // 팝업 닫힘
       >
         {/* 알림 아이콘 */}
         <div className="notification-icon">

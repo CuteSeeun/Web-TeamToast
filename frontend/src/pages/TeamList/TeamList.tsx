@@ -126,8 +126,8 @@ const TeamList: React.FC<TeamListProps> = ({
       </div>
 
       <div className="member-list">
-        {teamMembers.map((member) => (
-          <div className="member-item" key={member.id}>
+        {teamMembers.map((member,idx) => (
+          <div className="member-item" key={idx}>
             <img
               src={`https://ui-avatars.com/api/?name=${member.name}`}
               alt={`${member.name} profile`}
