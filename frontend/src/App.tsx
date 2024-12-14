@@ -30,7 +30,11 @@ import { RiTimeLine } from "react-icons/ri";
 import Timeline from "./pages/TimeLine/TimeLine";
 
 const App: React.FC = () => {
-  useAuth(); // 로그인 상태 관리 
+  const loading = useAuth();
+
+  if(loading){
+    return <div>로딩 중 ...</div> // 스피너로 교체예정
+  }
 
   return (
     <>

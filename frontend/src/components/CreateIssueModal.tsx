@@ -582,6 +582,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
 
 
       console.log('이슈 생성 성공:', newIssue);
+        
       if (newIssue.manager) {
 
         // 알림 추가

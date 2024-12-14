@@ -54,10 +54,10 @@ const SpaceView: React.FC<SpaceViewProps> = ({onClose}) => {
     const handleSelectSpace = async (spaceId: string) => {
         try {
             await AccessToken.post('/space/select-space', { spaceId });
-            await sessionStorage.setItem('sid',spaceId);
+             sessionStorage.setItem('sid',spaceId);
             const selectSpace = spaces.find(space=>space.spaceId === spaceId);
             if(selectSpace){
-               await sessionStorage.setItem('userRole',selectSpace.role);
+                sessionStorage.setItem('userRole',selectSpace.role);
               }
               // 스토리지 이벤트 강제 발생
               // 같은 탭에서 동작하게 하려면 수동으로 이벤트를 걸어야한다.
@@ -110,17 +110,14 @@ const SpaceView: React.FC<SpaceViewProps> = ({onClose}) => {
                 <p className="centered-message">스페이스가 없습니다.</p>
             ) : (
                 spaces.map((space, idx) => (
-                    <Link to={`/projectlist/${space.spaceId}`}
-                    onClick={() => handleSelectSpace(space.spaceId)}
+                    <span onClick={() => handleSelectSpace(space.spaceId)}
                         key={space.spaceId}
-                        className="space-item"
-                        >
-                        <div
-                            className="color-box"
+                        className="space-item">
+                        <div className="color-box"
                             style={{ backgroundColor: PASTEL_COLORS[idx % PASTEL_COLORS.length] }}
                             />
                         <h3>{space.spaceName}</h3>
-                            </Link>
+                    </span>
                 ))
             )}
         </div>
