@@ -19,15 +19,23 @@ const ProjectHeader = ({
   }: {
     onFetchTeamMembers?: () => void;
   }) => {
-    const user = useRecoilValue(userState);
-    const setUser = useSetRecoilState(userState);
     const setTeamMembers = useSetRecoilState(teamMembersState); 
-    const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
-    const navigate = useNavigate();
-
+    const [user,setUser] = useRecoilState(userState);
     const [alarmOnOff ,setAlarmOnOff] = useRecoilState(notificationsAtom);
-
+    const [userRole,setUserRole] = useState(sessionStorage.getItem('userRole')); // 초기 로컬에서 가져온 role
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
     const sid = sessionStorage.getItem('sid');
+
+
+    useEffect(()=>{
+        if(user?.email){
+            setLoading(false);
+            // setTimeout(
+            //     setLoading(false)
+            // ,1500)
+        }
+    },[user])
 
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
@@ -39,6 +47,7 @@ const ProjectHeader = ({
             navigate('/');
         }
     };
+
 
   // 팀 멤버 데이터를 가져오는 함수
   useEffect(() => {
@@ -56,9 +65,10 @@ const ProjectHeader = ({
         console.log("팀원 데이터를 가져오는 중 오류 발생:", error);
       }
     };
-
-    fetchTeamMembers(); // 컴포넌트 로드 시 호출
-  }, [sid, setTeamMembers]);
+    if(!loading){
+        fetchTeamMembers(); // 컴포넌트 로드 시 호출
+    }
+  }, [sid, setTeamMembers,loading]);
 
      useEffect(() => {
        const syncRole = () => {
@@ -81,7 +91,6 @@ const ProjectHeader = ({
      const handleProjectGo = async () => {
         if (!sid) {
             console.error('현재 선택된 스페이스가 없습니다.');
-            navigate('/');
             return;
         }
         try {
@@ -99,10 +108,7 @@ const ProjectHeader = ({
     };
 
     useEffect(()=>{
-        if (!user?.email) {
-            console.warn("유효한 사용자 이메일이 없습니다.");
-            return;
-          }
+     
 
         const fetchNotification = async() =>{
             try {
@@ -114,8 +120,10 @@ const ProjectHeader = ({
                 console.error("알림 데이터 가져오기 오류: ", error);
             }
         }
-        fetchNotification();
-    },[]);
+        if(!loading){
+            fetchNotification();
+        }
+    },[user,setAlarmOnOff,loading]);
 
     return (
         <ProjectHeaderWrap>

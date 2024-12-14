@@ -220,6 +220,7 @@ const ProjectList = () => {
           <button className="create-btn" onClick={() => openModal('create')}>
             <GoPlus /> 새 프로젝트 생성
           </button>
+         
         </div>
       </div>
       </ProjectListWrap>
@@ -235,7 +236,8 @@ const ProjectList = () => {
     <ProjectListWrap>
       <div className="project-header">
         <h2>프로젝트</h2>
-      </div> {projects.length !== 0 && <div className="table-container">
+      </div> 
+      {projects.length !== 0 && <div className="table-container">
         {isAdmin && (
           <button className="create-btn" onClick={() => openModal('create')}>
             <GoPlus /> 새 프로젝트 생성

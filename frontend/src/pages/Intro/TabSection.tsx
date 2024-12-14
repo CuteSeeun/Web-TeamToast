@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TabSectionWrap } from './introStyle';
 
-type TabKey = '회사 전체' | '마케팅' | '운영' | 'IT' | '제품';
+type TabKey = '스프린트' | '백로그' | '이슈' | '프로젝트' | '채팅';
 type TabData = {
   [key in TabKey]: {
     image: string;
@@ -11,32 +11,32 @@ type TabData = {
 };
 
 const TabSection:React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabKey>('회사 전체');
+  const [activeTab, setActiveTab] = useState<TabKey>('스프린트');
   const tabData:TabData = {
-    '회사 전체': {
+    '스프린트': {
       image: '/sprint.jpg',
-      title: '회사 전체',
-      description: '회사 전체에 대한 설명입니다. 회사 전반의 흐름을 이해하고 팀워크를 높이세요.',
+      title: '스프린트',
+      description: '스프린트 전체에 대한 설명입니다. 회사 전반의 흐름을 이해하고 팀워크를 높이세요.스프린트 전체에 대한 설명입니다. 회사 전반의 흐름을 이해하고 팀워크를 높이세요.스프린트 전체에 대한 설명입니다. 회사 전반의 흐름을 이해하고 팀워크를 높이세요.스프린트 전체에 대한 설명입니다. 회사 전반의 흐름을 이해하고 팀워크를 높이세요.스프린트 전체에 대한 설명입니다. 회사 전반의 흐름을 이해하고 팀워크를 높이세요.',
     },
-    마케팅: {
+    백로그: {
       image: '/sprint.jpg',
-      title: '마케팅',
-      description: '마케팅에 대한 설명입니다. 전략과 기획을 중심으로 성과를 높이세요.',
+      title: '백로그',
+      description: '백로그 대한 설명입니다. 전략과 기획을 중심으로 성과를 높이세요.',
     },
-    운영: {
+    이슈: {
       image: '/sprint.jpg',
-      title: '운영',
-      description: '운영에 대한 설명입니다. 효율적인 관리를 통해 더 나은 결과를 만들어 보세요.',
+      title: '이슈',
+      description: '이슈 대한 설명입니다. 효율적인 관리를 통해 더 나은 결과를 만들어 보세요.',
     },
-    IT: {
+    프로젝트: {
       image:'/sprint.jpg',
-      title: 'IT',
-      description: 'IT에 대한 설명입니다. 기술을 활용해 혁신을 이끄세요.',
+      title: '프로젝트',
+      description: '프로젝트 대한 설명입니다. 기술을 활용해 혁신을 이끄세요.',
     },
-    제품: {
+    채팅: {
       image: '/sprint.jpg',
-      title: '제품',
-      description: '제품에 대한 설명입니다. 고객 중심의 제품을 설계하세요.',
+      title: '채팅',
+      description: '채팅 대한 설명입니다. 고객 중심의 제품을 설계하세요.',
     },
   };
 

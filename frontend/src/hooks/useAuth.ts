@@ -5,6 +5,7 @@ import { userState } from "../recoil/atoms/userAtoms"
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import AccessToken from "../pages/Login/AccessToken";
+import axios from "axios";
 
 
 export const useAuth = () =>{
@@ -51,6 +52,6 @@ export const useAuth = () =>{
     
         fetchUserData();
       }, [setUser]);
-      
+
       return loading; // 로딩 상태 반환
 }
