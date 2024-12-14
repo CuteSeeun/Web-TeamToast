@@ -13,7 +13,7 @@ const PJheaderBell = () => {
     const [popOpen , setPopOpen] = useState(false);
     const [loading , setLoading] = useState(false);
 
-    console.log(notifications);
+    // console.log(notifications);
     
 
     useEffect(()=>{
