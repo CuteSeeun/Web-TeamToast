@@ -1,5 +1,44 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
+
+const waveEffect = keyframes`
+  0% {
+    color: #038c8c;
+    opacity: 0.5;
+    transform: translateY(5px);
+  }
+  25% {
+    color: #038c8c;
+    opacity: 0.75;
+    transform: translateY(2.5px);
+  }
+  50% {
+    color: #038c8c;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  75% {
+    color: #038c8c;
+    opacity: 0.75;
+    transform: translateY(2.5px);
+  }
+  100% {
+    color: #fff;
+    opacity: 0.5;
+    transform: translateY(-5px);
+  }
+`;
+
+export const AnimateWaveText = styled.span`
+ display: inline-block;
+  span.wave {
+    display: inline-block;
+    font-size: 3rem;
+    font-weight: bold;
+    animation: ${waveEffect} 5s ease-in-out infinite;
+    opacity: 0.5; /* 초기 상태 */
+  }
+`
 
 export const IntroWrap = styled.div`
   background: linear-gradient(180deg, #60c1df, #84d1b6);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
 import { Link, useNavigate } from 'react-router-dom';
-import { IntroWrap } from './introStyle';
+import { AnimateWaveText, IntroWrap } from './introStyle';
 import SpaceView from './SpaceView';
 import TabSection from './TabSection';
 import IntroFooter from './IntroFooter';
@@ -46,7 +46,16 @@ const Intro = () => {
         <IntroWrap>
              <div className="intro-container">
                 <div className="text-section">
-                    <h1 className="main-title">일이 술술 풀리는 협업툴 TeamToast</h1>
+                    <h1 className="main-title">
+                        일이 술술 풀리는 협업툴<br />
+                        <AnimateWaveText>
+                            {"TeamToast".split("").map((char,index)=>(
+                                <span key={index} className='wave' style={{animationDelay:`${index * 0.3}s`}}>
+                                    {char}
+                                </span>
+                            ))}
+                        </AnimateWaveText>
+                    </h1>
                     <p className="sub-title">
                         원활한 소통과 매끄러운 업무 흐름을 가장 쉬운 협업 공간,<br/>TeamToast에서 경험해 보세요.
                     </p>

@@ -4,7 +4,6 @@ import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
 import axios from 'axios';
 import { SpaceViewWrap } from './introStyle';
-import SpaceModal from '../SpaceList/SpaceModal';
 import { Link, useNavigate } from 'react-router-dom';
 
 
@@ -30,12 +29,14 @@ const PASTEL_COLORS = [
 const SpaceView: React.FC<SpaceViewProps> = () => {
     const user = useRecoilValue(userState); // 현재 유저 정보
     const [spaces, setSpaces] = useState<SpaceItem[]>([]); // 스페이스 리스트
-    // const [showModal, setShowModal] = useState(false); // 모달 상태 바꾸면서 안씀
     const [error, setError] = useState<string>(''); // 에러 메시지
+    
+    // (추가)
     const [newSpaceName , setNewSpaceName] = useState(''); // 새로운 스페이스 이름
     const [showNewSpaceField, setShowNewSpaceField] = useState(false); // 새 필드 표시 여부
-    const navigate = useNavigate();
     const newSpaceRef = useRef<HTMLDivElement | null>(null);
+    
+    const navigate = useNavigate();
 
     // API: 스페이스 목록 가져오기
     useEffect(()=>{
@@ -90,8 +91,11 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
                 role: 'top_manager',
             };
             setSpaces((prev) => [...prev, newSpace]);
+
+            // (추가)
             setNewSpaceName(''); // 입력 필드 초기화
             setShowNewSpaceField(false); // 필드 숨기기
+
             alert('스페이스가 생성되었습니다.');
         } catch (err) {
             console.error('스페이스 생성 오류:', err);
@@ -100,6 +104,7 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
     };
 
     //  입력 창이 열릴 때 자동으로 맨 아래로 스크롤 이동
+    // (추가)
     const spaceScrollbottom = () =>{
         setShowNewSpaceField(true);
         setTimeout(()=>{
@@ -134,7 +139,9 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
                         <h3>{space.spaceName}</h3>
                     </span>
                 ))}
+
             {/* 새로운 스페이스 추가 필드 */}
+            {/* 추가  (스페이스 모달 없애고 생성 스페이스)*/}
             {showNewSpaceField && (
                     <div className="space-item new-space-item" ref={newSpaceRef}>
                         <div className="color-box"
@@ -145,33 +152,16 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
                                     ],
                             }}
                         />
-                     <input
-                            type="text"
-                            placeholder="새 스페이스 이름"
-                            value={newSpaceName}
+                     <input type="text" placeholder="새 스페이스 이름" value={newSpaceName}
                             onChange={(e) => setNewSpaceName(e.target.value)}
-                            className="new-space-input"
-                        />
-                        <button
-                            onClick={handleCreateSpace}
-                            className="create-space-btn"
-                        >
+                            className="new-space-input"/>
+
+                        <button onClick={handleCreateSpace} className="create-space-btn">
                             생성
                         </button>
                 </div>
             )}
         </div>
-
-        {/* 모달
-        {showModal && (
-            <SpaceModal
-                onClose={() => setShowModal(false)}
-                onConfirm={async (spaceName) => {
-                    await handleCreateSpace(spaceName); // `await`로 비동기 처리
-                    setShowModal(false); // 모달 닫기
-                }}
-            />
-        )} */}
 
         {/* 에러 메시지 */}
         {error && <p className="error-message">{error}</p>}
