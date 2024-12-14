@@ -18,6 +18,12 @@ const PJheaderBell = () => {
 
     useEffect(()=>{
       const fetchNotification = async()=>{
+
+        if (!user?.email) {
+          console.warn("유효한 사용자 이메일이 없습니다.");
+          return;
+        }
+
         try {
           const response = await axios.get('http://localhost:3001/alarm/notifications',{
             params:{userEmail : user?.email},
@@ -27,26 +33,10 @@ const PJheaderBell = () => {
           console.error('알림 데이터를 가져오지 못했습니다.',error);
         }
       };
-      fetchNotification();
+      if(user?.email){
+        fetchNotification();
+      }
     },[user?.email , setNotifications]);
-
-    // const toggleOnPopup = async() =>{
-    //     setPopOpen(true);
-    //     if(notifications.length === 0){
-    //         try {
-    //             setLoading(true);
-    //             const response = await axios.get('http://localhost:3001/alarm/notifications',{
-    //               params: {userEmail: user?.email},
-    //             })
-    //             setNotifications(response.data);
-    //             setLoading(false);
-    //         } catch (error) {
-    //             console.error('데이터 없슴 : ',error);
-    //             setLoading(false);
-    //         }
-    //     }
-    // }
-
 
       // 알림 클릭 시 읽음 처리 및 세션 저장
       const notificationClick =async(notiId:number,projectId:number)=>{

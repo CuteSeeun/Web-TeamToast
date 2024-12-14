@@ -9,8 +9,6 @@ import { userState } from '../recoil/atoms/userAtoms';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ReactComponent as LogoIcon } from '../assets/icons/Logo.svg'; // icons 폴더에서 로고 가져옴
 import { IoSettingsOutline } from "react-icons/io5";
-import { spaceIdState } from '../recoil/atoms/spaceAtoms';
-import AccessToken from '../pages/Login/AccessToken';
 import PJheaderBell from './PJheaderBell';
 import axios from 'axios';
 import { teamMembersState } from '../recoil/atoms/memberAtoms';
@@ -28,8 +26,6 @@ const ProjectHeader = ({
     const navigate = useNavigate();
 
     const [alarmOnOff ,setAlarmOnOff] = useRecoilState(notificationsAtom);
-    // const alarmOnOff = useRecoilValue(notificationsAtom);
-    // const setAlarmOnOff = useSetRecoilState(notificationsAtom);
 
     const sid = sessionStorage.getItem('sid');
 
@@ -63,7 +59,6 @@ const ProjectHeader = ({
 
     fetchTeamMembers(); // 컴포넌트 로드 시 호출
   }, [sid, setTeamMembers]);
-
 
      useEffect(() => {
        const syncRole = () => {
@@ -104,6 +99,11 @@ const ProjectHeader = ({
     };
 
     useEffect(()=>{
+        if (!user?.email) {
+            console.warn("유효한 사용자 이메일이 없습니다.");
+            return;
+          }
+
         const fetchNotification = async() =>{
             try {
                 const response = await axios.get('http://localhost:3001/alarm/notifications',{
@@ -117,8 +117,6 @@ const ProjectHeader = ({
         fetchNotification();
     },[]);
 
-
-    
     return (
         <ProjectHeaderWrap>
              <div className='headerProject'>
