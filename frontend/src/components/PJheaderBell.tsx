@@ -7,6 +7,8 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { notificationsAtom } from '../recoil/atoms/notificationsAtom';
 import { userState } from '../recoil/atoms/userAtoms';
 
+
+
 const PJheaderBell = () => {
   const [notifications, setNotifications] = useRecoilState(notificationsAtom); // 알림 데이터
     const user = useRecoilValue(userState);
@@ -39,12 +41,12 @@ const PJheaderBell = () => {
     },[user?.email , setNotifications]);
 
       // 알림 클릭 시 읽음 처리 및 세션 저장
-      const notificationClick =async(notiId:number,projectId:number)=>{
+      const notificationClick =async(issueId:number,projectId:number)=>{
         try {
           // 서버에 알림 읽음 상태 업데이트
-          await axios.post('http://localhost:3001/alarm/markAsRead',{notiId});
+          await axios.post('http://localhost:3001/alarm/markAsRead',{issueId});
           //읽은 알림 삭제
-          setNotifications((prev)=>prev.filter((n)=>n.isid !== notiId));
+          setNotifications((prev)=>prev.filter((n)=>n.issue_id !== issueId));
           sessionStorage.setItem('pid',projectId.toString());
         } catch (error) {
           console.error("알림 읽음 처리 실패:", error);
@@ -72,11 +74,11 @@ const PJheaderBell = () => {
             <div className="loading-message">로딩 중...</div> // 로딩 메시지
           ) : notifications.length > 0 ? (
             notifications.map((notification) => (
-              <NotificationCard key={notification.isid}
-              onClick={async() => {await notificationClick(notification.isid ,notification.project_id)
+              <NotificationCard key={notification.issue_id}
+              onClick={async() => {await notificationClick(notification.issue_id ,notification.project_id)
               setPopOpen(false);
               }}>
-                <Link to={`/issue/${notification.isid}`}
+                <Link to={`/issue/${notification.issue_id}`}
                  style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                 <div className="notification-header">
