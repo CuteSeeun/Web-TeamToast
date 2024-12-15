@@ -72,13 +72,16 @@ const Intro = () => {
               <SpaceView onClose={closeSpaceModal} />
             </div>
           ) : (
-            <video
-              className={`intro-video ${isFadingOut ? "fade-out" : ""}`}
-              src="/video.mp4"
-              autoPlay
-              muted
-              loop
+            <img src="/dash.jpg" alt="" 
+            style={{width:'600px', height:'350px'}}
             />
+            // <video
+            //   className={`intro-video ${isFadingOut ? "fade-out" : ""}`}
+            //   src="/video.mp4"
+            //   autoPlay
+            //   muted
+            //   loop
+            // />
           )}
                 </div>
             </div>

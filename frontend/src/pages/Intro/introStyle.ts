@@ -41,7 +41,7 @@ export const AnimateWaveText = styled.span`
 `
 
 export const IntroWrap = styled.div`
-  background: linear-gradient(180deg, #60c1df, #84d1b6);
+  background: linear-gradient(180deg, #A7E9E9, #C7F1E5);
   min-height: 100vh;
   display: flex;
   flex-direction: column;

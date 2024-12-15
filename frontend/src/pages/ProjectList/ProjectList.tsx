@@ -48,6 +48,9 @@ const ProjectList = () => {
           return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
       }, []);
 
+      useEffect(()=>{
+        sessionStorage.removeItem('pid')
+    },[])
 
   //세션스토리지에서 userRole가져오기
   useEffect(() => {

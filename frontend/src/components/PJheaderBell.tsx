@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { GoBell } from "react-icons/go";
 import { NotificationCard, NotificationsPopup } from '../styles/HeaderStyle';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { notificationsAtom } from '../recoil/atoms/notificationsAtom';
 import { userState } from '../recoil/atoms/userAtoms';
@@ -16,6 +16,7 @@ const PJheaderBell = () => {
     const [loading , setLoading] = useState(false);
 
     // console.log(notifications);
+    const navigate = useNavigate();
     
 
     useEffect(()=>{
@@ -42,12 +43,25 @@ const PJheaderBell = () => {
 
       // 알림 클릭 시 읽음 처리 및 세션 저장
       const notificationClick =async(issueId:number,projectId:number)=>{
+
+        console.log("Issue ID:", issueId);
+        console.log("Project ID:", projectId); 
+
+
+        if (!projectId) {
+          console.error("Project ID is undefined!");
+          return;
+        }
+
         try {
           // 서버에 알림 읽음 상태 업데이트
           await axios.post('http://localhost:3001/alarm/markAsRead',{issueId});
           //읽은 알림 삭제
           setNotifications((prev)=>prev.filter((n)=>n.issue_id !== issueId));
           sessionStorage.setItem('pid',projectId.toString());
+
+          //페이지 이동
+          navigate(`/issue/${issueId}`);
         } catch (error) {
           console.error("알림 읽음 처리 실패:", error);
         }
@@ -78,9 +92,7 @@ const PJheaderBell = () => {
               onClick={async() => {await notificationClick(notification.issue_id ,notification.project_id)
               setPopOpen(false);
               }}>
-                <Link to={`/issue/${notification.issue_id}`}
-                 style={{ textDecoration: 'none', color: 'inherit' }}
-                >
+               
                 <div className="notification-header">
                     {notification.projectTitle}
                   </div>
@@ -90,7 +102,7 @@ const PJheaderBell = () => {
                   <div className="notification-body">
                     {notification.issueDetail}
                   </div>
-                </Link>
+                {/* </Link> */}
               </NotificationCard>
             ))
           ) : (

@@ -18,6 +18,7 @@ export const getIssueAlarm = async(req:Request,res:Response) =>{
           n.isread,
           n.issue_id,
           n.user AS manager,
+          p.pid AS project_id, 
           p.pname AS projectTitle,
           i.title AS issueTitle,
           i.detail AS issueDetail
