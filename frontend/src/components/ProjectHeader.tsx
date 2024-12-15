@@ -26,7 +26,20 @@ const ProjectHeader = ({
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const sid = sessionStorage.getItem('sid');
+    const [pid , setPid] = useState(null);
+    // const pid = sessionStorage.getItem('pid');
+    const [searchState , setSearchState] = useState('');
 
+    // 검색 입력 핸들러
+    const handleSearch = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        setSearchState(e.target.value);
+    }
+    // useEffect(() => {
+    //     // sessionStorage에서 pid 값 가져오기
+    //     const storedPid = sessionStorage.getItem('pid');
+    //     setPid(storedPid);
+    //   }, []);
+    
 
     useEffect(()=>{
         if(user?.email){
@@ -36,6 +49,7 @@ const ProjectHeader = ({
             // ,1500)
         }
     },[user])
+
 
     const logoutGo = () =>{
         const confirmed = window.confirm('로그아웃 하시겠습니까?');
@@ -109,7 +123,6 @@ const ProjectHeader = ({
 
     useEffect(()=>{
      
-
         const fetchNotification = async() =>{
             try {
                 const response = await axios.get('http://localhost:3001/alarm/notifications',{
@@ -143,6 +156,25 @@ const ProjectHeader = ({
                         </div>
                     </nav>
                 </div>
+                
+                {/* 검색 인풋 */}
+                {pid && (
+                    <div style={{flex:1, textAlign:'center'}}>
+                        <input
+                        type='text'
+                        value={searchState}
+                        onChange={handleSearch}
+                        placeholder='검색어를 입력하세요'
+                        style={{
+                            width: '300px',
+                            padding: '5px 10px',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            fontSize: '14px'
+                        }}
+                        />
+                    </div>
+                )}
                 
 
                 <div className="rightPro">

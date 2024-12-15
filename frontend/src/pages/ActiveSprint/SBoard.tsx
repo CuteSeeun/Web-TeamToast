@@ -22,20 +22,16 @@ const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  height: 89vh;
+  height: 80vh;
   overflow-y: scroll; 
-
-  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
   margin-top:10px;
+  /* margin-left:20px; */
+  /* margin-right:20px; */
 
-  /* width:95%; */
   width:1120px;
-  /* margin: 20px auto; */
   border-radius:8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0F.1);
-  margin-left:20px;
-  margin-right:20px;
-  /* border:1px solid #000; */
+
 
 `;
 const BoardHeader = styled.div`

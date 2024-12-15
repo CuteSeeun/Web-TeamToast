@@ -7,6 +7,7 @@ export const ProfileWrap = styled.div`
  background: white;
  border-radius: 8px;
  border: 1px solid #f0f0f0;
+ margin-top: 50px;
 
  h1 {
    font-size: 20px;
