@@ -13,17 +13,6 @@ const Intro = () => {
     const [space , setSpace] = useState(false);
     const [isFadingOut, setIsFadingOut] = useState(false); // 페이드아웃 상태
 
-
-    // const openSpaceModal = () =>{
-    //     if(user) {
-    //         setSpace(true);
-    //     }else{
-    //         alert('로그인 후 입장해주세요.');
-    //     }
-    // }
-
-  
-
     const openSpaceModal = () => {
         if (user) {
           setIsFadingOut(true); // 비디오 페이드아웃 시작

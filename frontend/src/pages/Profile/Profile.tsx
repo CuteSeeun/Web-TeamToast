@@ -59,9 +59,6 @@ const Profile:React.FC = () => {
                     uid: response.data.user.uid,  
                     uname: response.data.user.uname,
                     email: response.data.user.email,
-                    isLoggedIn: true,  
-                    // token: token || '',  
-                    // role: user?.role || 'member'  
                 });
 
                 alert('수정 완료');

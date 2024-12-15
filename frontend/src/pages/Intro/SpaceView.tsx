@@ -154,7 +154,13 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
                         />
                      <input type="text" placeholder="새 스페이스 이름" value={newSpaceName}
                             onChange={(e) => setNewSpaceName(e.target.value)}
-                            className="new-space-input"/>
+                            className="new-space-input"
+                            onKeyDown={(e)=>{
+                                if(e.key === 'Enter'){
+                                    handleCreateSpace();
+                                }
+                            }}
+                            />
 
                         <button onClick={handleCreateSpace} className="create-space-btn">
                             생성

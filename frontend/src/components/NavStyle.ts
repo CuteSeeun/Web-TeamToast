@@ -193,6 +193,45 @@ export const JoinWrap = styled.div`
         }
     }
 }
+.message {
+  margin-top:-10px;
+  margin-bottom: 5px;
+}
+
+.emailBtn {
+  background: #038c8c;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80px;
+  height: 25px;
+  margin-top: 5px;
+}
+
+.telBtn {
+  background: #038c8c;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80px;
+  height: 25px;
+  margin-top: 5px;
+}
+
+.telCheckBtn {
+  background: #038c8c;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width: 80px;
+  height: 25px;
+  margin-top: 5px;
+  padding-bottom: 3px;
+  margin-left: 5px;
+  border-radius: 2px;
+}
 
   .inner {
     background: #ffffff;

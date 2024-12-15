@@ -13,7 +13,8 @@ import {sprintState} from '../recoil/atoms/sprintAtoms';
 const SidebarContainer = styled.div`
   width: 240px;
   /* height: 600px; */
-  /* height: 100vh; */
+  height: 620px;
+  overflow: hidden;
   background-color: #ffffff;
   border-right: 1px solid #ddd;
   display: flex;

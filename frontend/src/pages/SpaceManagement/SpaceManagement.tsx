@@ -20,8 +20,6 @@ const SpaceManagement = () => {
 
 
     useEffect(() => {
-        // 로컬에서 uuid 가져옴
-        // const currentUuid = localStorage.getItem('currentSpaceUuid');
         if(!currentSid){
             alert('스페이스 정보가 없습니다.');
             navi('/space')
@@ -71,7 +69,6 @@ const SpaceManagement = () => {
 
     // 스페이스 이름 수정 요청
     const handleUpdate = async () => {
-    //    const currentUuid = localStorage.getItem('currentSpaceUuid');
        if(!currentSid) return;
        try {
            await AccessToken.put(`/space/update-space/${currentSid}`,{sname:spaceName , sid:currentSid});
@@ -93,11 +90,9 @@ const SpaceManagement = () => {
 
     // 스페이스 삭제 요청
     const confirmDelete = async () => {
-        // const currentUuid = localStorage.getItem('currentSpaceUuid');
        if(!currentSid) return;
        try {
            await AccessToken.delete(`/space/delete-space/${currentSid}`);
-        //    alert('스페이스가 삭제되었습니다.');
            setShowDeleteModal(false);
            navi('/space');
         } catch (error) {
@@ -179,36 +174,6 @@ const SpaceManagement = () => {
                    )}
                </>
            )}
-
-           {/* {activeTab === 'plan' && (
-                 <div className="plan-section">
-                 <h2>플랜 정보</h2>
-                 <div className="plan-info-grid">
-                     <div className="info-row">
-                         <span>내 요금제</span>
-                         <span>팀 요금제</span>
-                     </div>
-                     <div className="info-row">
-                         <span>추가 인원</span>
-                         <span>8명</span>
-                     </div>
-                     <div className="info-row">
-                         <span>월별 결제 요금</span>
-                         <span>24,000 원</span>
-                     </div>
-                 </div>
-                 <button className="plan-manage-btn" onClick={()=>navi('/plan')}>플랜 관리</button>
-
-                 <div className="card-info">
-                     <h2>카드 정보</h2>
-                     <div className="info-row">
-                         <span>카드번호</span>
-                         <span>**** **** **** 4242</span>
-                     </div>
-                     <button className="card-change-btn">카드 변경하기</button>
-                 </div>
-             </div>
-            )} */}
         </SpaceEditWrap>
     );
 };

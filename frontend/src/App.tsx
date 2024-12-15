@@ -28,6 +28,7 @@ import Plan from './pages/Plan/Plan';
 import { useAuth } from './hooks/useAuth';
 import { RiTimeLine } from "react-icons/ri";
 import Timeline from "./pages/TimeLine/TimeLine";
+import PassFind from "./pages/Login/PassFind";
 
 const App: React.FC = () => {
 //   const loading = useAuth();
@@ -48,6 +49,7 @@ useAuth();
             <Route index element={<Intro />}/>
             <Route path="/login" element={<Login />}/>
             <Route path="/join" element={<Join />} />
+            <Route path="/pass" element={<PassFind />} />
             <Route path="/rate" element={<RatePlan />} />
             <Route path="/space" element={<SpaceAll />} />
             <Route path="/projectlist/:sid" element={<ProjectList />} />

@@ -141,9 +141,15 @@ const Join: React.FC = () => {
                 setEmailMessage('사용 가능한 이메일입니다.');
                 setIsEmailCheck(true);
             }else{
+
                 setEmailMessage('이미 사용중인 이메일입니다.');
                 setIsEmailCheck(false);
                 setData(prev => ({...prev,email:''}));
+                
+                // 이미 사용중이면 메시지 띄우고 5초뒤에 사라지게함
+                setTimeout(()=>{
+                    setEmailMessage('');
+                },5000)
             }
         } catch (error) {
             alert('이메일 중복 확인 중 오류가 발생했습니다.');
@@ -232,10 +238,13 @@ const Join: React.FC = () => {
                             onChange={handleChange}
                             required
                         />
-                        <button type="button"
-                        onClick={checkEmail}
-                        disabled={eloading}
-                        >{eloading ? '확인중...':'중복확인'}</button>
+                        {!isEmailCheck && (
+                            <button type="button"
+                            onClick={checkEmail}
+                            disabled={eloading}
+                            className='emailBtn'
+                            >{eloading ? '확인중...':'중복확인'}</button>
+                        )}
 
                         {emailMessage && (
                             <span style={{
@@ -262,30 +271,37 @@ const Join: React.FC = () => {
                         <button 
                             type="button"
                             onClick={checkPhone}
+                             className='telBtn'
                             disabled={isPhoneVerified || ploading}
                         >
                             {ploading ? '처리중.....' : isPhoneVerified ? '인증완료' : '인증하기'}
                         </button>
                     </div>
 
-                    {isCodeSent && !isPhoneVerified && (
-                        <div className='inputbox'>
-                            <span>인증번호 입력</span>
-                            <input type="text" value={verificationCode}
-                            onChange={e => setVerificationCode(e.target.value)}
-                            placeholder='인증번호를 입력해주세요'
-                            maxLength={6}
-                            />
-                            <button type='button' onClick={VerifyCode} disabled={ploading}>
-                                {ploading ? '확인 중...':'확인'}
-                            </button>
-                        </div>
-                    )}
                     {phoneMessage && (
                         <div className='message'>
                             {phoneMessage}
                         </div>
                     )}
+                    {isCodeSent && !isPhoneVerified && (
+                        <div className='inputbox'>
+                            <input type="text" value={verificationCode}
+                            onChange={e => setVerificationCode(e.target.value)}
+                            onKeyDown={(e)=>{
+                                if(e.key === 'Enter'){
+                                    setVerificationCode((e.target as HTMLInputElement).value)
+                                }
+                            }}
+                            placeholder='인증번호를 입력해주세요'
+                            maxLength={6}
+                            style={{height:'20px'}}
+                            />
+                            <button type='button' className='telCheckBtn' onClick={VerifyCode} disabled={ploading}>
+                                {ploading ? '확인 중...':'확인'}
+                            </button>
+                        </div>
+                    )}
+                  
 
                     <div className="inputBox">
                         <span>비밀번호</span>

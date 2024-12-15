@@ -5,6 +5,8 @@ export const TeamMaWrap = styled.div`
   margin: 0 auto;
   position: relative;
 
+  
+
   .header-area {
     margin-top: 60px;
   }
@@ -52,6 +54,19 @@ export const TeamMaWrap = styled.div`
     padding: 8px 12px;
     border-bottom: 1px solid #f0f0f0;
 
+    .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    margin-right: 12px;
+  }
+
     img {
       width: 32px;
       height: 32px;
@@ -67,6 +82,7 @@ export const TeamMaWrap = styled.div`
 
       .name {
         width: 100px;
+        padding-right: 50px;
         font-weight: 500;
       }
 

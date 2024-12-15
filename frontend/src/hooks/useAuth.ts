@@ -34,7 +34,6 @@ export const useAuth = () =>{
                   uid: response.data.user.uid,
                   uname: response.data.user.uname,
                   email: response.data.user.email,
-                  isLoggedIn: true,
                 });
               }else {
                 setUser(null);
