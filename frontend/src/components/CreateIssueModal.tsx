@@ -587,13 +587,15 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
 
         // 알림 추가
         const newNotification = {
-          isid: newIssue.isid,
-          type: 'new',
-          projectTitle:`프로젝트 ID ${newIssue.project_id}`, // 예시
-          issueTitle: newIssue.title,
-          manager: newIssue.manager,
-          project_id:newIssue.project_id,
-          issueDetail:newIssue.detail || '',
+          isid: newIssue.isid, // 이슈 ID
+          createdAt: new Date().toISOString(), // 생성 시간
+          isread: 0, // 읽음 상태 (0: 읽지 않음)
+          issue_id: newIssue.isid, // 이슈 ID
+          manager: newIssue.manager || 'Unknown Manager', // 관리자 정보
+          projectTitle: `프로젝트 ${newIssue.project_id}`, // 프로젝트 제목
+          issueTitle: newIssue.title || '제목 없음', // 이슈 제목
+          issueDetail: newIssue.detail || '세부사항 없음', // 이슈 상세
+          project_id: newIssue.project_id, // 프로젝트 ID
         };
         setNotifications((prev) => [...prev, newNotification]); // 알림 배열에 추가
       }

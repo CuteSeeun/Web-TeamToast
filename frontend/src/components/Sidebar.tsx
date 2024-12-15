@@ -11,11 +11,11 @@ import { loadingAtoms } from '../recoil/atoms/loadingAtoms';
 import {sprintState} from '../recoil/atoms/sprintAtoms';
 
 const SidebarContainer = styled.div`
-  width: 20px;
-  flex-shrink: 0; /* 너비가 줄어들지 않도록 설정 */
-  overflow: hidden;
+  width: 60px;
+  flex-shrink:0;
   /* height: 600px; */
-  height: 620px;
+  height: 600px;
+  overflow: hidden;
   background-color: #ffffff;
   border-right: 1px solid #ddd;
   display: flex;
@@ -23,7 +23,6 @@ const SidebarContainer = styled.div`
   justify-content: space-between;
   padding: 20px 0;
   min-width: 180px;
-  background:yellow;
 `;
 
 const TopSection = styled.div`

@@ -17,9 +17,9 @@ const ActiveSprint: React.FC = () => {
   }, [allIssues, sprints]);
 
   return (
-    <div style={{ background:'gray', overflow: 'hidden', height: '100vh'}}>
+      <div style={{background:'#999',height:'100%' , overflow:'hidden'}}>
         <SBoard />
-        </div>
+      </div>
   );
 };
 

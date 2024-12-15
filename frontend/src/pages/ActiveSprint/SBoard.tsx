@@ -12,7 +12,6 @@ import { enabledSprintsState, filterState } from '../../recoil/atoms/sprintAtoms
 import { issuesByStatusState } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as SprintAlert } from '../../assets/images/sprintAlert.svg';
 import { Issue } from '../../recoil/atoms/issueAtoms';
-import {HashLoader} from 'react-spinners';
 
 type Task = Pick<Issue, 'isid' | 'title' | 'type' | 'manager'>;
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
@@ -22,18 +21,19 @@ const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  /* overflow: hidden;  */ 
-  background: pink;
-  height: 100vh;
-  width: 95%; /* 전체 너비 설정 */
-  margin: 20px auto; /* 가운데 정렬 */
+  height: 89vh;
+  overflow-y: scroll; 
+  background:pink;
+  margin-top:10px;
 
-  border-radius: 8px; /* 모서리를 둥글게 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  /* width:95%; */
+  width:1120px;
+  /* margin: 20px auto; */
+  border-radius:8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0F.1);
   margin-left:20px;
   margin-right:20px;
 
-  overflow-y:scroll;
 `;
 const BoardHeader = styled.div`
   display: flex;
@@ -97,15 +97,13 @@ const DropdownMenu = styled.ul<{ open: boolean }>`
     }
   }
 `;
+
 const BoardMain = styled.div`
   display: flex;
-  flex: 1;
   flex-wrap: nowrap; /* 줄바꿈 허용하지 않음 */
-  margin-left: 18px; /* 왼쪽 여백을 주고 싶다면 margin-left를 사용하세요 */
-  margin-top: 0px; /* 필요하다면 위쪽 여백을 제거하세요 */
-  
-  // overflow-x: auto; /* 필요하면 스크롤 추가 */
-  overflow-y: hidden; /* 세로 스크롤 방지 */ /*근데 이걸 해야 가로 스크롤이 생김..*/
+  gap:8px;
+  padding-bottom: 10px;
+  /* overflow-y: hidden; 세로 스크롤 방지 */
   // width: 100%; /* 부모 컨테이너 크기에 맞춤 */
 `;
 const SprintCompleteButton = styled.button`
@@ -156,16 +154,6 @@ const SBoard: React.FC = () => {
   const issuesByStatus = useRecoilValue(issuesByStatusState); // 활성스프린트의 상태별 이슈 데이터 가져오기
   const [filter, setFilter] = useRecoilState(filterState);
   const pid = sessionStorage.getItem('pid');
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // 2초 후 로딩 상태 종료 (추가)
-      useEffect(() => {
-          const timer = setTimeout(() => {
-              setLoading(false);
-          }, 2000);
-  
-          return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
-      }, []);
 
 
   // Backlog 페이지로 이동
@@ -313,15 +301,6 @@ const SBoard: React.FC = () => {
     setPriorityOpen(false);
   };
 
-  // 로딩 상태에 따른 조건부 렌더링
-      if (loading) {
-          return (
-              <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft:'150px' }}>
-                  <HashLoader color="#36d7b7" />
-              </BoardContainer>
-          );
-      }
-
   return (
     <>
       <BoardContainer>
@@ -360,36 +339,6 @@ const SBoard: React.FC = () => {
                     <li onClick={() => handlePriorityChange('낮음')}>낮음</li>
                   </DropdownMenu>
                 </div>
-
-{/* <div className="filter-label" onClick={handleManagerClick}>
-                  담당자 <FaChevronDown />
-                  <DropdownMenu open={managerOpen}>
-                    <li onClick={() => handleManagerChange('')}>전체</li>
-                    {managerOptions.map((m) => (
-                      <li key={m} onClick={() => handleManagerChange(m)}>{m}</li>
-                    ))}
-                  </DropdownMenu>
-                </div>
-
-                <div className="filter-label" onClick={handleTypeClick}>
-                  유형 <FaChevronDown />
-                  <DropdownMenu open={typeOpen}>
-                    <li onClick={() => handleTypeChange('')}>전체</li>
-                    <li onClick={() => handleTypeChange('task')}>작업</li>
-                    <li onClick={() => handleTypeChange('bug')}>버그</li>
-                  </DropdownMenu>
-                </div>
-
-                <div className="filter-label" onClick={handlePriorityClick}>
-                  우선순위 <FaChevronDown />
-                  <DropdownMenu open={priorityOpen}>
-                    <li onClick={() => handlePriorityChange('')}>전체</li>
-                    <li onClick={() => handlePriorityChange('높음')}>높음</li>
-                    <li onClick={() => handlePriorityChange('보통')}>보통</li>
-                    <li onClick={() => handlePriorityChange('낮음')}>낮음</li>
-                  </DropdownMenu>
-                </div> */}
-
 
               </Filters>
 
