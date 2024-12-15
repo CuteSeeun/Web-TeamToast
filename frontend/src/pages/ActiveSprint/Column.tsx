@@ -18,9 +18,9 @@ const ColumnContainer = styled.div`
   border-radius: 8px;
   padding: 10px;
   margin-right: 20px;
-  margin-bottom: 30px; /* 하단 간격 추가 */
+  margin-bottom: 50px; /* 하단 간격 추가 */
   min-width: 150px;
-  max-width: 220px; /* 최대 너비 설정 */
+  width: 300px; 
 
   max-height: 400px; /* 컬럼의 최대 높이 설정 */
   overflow-y: auto; /* 내부 콘텐츠 스크롤 허용 */

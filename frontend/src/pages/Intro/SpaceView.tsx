@@ -5,6 +5,7 @@ import { userState } from '../../recoil/atoms/userAtoms';
 import axios from 'axios';
 import { SpaceViewWrap } from './introStyle';
 import { Link, useNavigate } from 'react-router-dom';
+import {HashLoader} from 'react-spinners';
 
 
 interface SpaceItem {
@@ -30,6 +31,7 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
     const user = useRecoilValue(userState); // 현재 유저 정보
     const [spaces, setSpaces] = useState<SpaceItem[]>([]); // 스페이스 리스트
     const [error, setError] = useState<string>(''); // 에러 메시지
+    const [loading, setLoading] = useState<boolean>(true);
     
     // (추가)
     const [newSpaceName , setNewSpaceName] = useState(''); // 새로운 스페이스 이름
@@ -37,6 +39,15 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
     const newSpaceRef = useRef<HTMLDivElement | null>(null);
     
     const navigate = useNavigate();
+
+    // 2초 후 로딩 상태 종료 (추가)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+
+        return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+    }, []);
 
     // API: 스페이스 목록 가져오기
     useEffect(()=>{
@@ -115,6 +126,15 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
             }
         },0);
         //셋타임아웃은 상태 업데이트 후 dom 렌더링 완료를 보장
+    }
+
+    // 로딩 상태에 따른 조건부 렌더링
+    if (loading) {
+        return (
+            <SpaceViewWrap style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <HashLoader color="#36d7b7" />
+            </SpaceViewWrap>
+        );
     }
 
     return (

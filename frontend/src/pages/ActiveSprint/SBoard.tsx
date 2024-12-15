@@ -12,6 +12,7 @@ import { enabledSprintsState, filterState } from '../../recoil/atoms/sprintAtoms
 import { issuesByStatusState } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as SprintAlert } from '../../assets/images/sprintAlert.svg';
 import { Issue } from '../../recoil/atoms/issueAtoms';
+import {HashLoader} from 'react-spinners';
 
 type Task = Pick<Issue, 'isid' | 'title' | 'type' | 'manager'>;
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
@@ -21,7 +22,18 @@ const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  overflow: hidden; /* BoardContainer에서 스크롤 막기 */
+  /* overflow: hidden;  */ 
+  background: pink;
+  height: 100vh;
+  width: 95%; /* 전체 너비 설정 */
+  margin: 20px auto; /* 가운데 정렬 */
+
+  border-radius: 8px; /* 모서리를 둥글게 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+  margin-left:20px;
+  margin-right:20px;
+
+  overflow-y:scroll;
 `;
 const BoardHeader = styled.div`
   display: flex;
@@ -85,7 +97,6 @@ const DropdownMenu = styled.ul<{ open: boolean }>`
     }
   }
 `;
-
 const BoardMain = styled.div`
   display: flex;
   flex: 1;
@@ -145,6 +156,16 @@ const SBoard: React.FC = () => {
   const issuesByStatus = useRecoilValue(issuesByStatusState); // 활성스프린트의 상태별 이슈 데이터 가져오기
   const [filter, setFilter] = useRecoilState(filterState);
   const pid = sessionStorage.getItem('pid');
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // 2초 후 로딩 상태 종료 (추가)
+      useEffect(() => {
+          const timer = setTimeout(() => {
+              setLoading(false);
+          }, 2000);
+  
+          return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+      }, []);
 
 
   // Backlog 페이지로 이동
@@ -291,6 +312,15 @@ const SBoard: React.FC = () => {
     setFilter((prev) => ({ ...prev, priority: newPriority }));
     setPriorityOpen(false);
   };
+
+  // 로딩 상태에 따른 조건부 렌더링
+      if (loading) {
+          return (
+              <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingLeft:'150px' }}>
+                  <HashLoader color="#36d7b7" />
+              </BoardContainer>
+          );
+      }
 
   return (
     <>
