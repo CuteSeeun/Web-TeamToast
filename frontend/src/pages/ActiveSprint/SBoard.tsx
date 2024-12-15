@@ -12,6 +12,7 @@ import { enabledSprintsState, filterState } from '../../recoil/atoms/sprintAtoms
 import { issuesByStatusState } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as SprintAlert } from '../../assets/images/sprintAlert.svg';
 import { Issue } from '../../recoil/atoms/issueAtoms';
+import { HashLoader } from 'react-spinners';
 
 type Task = Pick<Issue, 'isid' | 'title' | 'type' | 'manager'>;
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
@@ -23,7 +24,8 @@ const BoardContainer = styled.div`
   padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
   height: 89vh;
   overflow-y: scroll; 
-  background:pink;
+
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
   margin-top:10px;
 
   /* width:95%; */
@@ -33,6 +35,7 @@ const BoardContainer = styled.div`
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0F.1);
   margin-left:20px;
   margin-right:20px;
+  /* border:1px solid #000; */
 
 `;
 const BoardHeader = styled.div`
@@ -147,6 +150,7 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
 
 const SBoard: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate(); // useNavigate 훅 호출
   const pname = sessionStorage.getItem('pname');
   const [isModalOpen, setIsModalOpen] = useState(false);// 모달 열림/닫힘 상태 관리
@@ -154,6 +158,15 @@ const SBoard: React.FC = () => {
   const issuesByStatus = useRecoilValue(issuesByStatusState); // 활성스프린트의 상태별 이슈 데이터 가져오기
   const [filter, setFilter] = useRecoilState(filterState);
   const pid = sessionStorage.getItem('pid');
+
+  // 2초 후 로딩 상태 종료 (추가)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+  }, []);
 
 
   // Backlog 페이지로 이동
@@ -301,6 +314,15 @@ const SBoard: React.FC = () => {
     setPriorityOpen(false);
   };
 
+  // 로딩 상태에 따른 조건부 렌더링
+  if (loading) {
+    return (
+      <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <HashLoader color="#36d7b7" />
+      </BoardContainer>
+    );
+  }
+
   return (
     <>
       <BoardContainer>
@@ -309,7 +331,7 @@ const SBoard: React.FC = () => {
         <BoardHeader>
           <BoardTitle>활성 스프린트</BoardTitle>{/* 제목 */}
           <Breadcrumb>프로젝트 &gt; {pname} &gt; 활성 스프린트</Breadcrumb>{/* 네비게이션 텍스트 */}
-          
+
           {enabledSprints.length !== 0 && (
             <>
               <Filters>

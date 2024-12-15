@@ -24,7 +24,8 @@ import {
   DropdownContainer,
   DropdownLabel,
   DropdownList,
-  DropdownItem
+  DropdownItem,
+  BoardBox
 } from './issueStyle';
 import { sprintState } from '../../recoil/atoms/sprintAtoms';
 import { allIssuesSelector, allIssuesState, Issue, Priority, Status, Type } from '../../recoil/atoms/issueAtoms';
@@ -33,12 +34,14 @@ import { currentProjectState } from '../../recoil/atoms/projectAtoms';
 import { PreviewContainer } from '../../styles/CreateIssueModal';
 import { IoAddOutline, IoCloseOutline } from 'react-icons/io5';
 import { teamMembersState, TeamMember } from '../../recoil/atoms/memberAtoms'
+import { HashLoader } from 'react-spinners';
 
 type DropdownKeys = 'sprint' | 'createdBy' | 'manager' | 'type' | 'status' | 'priority';
 type Sprint = { spid: number; spname: string; };
 
 
 const IDBoard: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const { isid } = useParams<{ isid: string }>(); // URL에서 id 값 추출
   const issues = useRecoilValue(allIssuesSelector);
   const sprints = useRecoilValue<Sprint[]>(sprintState);
@@ -70,6 +73,15 @@ const IDBoard: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const issue = issues.find((issue: Issue) => issue.isid === issueId);
+
+  // 2초 후 로딩 상태 종료 (추가)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -264,215 +276,226 @@ const IDBoard: React.FC = () => {
     }
   };
 
+  // 로딩 상태에 따른 조건부 렌더링
+  if (loading) {
+    return (
+      <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <HashLoader color="#36d7b7" />
+      </BoardContainer>
+    );
+  }
+
   return (
     <BoardContainer>
-      <BoardHeader>
-        <BoardTitle>{issue.title}</BoardTitle>
-        <Breadcrumb>프로젝트 &gt; {projectName} &gt; {sprintName} &gt; {issue.title}</Breadcrumb>
-      </BoardHeader>
+      <BoardBox>
+        <BoardHeader>
+          <BoardTitle>{issue.title}</BoardTitle>
+          <Breadcrumb>프로젝트 &gt; {projectName} &gt; {sprintName} &gt; {issue.title}</Breadcrumb>
+        </BoardHeader>
 
-      <DetailMainWrapper>
-        <DetailMain>
-          <IssueSection>
-            <Label>프로젝트</Label>
-            <div>{projectName}</div>
-          </IssueSection>
+        <DetailMainWrapper>
+          <DetailMain>
+            <IssueSection>
+              <Label>프로젝트</Label>
+              <div>{projectName}</div>
+            </IssueSection>
 
-          <TitleSection>
-            <Label>제목</Label>
-            <InputField name="title" defaultValue={issue.title} onChange={handleChange} />
-          </TitleSection>
+            <TitleSection>
+              <Label>제목</Label>
+              <InputField name="title" defaultValue={issue.title} onChange={handleChange} />
+            </TitleSection>
 
-          <List>
-            <IssueList>
-              <IssueSection>
-                <Label>스프린트</Label>
-                <DropdownContainer className="dropdown-container">
-                  <DropdownLabel onClick={() => handleToggleDropdown('sprint')}>
-                    {selectedValues.sprint || sprintName}
-                  </DropdownLabel>
-                  {isDropdownOpen === 'sprint' && (
-                    <DropdownList>
-                      {extendedSprints.map((sprint) => (
-                        <DropdownItem key={sprint.spid} onClick={() => handleSelectItem('sprint', sprint.spname)}>
-                          {sprint.spname}
-                        </DropdownItem>
-                      ))}
-                    </DropdownList>
-                  )}
-                </DropdownContainer>
-              </IssueSection>
-              <IssueSection>
-                <Label>담당자</Label>
-                <Avatar>
-                  <AvatarImage>{firstLetterManager}</AvatarImage>
+            <List>
+              <IssueList>
+                <IssueSection>
+                  <Label>스프린트</Label>
                   <DropdownContainer className="dropdown-container">
-                    <DropdownLabel onClick={() => handleToggleDropdown('manager')}>
-                      {selectedValues.manager || issue.manager || ""}
+                    <DropdownLabel onClick={() => handleToggleDropdown('sprint')}>
+                      {selectedValues.sprint || sprintName}
                     </DropdownLabel>
-                    {isDropdownOpen === 'manager' && (
+                    {isDropdownOpen === 'sprint' && (
                       <DropdownList>
-                        {teamMembers.map((member) => (
-                          <DropdownItem
-                            key={member.id}
-                            onClick={() => handleSelectItem('manager', member.name)}
-                          >
-                            {member.name}
+                        {extendedSprints.map((sprint) => (
+                          <DropdownItem key={sprint.spid} onClick={() => handleSelectItem('sprint', sprint.spname)}>
+                            {sprint.spname}
                           </DropdownItem>
                         ))}
                       </DropdownList>
                     )}
                   </DropdownContainer>
-                </Avatar>
-              </IssueSection>
-              <IssueSection>
-                <Label>보고자</Label>
-                <Avatar>
-                  <AvatarImage>{firstLetterCreatedBy}</AvatarImage>
+                </IssueSection>
+                <IssueSection>
+                  <Label>담당자</Label>
+                  <Avatar>
+                    <AvatarImage>{firstLetterManager}</AvatarImage>
+                    <DropdownContainer className="dropdown-container">
+                      <DropdownLabel onClick={() => handleToggleDropdown('manager')}>
+                        {selectedValues.manager || issue.manager || ""}
+                      </DropdownLabel>
+                      {isDropdownOpen === 'manager' && (
+                        <DropdownList>
+                          {teamMembers.map((member) => (
+                            <DropdownItem
+                              key={member.id}
+                              onClick={() => handleSelectItem('manager', member.name)}
+                            >
+                              {member.name}
+                            </DropdownItem>
+                          ))}
+                        </DropdownList>
+                      )}
+                    </DropdownContainer>
+                  </Avatar>
+                </IssueSection>
+                <IssueSection>
+                  <Label>보고자</Label>
+                  <Avatar>
+                    <AvatarImage>{firstLetterCreatedBy}</AvatarImage>
+                    <DropdownContainer className="dropdown-container">
+                      <DropdownLabel onClick={() => handleToggleDropdown('createdBy')}>
+                        {selectedValues.createdBy || issue.created_by || ""}
+                      </DropdownLabel>
+                      {isDropdownOpen === 'createdBy' && (
+                        <DropdownList>
+                          {teamMembers.map((member) => (
+                            <DropdownItem
+                              key={member.id}
+                              onClick={() => handleSelectItem('createdBy', member.name)}
+                            >
+                              {member.name}
+                            </DropdownItem>
+                          ))}
+                        </DropdownList>
+                      )}
+                    </DropdownContainer>
+                  </Avatar>
+                </IssueSection>
+              </IssueList>
+
+              <IssueList>
+                <IssueSection>
+                  <Label>유형</Label>
                   <DropdownContainer className="dropdown-container">
-                    <DropdownLabel onClick={() => handleToggleDropdown('createdBy')}>
-                      {selectedValues.createdBy || issue.created_by || ""}
+                    <DropdownLabel onClick={() => handleToggleDropdown('type')}>
+                      {selectedValues.type || issue.type}
                     </DropdownLabel>
-                    {isDropdownOpen === 'createdBy' && (
+                    {isDropdownOpen === 'type' && (
                       <DropdownList>
-                        {teamMembers.map((member) => (
-                          <DropdownItem
-                            key={member.id}
-                            onClick={() => handleSelectItem('createdBy', member.name)}
-                          >
-                            {member.name}
+                        {['작업', '버그'].map(type => (
+                          <DropdownItem key={type} onClick={() => handleSelectItem('type', type)}>
+                            {type}
                           </DropdownItem>
                         ))}
                       </DropdownList>
                     )}
                   </DropdownContainer>
-                </Avatar>
-              </IssueSection>
-            </IssueList>
+                </IssueSection>
+                <IssueSection>
+                  <Label>상태</Label>
+                  <DropdownContainer className="dropdown-container">
+                    <DropdownLabel onClick={() => handleToggleDropdown('status')}>
+                      {selectedValues.status || issue.status}
+                    </DropdownLabel>
+                    {isDropdownOpen === 'status' && (
+                      <DropdownList>
+                        {['백로그', '작업중', '개발완료', 'QA완료'].map(status => (
+                          <DropdownItem key={status} onClick={() => handleSelectItem('status', status)}>
+                            {status}
+                          </DropdownItem>
+                        ))}
+                      </DropdownList>
+                    )}
+                  </DropdownContainer>
+                </IssueSection>
+                <IssueSection>
+                  <Label>우선 순위</Label>
+                  <DropdownContainer className="dropdown-container">
+                    <DropdownLabel onClick={() => handleToggleDropdown('priority')}>
+                      {selectedValues.priority || issue.priority}
+                    </DropdownLabel>
+                    {isDropdownOpen === 'priority' && (
+                      <DropdownList>
+                        {['높음', '보통', '낮음'].map(priority => (
+                          <DropdownItem key={priority} onClick={() => handleSelectItem('priority', priority)}>
+                            {priority}
+                          </DropdownItem>
+                        ))}
+                      </DropdownList>
+                    )}
+                  </DropdownContainer>
+                </IssueSection>
+              </IssueList>
+            </List>
 
-            <IssueList>
-              <IssueSection>
-                <Label>유형</Label>
-                <DropdownContainer className="dropdown-container">
-                  <DropdownLabel onClick={() => handleToggleDropdown('type')}>
-                    {selectedValues.type || issue.type}
-                  </DropdownLabel>
-                  {isDropdownOpen === 'type' && (
-                    <DropdownList>
-                      {['작업', '버그'].map(type => (
-                        <DropdownItem key={type} onClick={() => handleSelectItem('type', type)}>
-                          {type}
-                        </DropdownItem>
-                      ))}
-                    </DropdownList>
-                  )}
-                </DropdownContainer>
-              </IssueSection>
-              <IssueSection>
-                <Label>상태</Label>
-                <DropdownContainer className="dropdown-container">
-                  <DropdownLabel onClick={() => handleToggleDropdown('status')}>
-                    {selectedValues.status || issue.status}
-                  </DropdownLabel>
-                  {isDropdownOpen === 'status' && (
-                    <DropdownList>
-                      {['백로그', '작업중', '개발완료', 'QA완료'].map(status => (
-                        <DropdownItem key={status} onClick={() => handleSelectItem('status', status)}>
-                          {status}
-                        </DropdownItem>
-                      ))}
-                    </DropdownList>
-                  )}
-                </DropdownContainer>
-              </IssueSection>
-              <IssueSection>
-                <Label>우선 순위</Label>
-                <DropdownContainer className="dropdown-container">
-                  <DropdownLabel onClick={() => handleToggleDropdown('priority')}>
-                    {selectedValues.priority || issue.priority}
-                  </DropdownLabel>
-                  {isDropdownOpen === 'priority' && (
-                    <DropdownList>
-                      {['높음', '보통', '낮음'].map(priority => (
-                        <DropdownItem key={priority} onClick={() => handleSelectItem('priority', priority)}>
-                          {priority}
-                        </DropdownItem>
-                      ))}
-                    </DropdownList>
-                  )}
-                </DropdownContainer>
-              </IssueSection>
-            </IssueList>
-          </List>
+            <DesSection>
+              <Label>설명</Label>
+              <Description name="detail" defaultValue={issue.detail || ""} onChange={handleChange} />
+            </DesSection>
+            <PreviewContainer>
+              {/* 커스텀 파일 추가 버튼 */}
+              <label htmlFor="file-input" className="custom-file-button">
+                <IoAddOutline className="file-btn" />
+              </label>
 
-          <DesSection>
-            <Label>설명</Label>
-            <Description name="detail" defaultValue={issue.detail || ""} onChange={handleChange} />
-          </DesSection>
-          <PreviewContainer>
-            {/* 커스텀 파일 추가 버튼 */}
-            <label htmlFor="file-input" className="custom-file-button">
-              <IoAddOutline className="file-btn" />
-            </label>
+              {/* 숨겨진 파일 입력 */}
+              <input
+                type="file"
+                id="file-input"
+                name="filename"
+                multiple
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                style={{ display: "none" }}
+              />
 
-            {/* 숨겨진 파일 입력 */}
-            <input
-              type="file"
-              id="file-input"
-              name="filename"
-              multiple
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              style={{ display: "none" }}
-            />
-
-            {/* 서버에서 받아온 기존 파일 미리보기 영역 */}
-            {initialFiles.length > 0 && (
-              <>
-                {initialFiles.map((fileUrl, index) => (
-                  <div className="preview-wrap" key={index}>
-                    <div className="img-wrap" onClick={() => handleFileDelete(index + selectedFiles.length)}>
-                      <img src={fileUrl} alt={`Preview ${index}`} />
-                      <IoCloseOutline className="file-btn delete-btn" />
+              {/* 서버에서 받아온 기존 파일 미리보기 영역 */}
+              {initialFiles.length > 0 && (
+                <>
+                  {initialFiles.map((fileUrl, index) => (
+                    <div className="preview-wrap" key={index}>
+                      <div className="img-wrap" onClick={() => handleFileDelete(index + selectedFiles.length)}>
+                        <img src={fileUrl} alt={`Preview ${index}`} />
+                        <IoCloseOutline className="file-btn delete-btn" />
+                      </div>
+                      <p className="file-name">{initialFileNames[index]?.originalFilename}</p>
+                      <button
+                        className="download-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(initialFileNames[index]?.key); // key 값을 전달
+                        }}
+                      >
+                        다운로드
+                      </button>
                     </div>
-                    <p className="file-name">{initialFileNames[index]?.originalFilename}</p>
-                    <button
-                      className="download-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownload(initialFileNames[index]?.key); // key 값을 전달
-                      }}
-                    >
-                      다운로드
-                    </button>
-                  </div>
-                ))}
-              </>
-            )}
+                  ))}
+                </>
+              )}
 
-            {/* 새로 선택한 파일 미리보기 영역 */}
-            {selectedFiles.length > 0 && previews.length > 0 && (
-              <>
-                {previews.map((src, index) => (
-                  <div className="preview-wrap" key={index} onClick={() => handleFileDelete(index)}>
-                    <div className="img-wrap">
-                      <img src={src} alt={`Preview ${index}`} />
-                      <IoCloseOutline className="file-btn delete-btn" />
+              {/* 새로 선택한 파일 미리보기 영역 */}
+              {selectedFiles.length > 0 && previews.length > 0 && (
+                <>
+                  {previews.map((src, index) => (
+                    <div className="preview-wrap" key={index} onClick={() => handleFileDelete(index)}>
+                      <div className="img-wrap">
+                        <img src={src} alt={`Preview ${index}`} />
+                        <IoCloseOutline className="file-btn delete-btn" />
+                      </div>
+                      <p className="file-name">{selectedFiles[index]?.name}</p>
                     </div>
-                    <p className="file-name">{selectedFiles[index]?.name}</p>
-                  </div>
-                ))}
-              </>
-            )}
-          </PreviewContainer>
+                  ))}
+                </>
+              )}
+            </PreviewContainer>
 
-          <ButtonContainer>
-            <Button onClick={onClose}>취소</Button>
-            <Button primary onClick={handleUpdate}>수정</Button>
-          </ButtonContainer>
-        </DetailMain>
-        <CommentList />
-      </DetailMainWrapper>
+            <ButtonContainer>
+              <Button onClick={onClose}>취소</Button>
+              <Button primary onClick={handleUpdate}>수정</Button>
+            </ButtonContainer>
+          </DetailMain>
+          <CommentList />
+        </DetailMainWrapper>
+        </BoardBox>
     </BoardContainer >
   );
 };

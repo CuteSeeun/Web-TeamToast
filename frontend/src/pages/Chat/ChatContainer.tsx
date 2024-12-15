@@ -32,7 +32,9 @@ const ChatContainer = styled.div`
   width: 100%;
   height: 100vh;
   background-color: #ffffff;
+  height: 630px;
   /* border: 1px solid #ddd; */
+  /* background: pink; */
 `;
 const ChatHeader = styled.div`
   padding: 10px 20px;
@@ -81,6 +83,7 @@ const InputContainer = styled.div`
   background-color: #fff;
   /* border-top: 1px solid #ddd; */
   position: relative; /* 아이콘 배치를 위해 추가 */
+  /* background:green; */
 `;
 const InputField = styled.input`
   flex: 1;
@@ -231,7 +234,7 @@ const ChatContainerComponent: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 선택기 상태 : 이모티콘 선택기의 표시 상태를 관리
   // const messageListRef = useRef<HTMLDivElement | null>(null); // 메시지 리스트 참조
   //selectedChannel과 newMesages : selectedChannel의 메시지 리스트를 업데이트할 때 새 메시지를 추가한다. 
-
+  const messageListRef = useRef<HTMLDivElement | null>(null);
 
   // 채팅방 퇴장 모달을 열거나 닫는 핸들러
   const OpenExitModal = () => setExitModalOpen(true);
@@ -315,7 +318,7 @@ const ChatContainerComponent: React.FC = () => {
   //   };
   // }, [setSelectedChannel, setChannels]);
 
-
+  //새로운 메시지 렌더링링
   useEffect(() => {
     onMessage((newMessage) => {
       console.log('onMessage 호출됨:', newMessage);
@@ -377,16 +380,52 @@ const ChatContainerComponent: React.FC = () => {
     setCurrentInput('');
   };
 
-  // 메시지가 추가되거나 렌더링될 때 스크롤을 가장 아래로 설정
-  // useEffect(() => {
-  //   if (messageListRef.current) {
-  //     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-  //   }
-  // }, [selectedChannel?.messages]); // 메시지가 변경될 때 실행
+  useEffect(() => {
+    if (messageListRef.current) {
+      // 스크롤을 최하단으로 이동
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    }
+  }, [selectedChannel?.messages]); // 메시지가 변경될 때 실행
+
+  //timestamp를 포맷팅하는 함수
+  const formatTimestamp = (timestamp:any) => {
+    const date = new Date(timestamp);
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const period = hours >= 12 ? '오후' : '오전';
+    const formattedHours = hours % 12 || 12; // 0을 12로 변환
+  
+    return `${period} ${formattedHours}:${minutes}`;
+  };
+  //날짜 표시
+  const formatDate = (timestamp: any) => {
+    const date = new Date(timestamp);
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long', // 'long', 'short', 'narrow' 중 선택 가능
+    };
+    return date.toLocaleDateString('ko-KR', options);
+  };
+  const formattedMessages = selectedChannel?.messages.map((msg, index) => {
+    const currentDate = formatDate(msg.timestamp); // 현재 메시지의 날짜
+    const previousDate =
+      index > 0 ? formatDate(selectedChannel.messages[index - 1].timestamp) : null; // 이전 메시지의 날짜
+    const showDate = currentDate !== previousDate; // 날짜가 다를 경우 표시
+
+    return {
+      ...msg,
+      currentDate,
+      showDate,
+    };
+  });
+  
 
   return (
     <ChatContainer>
 
+      {/* 채팅 헤더 */}
       <ChatHeaderContainer>
         <HeaderTitle>{selectedChannel?.rname || '대화를 시작해보세요!'}</HeaderTitle>
         {selectedChannel?.rname && (
@@ -411,9 +450,9 @@ const ChatContainerComponent: React.FC = () => {
         )}
       </ChatHeaderContainer>
 
-      <MessageList>
-        {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
-
+      {/* 대화 내역 */}
+      <MessageList ref={messageListRef}>
+        {/* {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
           selectedChannel?.messages.map((msg, index) => (
             <MessageItem key={`msg-${index}`} isMine={msg.user_email === loggedInUser?.email}>
               {loggedInUser && msg.user_email !== loggedInUser.email && (
@@ -422,10 +461,41 @@ const ChatContainerComponent: React.FC = () => {
               <MessageBubble isMine={msg.user_email === loggedInUser?.email}>
                 {msg.content}
               </MessageBubble>
-              <MessageTime>{msg.timestamp}</MessageTime>
-              {/* <MessageTime>{new Date(msg.timestamp).toLocaleTimeString()}</MessageTime> */}
+              <MessageTime>{formatTimestamp(msg.timestamp)}</MessageTime>
             </MessageItem>
-          ))
+          )) */}
+
+
+{selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
+    formattedMessages.map((msg, index) => (
+      <React.Fragment key={`msg-${index}`}>
+        {msg.showDate && (
+          <div style={{ textAlign: 'center', margin: '10px 0', color: '#666', fontSize: '14px' }}>
+            <span
+              style={{
+                background: '#e1e9f0',
+                padding: '5px 10px',
+                borderRadius: '20px',
+              }}
+            >
+              {msg.currentDate}
+            </span>
+          </div>
+        )}
+
+        <MessageItem isMine={msg.user_email === loggedInUser?.email}>
+          {loggedInUser && msg.user_email !== loggedInUser.email && (
+            <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
+          )}
+          <MessageBubble isMine={msg.user_email === loggedInUser?.email}>
+            {msg.content}
+          </MessageBubble>
+          <MessageTime>{formatTimestamp(msg.timestamp)}</MessageTime>
+        </MessageItem>
+      </React.Fragment>
+    ))
+
+
         ) : (
           // messages가 null 또는 빈 배열일 경우에만 렌더링
           // <FcCollaboration style={{ fontSize: "300px", margin: "100px auto", display: "block" }} />
@@ -436,20 +506,14 @@ const ChatContainerComponent: React.FC = () => {
           //   style={{ width: "300px", margin: "100px auto", display: "block" }}
           // />
           <div style={{ textAlign: "center" }}>
-            <img
-              src={chatAlert}
-              alt="채팅 알림"
-              style={{ width: "300px", margin: "50px auto", display: "block" }}
-            />
-            <p style={{ textAlign: "center", fontSize: "20px", color: "#555" }}>
-              채널을 선택해주세요
-            </p>
+            <img src={chatAlert} alt="채팅 알림" style={{ width: "300px", margin: "50px auto", display: "block" }}/>
+            <p style={{ textAlign: "center", fontSize: "20px", color: "#555" }}> 채널을 선택해주세요 </p>
           </div>
 
         )}
       </MessageList>
 
-
+      {/* 인풋필드 */}
       {selectedChannel?.rname ? (
           <InputContainer>
             <InputField placeholder="메시지 입력" value={currentInput}

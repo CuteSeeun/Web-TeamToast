@@ -8,11 +8,6 @@ export const PageContainer = styled.div`
   /* flex: 1; */
 `;
 
-export const ContentContainer = styled.div`
-  display: flex;
-  flex: 1;
-`;
-
 export const BoardContainer = styled.div`
   position: relative;
   display: flex;
@@ -21,6 +16,9 @@ export const BoardContainer = styled.div`
   padding-right: 70px;
   width: 1600px;
   overflow: hidden;
+
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+  /* background: linear-gradient(180deg, #81C5C5, #BFE3E3, #FFFFFF); */
 `;
 
 export const BoardHeader = styled.div`

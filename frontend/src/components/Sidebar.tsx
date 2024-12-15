@@ -8,7 +8,7 @@ import CreateIssueModal from './CreateIssueModal';
 import { issueListState, backlogState, Issue, Type, allIssuesState } from '../recoil/atoms/issueAtoms';
 import axios from 'axios';
 import { loadingAtoms } from '../recoil/atoms/loadingAtoms';
-import {sprintState} from '../recoil/atoms/sprintAtoms';
+import { sprintState } from '../recoil/atoms/sprintAtoms';
 
 const SidebarContainer = styled.div`
   width: 60px;
@@ -23,19 +23,25 @@ const SidebarContainer = styled.div`
   justify-content: space-between;
   padding: 20px 0;
   min-width: 180px;
+  /* background:yellow; */
 `;
 
 const TopSection = styled.div`
   padding: 0 20px;
+  border-bottom: 1px solid #ddd;
+  /* background:yellow; */
 `;
-
+const MiddleSection = styled.div `
+  padding: 0 20px;
+  /* background:pink; */
+`;
 const BottomSection = styled.div`
   padding: 0 20px;
   border-top: 1px solid #ddd;
   padding-top: 10px;
   text-align: center;
+  /* background:gray; */
 `;
-
 const AddIssueButton = styled.button`
   display: flex;
   align-items: center;
@@ -50,11 +56,9 @@ const AddIssueButton = styled.button`
   font-weight: bold;
   font-size: 14px;
   cursor: pointer;
-
   svg {
     margin-right: 8px;
   }
-
   &:hover {
     background-color: #e6f4f4;
   }
@@ -97,7 +101,7 @@ const Sidebar: React.FC = () => {
   const setAllIssues = useSetRecoilState(allIssuesState);
   const setSprints = useSetRecoilState(sprintState);
 
-  
+
   // const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
   const setLoading = useSetRecoilState(loadingAtoms);
 
@@ -153,11 +157,15 @@ const Sidebar: React.FC = () => {
         <MenuItem to={`/backlog/${pid}`}><FaClipboardList />백로그</MenuItem>
         <MenuItem to={`/issuelist/${pid}`}><FaClipboardList />이슈 목록</MenuItem>
         <MenuItem to={`/timeline/${pid}`}><FaClipboardList />타임라인</MenuItem>
-        <MenuItem to={`/chat/${sid}`}><FaComments />채팅</MenuItem>
       </TopSection>
+
+      <MiddleSection>
+      <MenuItem to={`/timeline/${pid}`}><FaClipboardList />프로젝트</MenuItem>
+      </MiddleSection>
 
       {/* 하단 메뉴 */}
       <BottomSection>
+        <MenuItem to={`/chat/${sid}`}><FaComments />채팅</MenuItem>
         <MenuItem to={`/invite/${sid}`}><FaUsers />팀원 초대하기</MenuItem>
       </BottomSection>
 

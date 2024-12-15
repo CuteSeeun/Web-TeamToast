@@ -2,11 +2,18 @@ import styled from "styled-components";
 import { Link } from 'react-router-dom';
 
 export const BoardContainer = styled.div`
-//   position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
+  /* position: relative; 
   display: flex;
   flex-direction: column;
-  padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  overflow: hidden; /* BoardContainer에서 스크롤 막기 */
+  padding-left: 25px;  */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-left: 25px; 
+  padding-right: 70px;
+  width: 1600px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
 `;
 export const BoardHeader = styled.div`
   display: flex;

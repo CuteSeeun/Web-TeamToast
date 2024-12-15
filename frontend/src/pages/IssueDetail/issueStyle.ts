@@ -9,6 +9,16 @@ export const BoardContainer = styled.div`
   padding: 20px; 
   width: 100%;
   box-sizing: border-box; 
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+
+`;
+
+export const BoardBox = styled.div`
+    background: #ffffff;
+    border-radius:8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0F.1);
+  padding: 50px;
+  margin: 60px;
 `;
 
 export const BoardHeader = styled.div`
@@ -16,7 +26,8 @@ export const BoardHeader = styled.div`
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px;
+  padding: 0px 20px 20px 20px;
+  margin-bottom: 30px;
 `;
 
 export const BoardTitle = styled.h1`

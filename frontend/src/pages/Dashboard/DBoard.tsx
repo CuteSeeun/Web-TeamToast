@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
@@ -8,6 +8,7 @@ import { useRecoilValue } from 'recoil';
 import { issuesByStatusState, issuesByManagerAndStatusState } from '../../recoil/atoms/issueAtoms'; // issuesByStatusState 셀렉터를 가져오는 경로 확인 필요
 import { enabledSprintsState } from '../../recoil/atoms/sprintAtoms';
 import { differenceInDays, format } from 'date-fns';
+import {HashLoader} from 'react-spinners';
 
 // 스타일 정의
 const BoardContainer = styled.div`
@@ -17,6 +18,9 @@ const BoardContainer = styled.div`
   overflow: hidden;
   /* background: pink; */
   width:100%;
+
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+  /* background: linear-gradient(180deg, #81C5C5, #BFE3E3, #FFFFFF); */
 `;
 const BoardHeader = styled.div`
   display: flex;
@@ -121,6 +125,7 @@ const timelineData: TimelineBar[] = [
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, ArcElement, Tooltip, Legend);
 
 const DBoard: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const pname = sessionStorage.getItem('pname');
   const issuesByStatus = useRecoilValue(issuesByStatusState);
   const issuesByManagerAndStatus = useRecoilValue(issuesByManagerAndStatusState);
@@ -134,6 +139,15 @@ const DBoard: React.FC = () => {
   const remainingDays = differenceInDays(endDate, today);
   const formattedStartDate = format(startDate, 'yyyy.MM.dd');
   const formattedEndDate = format(endDate, 'yyyy.MM.dd');
+
+  // 2초 후 로딩 상태 종료 (추가)
+        useEffect(() => {
+            const timer = setTimeout(() => {
+                setLoading(false);
+            }, 2000);
+    
+            return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+        }, []);
 
 
   // 드래그 핸들러
@@ -188,28 +202,36 @@ const DBoard: React.FC = () => {
     {
       label: '백로그',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['백로그'] || 0),
-      backgroundColor: '#E63946',
+      // backgroundColor: '#E63946',
+      // backgroundColor: '#64B2B2',
+      backgroundColor: '#9B72CF',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: '진행 중',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['작업중'] || 0),
-      backgroundColor: '#F1FAEE',
+      // backgroundColor: '#F1FAEE',
+      // backgroundColor: '#A8DADC',
+      backgroundColor: '#FF729F',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: '개발 완료',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['개발완료'] || 0),
-      backgroundColor: '#A8DADC',
+      // backgroundColor: '#A8DADC',
+      // backgroundColor: '#F1FAEE',
+      backgroundColor: '#FDBA74',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: 'QA 완료',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['QA완료'] || 0),
-      backgroundColor: '#457B9D',
+      // backgroundColor: '#457B9D',
+      // backgroundColor: '#457B9D',
+      backgroundColor: '#4ABFF7',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
@@ -288,6 +310,15 @@ const DBoard: React.FC = () => {
   console.log('datasets:', datasets);
   console.log('issuesByManagerAndStatus:', issuesByManagerAndStatus);
   console.log('labels:', labels);
+
+  // 로딩 상태에 따른 조건부 렌더링
+        if (loading) {
+            return (
+                <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <HashLoader color="#36d7b7" />
+                </BoardContainer>
+            );
+        }
 
   return (
     <BoardContainer>
