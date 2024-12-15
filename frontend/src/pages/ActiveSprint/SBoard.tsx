@@ -22,15 +22,16 @@ const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  height: 80vh;
+  /* height: 90vh; */
+  height: 648px;
   overflow-y: scroll; 
   margin-top:10px;
   /* margin-left:20px; */
   /* margin-right:20px; */
 
-  width:1120px;
-  border-radius:8px;
+  width:1161px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0F.1);
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
 
 
 `;

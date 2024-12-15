@@ -2,23 +2,23 @@ import styled, { keyframes } from "styled-components";
 
 
 const waveEffect = keyframes`
-  0% {
-    color: #038c8c;
+   0% {
+    color: #37474F;
     opacity: 0.5;
     transform: translateY(5px);
   }
   25% {
-    color: #038c8c;
+    color: #37474F;
     opacity: 0.75;
     transform: translateY(2.5px);
   }
   50% {
-    color: #038c8c;
+    color: #37474F;
     opacity: 1;
     transform: translateY(0);
   }
   75% {
-    color: #038c8c;
+    color: #37474F;
     opacity: 0.75;
     transform: translateY(2.5px);
   }
@@ -41,13 +41,13 @@ export const AnimateWaveText = styled.span`
 `
 
 export const IntroWrap = styled.div`
-  background: linear-gradient(180deg, #A7E9E9, #C7F1E5);
+  background: linear-gradient(180deg, #60c1df, #84d1b6);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding-top: 100px; 
+  padding-top: 200px; 
 
   .intro-container {
     display: flex;
@@ -64,13 +64,13 @@ export const IntroWrap = styled.div`
     .main-title {
       font-size: 3rem;
       font-weight: bold;
-      color: #fff;
+      color: #37474F;
       margin-bottom: 20px;
     }
 
     .sub-title {
       font-size: 1.2rem;
-      color: #f0f0f0;
+      color: #37474F;
       margin-bottom: 30px;
     }
 
@@ -291,10 +291,11 @@ export const SpaceViewWrap = styled.div`
 `
 
 export const TabSectionWrap = styled.div`
-display: flex;
+ display: flex;
   flex-direction: column;
-  /* align-items: center; */
   width: 1200px;
+  margin: 60px 0;
+
   .tab-buttons {
     display: flex;
     gap: 10px;
@@ -324,19 +325,17 @@ display: flex;
   .content-section {
     display: flex;
     gap: 50px;
-    /* align-items: center; */
+    align-items: center;
     max-width: 1200px;
-    /* margin: 0 auto; */
 
     .image-container {
       flex: 1;
 
       img {
-        /* width: 100%; */
         max-width: 600px;
         height: 400px;
         border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
       }
     }
 
@@ -345,20 +344,25 @@ display: flex;
       text-align: left;
 
       h2 {
-        font-size: 2rem;
+        font-size: 3rem;
         margin-bottom: 20px;
-        /* color: #333; */
-    color: #fff;
-
+        font-weight: bold;
+        background: #37474F;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
       }
 
       p {
-        font-size: 1rem;
+        font-size: 1.3rem;
+        line-height: 1.8;
+        color: #37474F;
         margin-bottom: 20px;
-        /* color: #555;
-         */
-    color: #fff;
 
+        strong {
+          color: #038c8c;
+          font-weight: bold;
+        }
       }
 
       .cta-button {
@@ -369,9 +373,12 @@ display: flex;
         border-radius: 4px;
         font-size: 1rem;
         cursor: pointer;
+        transition: all 0.3s ease-in-out;
 
         &:hover {
-          background-color: #006f6f;
+          background-color: #027979;
+          transform: scale(1.05);
+          box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
         }
       }
     }
