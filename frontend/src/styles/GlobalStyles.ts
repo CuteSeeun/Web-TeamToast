@@ -56,6 +56,20 @@ const GlobalStyles = createGlobalStyle`
         text-decoration:none;
         color: #4D4D4D;
     }
+
+    /* Chrome, Edge, Safari */
+    &::-webkit-scrollbar {
+    width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+    background-color: #cccccc; /* 스크롤바 색상 */
+    border-radius: 4px; /* 스크롤바 모서리 둥글게 */
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+    background-color: #888888; /* 호버 시 색상 */   
+    }
 `;
 
 export default GlobalStyles;

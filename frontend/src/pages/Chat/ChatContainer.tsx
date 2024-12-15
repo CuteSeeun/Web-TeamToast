@@ -303,6 +303,7 @@ const ChatContainerComponent: React.FC = () => {
     console.log('선택된 멤버:', selectedMembers);
     setFriendModalOpen(false);
     // 여기서 선택된 멤버에 대한 로직을 추가할 수 있음
+
   };
 
   // 이모티콘 추가 핸들러
@@ -310,40 +311,6 @@ const ChatContainerComponent: React.FC = () => {
     setCurrentInput((prev) => prev + emoji.native); // 입력창에 이모티콘 추가
     setShowEmojiPicker(false); // 선택 후 이모티콘 선택기 닫기
   };
-
-
-  // useEffect(() => {
-  //   // 새로운 메시지 수신 핸들러 등록
-  //   onMessage((newMessage) => {
-  //     console.log("새 메시지 수신:", newMessage);
-
-  //     // 메시지를 현재 채널에 추가
-  //     setSelectedChannel((prev) => {
-  //       if (!prev || prev.rid !== newMessage.rid) return prev; // 현재 채널이 아닐 경우 무시
-  //       return {
-  //         ...prev,
-  //         messages: [...prev.messages, newMessage], // 메시지 추가
-  //       };
-  //     });
-
-  //     // 전체 채널 상태도 업데이트
-  //     setChannels((prevChannels) =>
-  //       prevChannels.map((channel) =>
-  //         channel.rid === newMessage.rid
-  //           ? {
-  //               ...channel,
-  //               messages: [...channel.messages, newMessage],
-  //             }
-  //           : channel
-  //       )
-  //     );
-  //   });
-
-  //   // 컴포넌트 언마운트 시 핸들러 제거
-  //   return () => {
-  //     offMessage();
-  //   };
-  // }, [setSelectedChannel, setChannels]);
 
   //새로운 메시지 렌더링링
   useEffect(() => {
@@ -469,7 +436,7 @@ const ChatContainerComponent: React.FC = () => {
         )}
 
         {isFriendModalOpen && (
-          <AddFriendModal onClose={closeFriendModal} onApply={handleApplyFriends} />
+          <AddFriendModal onClose={closeFriendModal} onApply={handleApplyFriends} channelName={selectedChannel?.rname || ''}/>
         )}
         {temporaryIcon && <TemporaryIcon fading={isFading}>{temporaryIcon}</TemporaryIcon>}
         {/* 모달 표시 */}
@@ -480,20 +447,6 @@ const ChatContainerComponent: React.FC = () => {
 
       {/* 대화 내역 */}
       <MessageList ref={messageListRef}>
-        {/* {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
-          selectedChannel?.messages.map((msg, index) => (
-            <MessageItem key={`msg-${index}`} isMine={msg.user_email === loggedInUser?.email}>
-              {loggedInUser && msg.user_email !== loggedInUser.email && (
-                <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
-              )}
-              <MessageBubble isMine={msg.user_email === loggedInUser?.email}>
-                {msg.content}
-              </MessageBubble>
-              <MessageTime>{formatTimestamp(msg.timestamp)}</MessageTime>
-            </MessageItem>
-          )) */}
-
-
         {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
           formattedMessages.map((msg, index) => (
             <React.Fragment key={`msg-${index}`}>
@@ -525,14 +478,6 @@ const ChatContainerComponent: React.FC = () => {
 
 
         ) : (
-          // messages가 null 또는 빈 배열일 경우에만 렌더링
-          // <FcCollaboration style={{ fontSize: "300px", margin: "100px auto", display: "block" }} />
-
-          // <img
-          //   src={gif}
-          //   alt="로딩 중"
-          //   style={{ width: "300px", margin: "100px auto", display: "block" }}
-          // />
           <div style={{ textAlign: "center" }}>
             <img src={chatAlert} alt="채팅 알림" style={{ width: "300px", margin: "50px auto", display: "block" }} />
             <p style={{ textAlign: "center", fontSize: "20px", color: "#555" }}> 채널을 선택해주세요 </p>
