@@ -14,7 +14,7 @@ const SidebarContainer = styled.div`
   width: 60px;
   flex-shrink:0;
   /* height: 600px; */
-  height: 600px;
+  height: 618px;
   overflow: hidden;
   background-color: #ffffff;
   border-right: 1px solid #ddd;
@@ -23,7 +23,7 @@ const SidebarContainer = styled.div`
   justify-content: space-between;
   padding: 20px 0;
   min-width: 180px;
-  /* background:yellow; */
+  background:yellow;
 `;
 
 const TopSection = styled.div`

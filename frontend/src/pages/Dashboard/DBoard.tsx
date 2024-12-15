@@ -14,8 +14,8 @@ import {HashLoader} from 'react-spinners';
 const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 25px;
-  overflow: hidden;
+  padding: 10px 25px 25px;
+  /* overflow: hidden; */
   /* background: pink; */
   width:100%;
 

@@ -30,6 +30,7 @@ const ChatContainer = styled.div`
   flex: 1;
   flex-direction: column;
   width: 100%;
+  max-width: 950px;
   height: 100vh;
   background-color: #ffffff;
   height: 630px;

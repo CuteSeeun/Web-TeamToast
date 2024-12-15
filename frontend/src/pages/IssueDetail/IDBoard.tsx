@@ -74,7 +74,7 @@ const IDBoard: React.FC = () => {
   const [previews, setPreviews] = useState<string[]>([]);
   const issue = issues.find((issue: Issue) => issue.isid === issueId);
 
-  // 2초 후 로딩 상태 종료 (추가)
+  // 1초 후 로딩 상태 종료 (추가)
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -490,7 +490,7 @@ const IDBoard: React.FC = () => {
 
             <ButtonContainer>
               <Button onClick={onClose}>취소</Button>
-              <Button primary onClick={handleUpdate}>수정</Button>
+              <Button onClick={handleUpdate}>수정</Button>
             </ButtonContainer>
           </DetailMain>
           <CommentList />
