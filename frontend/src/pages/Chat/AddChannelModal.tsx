@@ -117,15 +117,6 @@ const AddChannelModal: React.FC<ModalProps> = ({ onClose, onApply, type }) => {
   const teamMembers = useRecoilValue(teamMembersState);
   const [channelName, setChannelName] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  // const [members, setMembers] = useState<Member[]>([
-  //   { id: 1, name: '사용자 1', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  // ]);
   const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
   // 스크롤 방지 처리

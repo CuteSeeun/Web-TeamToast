@@ -12,6 +12,7 @@ import chatAlert from '../../assets/images/chatAlert.svg';
 import { sendMessage, onMessage, offMessage } from '../../socketClient'; // 소켓 메시지 전송 함수 가져오기
 import ExitModal from './ExitModal';
 import AddFriendModal from './AddFriendModal'; // AddFriendModal 가져오기
+import axios, {AxiosError} from 'axios';
 
 const ProfileImage = styled.div`
    width: 30px;
@@ -241,11 +242,36 @@ const ChatContainerComponent: React.FC = () => {
   const CloseExitModal = () => setExitModalOpen(false);
 
   // 채팅방 퇴장 시 실행될 로직
-  const handleLeaveChannel = () => {
+  const handleLeaveChannel = async () => {
     console.log('채널에서 퇴장했습니다.');
     setExitModalOpen(false);
 
     //rid(채팅방번호)에서 로그인한 유저 이메일로 룸멤버테이블에서 해당 레코드 삭제하기
+    //1. 현재 방 정보, 유저 정보로 룸 테이블, 룸 멤버 테이블에서 해당 레코드 제거
+    if (!loggedInUser || !loggedInUser.email) {
+      console.error('유저 정보가 없습니다.'); // 로그 추가
+      return; // 실행 중단
+    }
+    try {
+      const response = await axios.delete('/channel/exit', {
+        data: { // DELETE 요청 시 payload를 data로 전달
+          email: loggedInUser.email,
+          rid: selectedChannel?.rid,
+        },
+      });
+
+      if (response.status === 200) {
+        console.log('채널에서 퇴장했습니다.');
+        setExitModalOpen(false);
+        // 필요한 상태 업데이트
+      } else {
+        console.error('채널 퇴장 실패:', response.data.message);
+      }
+    } catch (error) {
+      // console.error('오류 발생:', error.response?.data || error.message);
+      const axiosError = error as AxiosError;
+      console.error('오류 발생:', axiosError.response?.data || axiosError.message);
+    }
 
   };
 
@@ -380,6 +406,7 @@ const ChatContainerComponent: React.FC = () => {
     setCurrentInput('');
   };
 
+  //최신 메시지로 이동
   useEffect(() => {
     if (messageListRef.current) {
       // 스크롤을 최하단으로 이동
@@ -388,13 +415,13 @@ const ChatContainerComponent: React.FC = () => {
   }, [selectedChannel?.messages]); // 메시지가 변경될 때 실행
 
   //timestamp를 포맷팅하는 함수
-  const formatTimestamp = (timestamp:any) => {
+  const formatTimestamp = (timestamp: any) => {
     const date = new Date(timestamp);
     const hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const period = hours >= 12 ? '오후' : '오전';
     const formattedHours = hours % 12 || 12; // 0을 12로 변환
-  
+
     return `${period} ${formattedHours}:${minutes}`;
   };
   //날짜 표시
@@ -420,7 +447,7 @@ const ChatContainerComponent: React.FC = () => {
       showDate,
     };
   });
-  
+
 
   return (
     <ChatContainer>
@@ -466,34 +493,34 @@ const ChatContainerComponent: React.FC = () => {
           )) */}
 
 
-{selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
-    formattedMessages.map((msg, index) => (
-      <React.Fragment key={`msg-${index}`}>
-        {msg.showDate && (
-          <div style={{ textAlign: 'center', margin: '10px 0', color: '#666', fontSize: '14px' }}>
-            <span
-              style={{
-                background: '#e1e9f0',
-                padding: '5px 10px',
-                borderRadius: '20px',
-              }}
-            >
-              {msg.currentDate}
-            </span>
-          </div>
-        )}
+        {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
+          formattedMessages.map((msg, index) => (
+            <React.Fragment key={`msg-${index}`}>
+              {msg.showDate && (
+                <div style={{ textAlign: 'center', margin: '10px 0', color: '#666', fontSize: '14px' }}>
+                  <span
+                    style={{
+                      background: '#e1e9f0',
+                      padding: '5px 10px',
+                      borderRadius: '20px',
+                    }}
+                  >
+                    {msg.currentDate}
+                  </span>
+                </div>
+              )}
 
-        <MessageItem isMine={msg.user_email === loggedInUser?.email}>
-          {loggedInUser && msg.user_email !== loggedInUser.email && (
-            <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
-          )}
-          <MessageBubble isMine={msg.user_email === loggedInUser?.email}>
-            {msg.content}
-          </MessageBubble>
-          <MessageTime>{formatTimestamp(msg.timestamp)}</MessageTime>
-        </MessageItem>
-      </React.Fragment>
-    ))
+              <MessageItem isMine={msg.user_email === loggedInUser?.email}>
+                {loggedInUser && msg.user_email !== loggedInUser.email && (
+                  <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
+                )}
+                <MessageBubble isMine={msg.user_email === loggedInUser?.email}>
+                  {msg.content}
+                </MessageBubble>
+                <MessageTime>{formatTimestamp(msg.timestamp)}</MessageTime>
+              </MessageItem>
+            </React.Fragment>
+          ))
 
 
         ) : (
@@ -506,7 +533,7 @@ const ChatContainerComponent: React.FC = () => {
           //   style={{ width: "300px", margin: "100px auto", display: "block" }}
           // />
           <div style={{ textAlign: "center" }}>
-            <img src={chatAlert} alt="채팅 알림" style={{ width: "300px", margin: "50px auto", display: "block" }}/>
+            <img src={chatAlert} alt="채팅 알림" style={{ width: "300px", margin: "50px auto", display: "block" }} />
             <p style={{ textAlign: "center", fontSize: "20px", color: "#555" }}> 채널을 선택해주세요 </p>
           </div>
 
@@ -515,23 +542,23 @@ const ChatContainerComponent: React.FC = () => {
 
       {/* 인풋필드 */}
       {selectedChannel?.rname ? (
-          <InputContainer>
-            <InputField placeholder="메시지 입력" value={currentInput}
-              onChange={(e) => setCurrentInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-            />
-            <InputIcon>
-              <StyledSmileIcon onClick={() => setShowEmojiPicker((prev) => !prev)} />
-              <StyledAttachmentIcon />
-              <StyledCompassIcon onClick={handleSendMessage} />
-            </InputIcon>
-            {/* {showEmojiPicker && (
+        <InputContainer>
+          <InputField placeholder="메시지 입력" value={currentInput}
+            onChange={(e) => setCurrentInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+          />
+          <InputIcon>
+            <StyledSmileIcon onClick={() => setShowEmojiPicker((prev) => !prev)} />
+            <StyledAttachmentIcon />
+            <StyledCompassIcon onClick={handleSendMessage} />
+          </InputIcon>
+          {/* {showEmojiPicker && (
               <EmojiPickerWrapper>
                 <Picker onEmojiSelect={addEmoji} />
               </EmojiPickerWrapper>
             )} */}
-          </InputContainer>
-        ) : (<></>)
+        </InputContainer>
+      ) : (<></>)
       }
 
     </ChatContainer >
