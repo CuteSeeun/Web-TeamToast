@@ -45,7 +45,7 @@ const CBoard: React.FC = () => {
   // 로딩 상태에 따른 조건부 렌더링
   if (loading) {
     return (
-      <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <BoardContainer style={{ display: 'flex',alignItems: 'center' ,marginLeft:'532px' }}>
         <HashLoader color="#36d7b7" />
       </BoardContainer>
     );

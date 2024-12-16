@@ -50,7 +50,8 @@ display: flex;
 justify-content: space-between;
 margin: 20px 0px 0 20px;
 width: 100%;
-max-width: 1080px;
+max-width: 1086px;
+position: relative;
 `;
 const ChartContainer = styled.div`
   width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
@@ -100,9 +101,11 @@ const InfoCard = styled.div`
   }
 `;
 const Datediv = styled.div`
-display: flex; /* Flexbox 사용 */
-/* align-items: center;  */
- gap:3px;
+  display: flex;
+  align-items: center; /* 세로축 정렬 */
+  justify-content: center; /* 가운데 정렬 */
+  gap: 10px; /* 아이콘과 텍스트 사이 간격 */
+  margin-top: 10px;
 `;
 
 type TimelineBar = {
@@ -343,13 +346,26 @@ const DBoard: React.FC = () => {
 
           <ActiveSprintSection>{/*활성스프린트 설명*/}
             <InfoCard>
-              <h4>{sprintDetails.spname}</h4>
+              {/* <h4>{sprintDetails.spname}</h4>
               <p>목표 : {sprintDetails.goal}</p>
               <br />
               <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
               <span>{remainingDays}일</span>
               <p>시작일 : {formattedStartDate}</p>
-              <p>마감일 : {formattedEndDate}</p>
+              <p>마감일 : {formattedEndDate}</p> */}
+              
+               <h4>{sprintDetails.spname}</h4>
+               <p style={{marginBottom:'-20px'}}>목표 : {sprintDetails.goal}</p>
+               <br />
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                 <Datediv>
+                   <FcLeave style={{marginBottom:'10px'}} />
+                   <h4>남은 기간</h4>
+                 </Datediv>
+                 <span>{remainingDays}일</span>
+               </div>
+               <p>시작일 : {formattedStartDate}</p>
+               <p>마감일 : {formattedEndDate}</p>
             </InfoCard>
           </ActiveSprintSection>
         </>
