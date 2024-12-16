@@ -171,7 +171,6 @@ export const AddIssueLink = styled.div`
   font-size: 14px;
   color: #4D4D4D;
   cursor: pointer;
-
   &:active {
     transform: translateY(2px);
   }
@@ -181,11 +180,12 @@ export const AddSprint = styled.button`
 background-color: #fff;
 border: 1px solid #dee2e6;
 border-radius: 5px;
-padding: 10px 20px;
+padding: 7px 10px 7px 10px;
 cursor: pointer;
 font-size: 14px;
 color: #495057;
-margin-right: 10px;
+margin-left: 1050px;
+width:120px;
 
 &:hover {
     background-color: #026b6b;

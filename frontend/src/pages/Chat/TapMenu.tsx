@@ -259,9 +259,9 @@ const TapMenu: React.FC = () => {
           <FriendSectionHeader isOpen={isFriendListOpen} onClick={toggleFriendList}>친구<FaChevronDown /></FriendSectionHeader>
           <FriendListWrapper isOpen={isFriendListOpen}>
             <FriendList>
-              <FriendItem><ProfileImage>1</ProfileImage> <UserName>김정연</UserName></FriendItem>
-              <FriendItem><ProfileImage>2</ProfileImage> <UserName>한채경</UserName></FriendItem>
-              <FriendItem><ProfileImage>3</ProfileImage> <UserName>김현진</UserName></FriendItem>
+              <FriendItem><ProfileImage>김</ProfileImage> <UserName>김정연</UserName></FriendItem>
+              <FriendItem><ProfileImage>한</ProfileImage> <UserName>한채경</UserName></FriendItem>
+              <FriendItem><ProfileImage>김</ProfileImage> <UserName>김현진</UserName></FriendItem>
             </FriendList>
           </FriendListWrapper>
           <AddButton onClick={() => openChannelModal('friend')}><AiOutlinePlus /> 멤버 추가하기</AddButton>

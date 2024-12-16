@@ -135,6 +135,7 @@ color: #fff;
 font-size: 14px;
 border: none;
 border-radius: 10px;
+height:50px;
 cursor: pointer;
 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
 &:hover {
@@ -143,6 +144,20 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 &:active {
   transform: translateY(2px); /* 클릭 시 약간 눌리는 효과 */
 }
+`;
+const NoSprint = styled.div`
+/* margin-top: 20px; */
+padding: 10px;
+  background: #fff;
+  border-radius: 8px;
+  /* margin-bottom: 20px; */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow-x: scroll;
+  height:500px;
+  margin: 10px;
+  display: flex;
+  flex-direction: row;
 `;
 
 
@@ -250,54 +265,6 @@ const SBoard: React.FC = () => {
   const [typeOpen, setTypeOpen] = useState(false);
   const [priorityOpen, setPriorityOpen] = useState(false);
 
-  // const closeAllDropdowns = () => {
-  //   setManagerOpen(false);
-  //   setTypeOpen(false);
-  //   setPriorityOpen(false);
-  // };
-  // const handleManagerClick = () => {
-  //   closeAllDropdowns(); // 다른 드롭다운 닫기
-  //   setManagerOpen(true);
-  // };
-
-  // const handleTypeClick = () => {
-  //   closeAllDropdowns();
-  //   setTypeOpen(true);
-  // };
-
-  // const handlePriorityClick = () => {
-  //   closeAllDropdowns();
-  //   setPriorityOpen(true);
-  // };
-
-  // const handleManagerChange = (newManager: string) => {
-  //   setFilter((prev) => ({ ...prev, manager: newManager }));
-  //   setManagerOpen(false);
-  // };
-  // const handleTypeChange = (newType: string) => {
-  //   setFilter((prev) => ({ ...prev, type: newType }));
-  //   setTypeOpen(false);
-  // };
-  // const handlePriorityChange = (newPriority: string) => {
-  //   setFilter((prev) => ({ ...prev, priority: newPriority }));
-  //   setPriorityOpen(false);
-  // };
-
-  // // 클릭 시 드롭다운 외부 영역 클릭하면 닫히게
-  // useEffect(() => {
-  //   const handleClickOutside = (e: MouseEvent) => {
-  //     const target = e.target as HTMLElement;
-  //     // Filters 내부를 클릭했는지 검사 (특정 조건이 없다면 무조건 닫기)
-  //     // 여기서는 간단히 모든 드롭다운을 닫는 로직
-  //     if (!target.closest('.filter-label')) {
-  //       closeAllDropdowns();
-  //     }
-  //   };
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   return () => document.removeEventListener('mousedown', handleClickOutside);
-  // }, []);
-
-  // 필터 변경 핸들러
   const handleManagerChange = (newManager: string) => {
     setFilter((prev) => ({ ...prev, manager: newManager }));
     setManagerOpen(false); // 선택 후 닫기
@@ -368,11 +335,14 @@ const SBoard: React.FC = () => {
 
         {enabledSprints.length === 0 ? (
           // 활성 스프린트가 없는 경우
-          <>
+          <NoSprint>
+
             <SprintAlert style={{ marginBottom: '20px' }} />
+            <div style={{display: 'flex', flexDirection:'column', gap:'20px', marginTop:'200px', marginLeft: '150px' }}>
             <p>활성 스프린트가 없습니다<br />이슈를 생성해주세요</p>
             <BacklogMoveButton onClick={handleBacklogMove}>백로그로 이동</BacklogMoveButton>
-          </>
+            </div>
+          </NoSprint>
         ) : (
           // 활성 스프린트가 있는 경우
           <DndProvider backend={HTML5Backend}>
