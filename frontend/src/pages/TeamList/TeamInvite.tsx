@@ -48,7 +48,7 @@ const TeamInviteModal: React.FC<TeamInviteModalProps> = ({
     }
     try {
       await onInvite(email, role); // 초대 요청 수행
-      //onClose(); // 성공 시 모달 닫기
+      onClose(); // 성공 시 모달 닫기
     } catch (error) {
       console.error("Invite failed:", error);
     }

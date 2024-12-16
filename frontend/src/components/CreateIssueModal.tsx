@@ -413,6 +413,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
   const [previews, setPreviews] = useState<{ type: string; url: string }[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { pid, isOpen, onClose } = props; // pid 추출
+  const pname = sessionStorage.getItem('pname');
    
   // const setManager = useSetRecoilState(managerAtoms);//담당자 아톰 상태 업데이트 함수
   const setNotifications = useSetRecoilState(notificationsAtom); // 알림 업데이트
@@ -517,10 +518,10 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
     selectedFiles.forEach((file) => formData.append("files", file));
 
 
-    if ([(issue.title || '').trim(), issue.type, issue.status, issue.project_id, issue.priority].some((field) => !field)) {
-      alert('필수 데이터가 누락되었습니다.');
-      return;
-    }
+    // if ([(issue.title || '').trim(), issue.type, issue.status, issue.project_id, issue.priority].some((field) => !field)) {
+    //   alert('필수 데이터가 누락되었습니다.');
+    //   return;
+    // }
 
     interface UploadedFile {
       originalFilename: string;
@@ -639,7 +640,7 @@ return (
         <div className="bodycontent">
           <div className="input-group">
             <label>프로젝트 이름</label>
-            <input type="text" value={pid || ''} className="disabled" />
+            <input type="text" value={pname || ''} className="disabled" />
           </div>
           <div className="input-group">
             <label>스프린트를 선택해주세요</label>

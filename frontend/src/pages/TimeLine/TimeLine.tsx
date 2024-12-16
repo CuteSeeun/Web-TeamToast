@@ -5,6 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { sprintBasicInfoState } from '../../recoil/atoms/sprintAtoms';
 import { Gantt, Task, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
+import { HashLoader } from 'react-spinners';
 
 
 // Task 타입 확장
@@ -116,6 +117,16 @@ const Timeline: React.FC = () => {
   const sprintBasicInfo = useRecoilValue(sprintBasicInfoState);
   const pname = sessionStorage.getItem('pname');
   const [view, setView] = useState<ViewMode>(ViewMode.Day);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // 2초 후 로딩 상태 종료 (추가)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+  }, []);
 
   const tasks: CustomTask[] = sprintBasicInfo.map((sprint, index) => ({
     start: new Date(sprint.startdate), // 시작 날짜
@@ -134,6 +145,15 @@ const Timeline: React.FC = () => {
     },
   }));
 
+  // 로딩 상태에 따른 조건부 렌더링
+  if (loading) {
+    return (
+      <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <HashLoader color="#36d7b7" />
+      </BoardContainer>
+    );
+  }
+
 
   return (
     <BoardContainer>
@@ -142,9 +162,9 @@ const Timeline: React.FC = () => {
         <Breadcrumb>프로젝트 &gt; {pname} &gt; 대시보드</Breadcrumb>
       </BoardHeader>
 
-    <TimelineContainer>
+      <TimelineContainer>
 
-      <Gantt
+        <Gantt
           tasks={tasks} // Gantt에 표시할 태스크
           viewMode={view} // 현재 뷰 모드
           onDateChange={(task) => console.log("Date changed:", task)} // 날짜 변경 이벤트
@@ -158,7 +178,7 @@ const Timeline: React.FC = () => {
           columnWidth={60} // 열 폭
           ganttHeight={300} // 간트 차트 높이
         />
-    </TimelineContainer>
+      </TimelineContainer>
 
     </BoardContainer>
   );

@@ -29,48 +29,34 @@ const CBoard: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 1000);
 
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
   }, []);
 
-  //프로젝트 헤더에 작성할 코드 : 소켓 연결, 알림 허용용
-  useEffect(() => {
-    // 알림 권한 요청
-    requestNotificationPermission();
-    // 컴포넌트가 마운트될 때 소켓 연결
-    connectSocket();
+  // //프로젝트 헤더에 작성할 코드 : 소켓 연결, 알림 허용용
+  // useEffect(() => {
+  //   // 알림 권한 요청
+  //   requestNotificationPermission();
+  //   // 컴포넌트가 마운트될 때 소켓 연결
+  //   connectSocket();
 
-    onMessage((message: Message) => {
-      setMessages((prev) => [...prev, message]);
+  //   onMessage((message: Message) => {
+  //     setMessages((prev) => [...prev, message]);
 
-      // **알림 표시**
-      showNotification(
-        `새 메시지 - ${message.user}`,
-        message.content,
-        '/chat-icon.png'
-      );
-    });
+  //     // **알림 표시**
+  //     showNotification(
+  //       `새 메시지 - ${message.user}`,
+  //       message.content,
+  //       '/chat-icon.png'
+  //     );
+  //   });
 
-    // onMessage((message: Message) => {
-    //   if (!receivedMessageIds.has(message.mid)) { // 이미 받은 메시지인지 확인
-    //     receivedMessageIds.add(message.mid);
-    //     setMessages((prev) => [...prev, message]);
-    
-    //     // 알림 표시
-    //     showNotification(
-    //       `새 메시지 - ${message.user}`,
-    //       message.content,
-    //       '/chat-icon.png'
-    //     );
-    //   }
-    // });
-
-    // 컴포넌트가 언마운트될 때 소켓 연결 해제
-    return () => {
-      disconnectSocket();
-    };
-  }, []); // 빈 의존성 배열로 처음 렌더링될 때 한 번만 실행
+  //   // 컴포넌트가 언마운트될 때 소켓 연결 해제
+  //   return () => {
+  //     disconnectSocket();
+  //   };
+  // }, []); // 빈 의존성 배열로 처음 렌더링될 때 한 번만 실행
 
   // 로딩 상태에 따른 조건부 렌더링
   if (loading) {

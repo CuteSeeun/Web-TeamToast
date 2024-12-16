@@ -14,6 +14,8 @@ import { notificationsAtom } from '../recoil/atoms/notificationsAtom';
 import styled from 'styled-components';
 import { CiSearch } from "react-icons/ci";
 import { allIssuesState } from '../recoil/atoms/issueAtoms';
+import { requestNotificationPermission, showNotification } from '../socketClient';
+import { connectSocket, disconnectSocket, onMessage, sendMessage, Message } from '../socketClient';
 
 const StyledInput = styled.input`
     width: 400px;
@@ -74,11 +76,36 @@ const ProjectHeader = ({
     const [filteredIssues, setFilteredIssues] = useState<{ isid: number; title: string }[]>([]); // 검색 결과 상태
     const autocompleteRef = useRef<HTMLDivElement>(null); // AutocompleteList를 참조하기 위한 useRef
     const location = useLocation();
+    const [messages, setMessages] = useState<Message[]>([]);
 
     // 특정 경로에서만 input 활성화
     const showInput = location.pathname.includes('/activesprint') || location.pathname.includes('/backlog') || 
     location.pathname.includes('/chat') ||  location.pathname.includes('/dashboard') || location.pathname.includes('/issuelist') ||
     location.pathname.includes('/issue') || location.pathname.includes('/timeline')
+
+    //프로젝트 헤더에 작성할 코드 : 소켓 연결, 알림 허용용
+      useEffect(() => {
+        // 알림 권한 요청
+        requestNotificationPermission();
+        // 컴포넌트가 마운트될 때 소켓 연결
+        connectSocket();
+    
+        onMessage((message: Message) => {
+          setMessages((prev) => [...prev, message]);
+    
+          // **알림 표시**
+          showNotification(
+            `새 메시지 - ${message.user}`,
+            message.content,
+            '/chat-icon.png'
+          );
+        });
+    
+        // 컴포넌트가 언마운트될 때 소켓 연결 해제
+        return () => {
+          disconnectSocket();
+        };
+      }, []); // 빈 의존성 배열로 처음 렌더링될 때 한 번만 실행
 
     // 검색 입력 핸들러
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

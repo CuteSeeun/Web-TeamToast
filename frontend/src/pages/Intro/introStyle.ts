@@ -232,7 +232,7 @@ export const SpaceViewWrap = styled.div`
 
     h2 {
       font-size: 24px;
-      color:#038c8c;
+      color:#000;
       font-weight: 900;
       text-align: center;
       flex-grow: 1; /* 제목이 가운데로 오도록 */

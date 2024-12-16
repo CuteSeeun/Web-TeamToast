@@ -102,7 +102,7 @@ const Intro = () => {
           ) : (
             <video
               className={`intro-video ${isFadingOut ? "fade-out" : ""}`}
-              src="/video.mp4"
+              src="/intro.mp4"
               autoPlay
               muted
               loop

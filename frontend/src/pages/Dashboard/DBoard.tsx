@@ -20,9 +20,9 @@ const BoardContainer = styled.div`
   width:100%;
   height: 623px;
 
-  /* background: linear-gradient(180deg, #FFFFFF, #81C5C5); */
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
   /* background:rgb(206, 237, 237); */
-  background:rgb(226, 241, 241);
+  /* background:rgb(226, 241, 241); */
 
 `;
 const BoardHeader = styled.div`
@@ -148,7 +148,7 @@ const DBoard: React.FC = () => {
         useEffect(() => {
             const timer = setTimeout(() => {
                 setLoading(false);
-            }, 2000);
+            }, 1000);
     
             return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
         }, []);
@@ -357,7 +357,7 @@ const DBoard: React.FC = () => {
               <p>마감일 : {formattedEndDate}</p> */}
               
                <h4>{sprintDetails.spname}</h4>
-               <p style={{marginBottom:'-20px'}}>목표 : {sprintDetails.goal}</p>
+               <p style={{marginBottom:'-20px'}}> ■ 목표 : {sprintDetails.goal}</p>
                <br />
                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                  <Datediv>

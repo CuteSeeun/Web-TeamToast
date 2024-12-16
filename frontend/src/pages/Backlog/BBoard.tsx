@@ -31,7 +31,7 @@ const BBoard: React.FC = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 2000);
+        }, 1000);
 
         return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
     }, []);
@@ -148,7 +148,7 @@ const BBoard: React.FC = () => {
                 )}
             </Div>
 
-            <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
+            <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? '#dbdbdb' : 'white' }}>
                 <SprintHeader>
                     <div><SprintName>백로그</SprintName></div>
                 </SprintHeader>

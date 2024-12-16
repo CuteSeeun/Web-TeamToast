@@ -5,9 +5,6 @@ import { useDrag } from 'react-dnd';
 import { useNavigate } from 'react-router-dom'; // useNavigate 추가
 import { ReactComponent as IssueTaskIcon } from '../../assets/icons/Issue-Task.svg';
 import { ReactComponent as IssueBugIcon } from '../../assets/icons/Issue-Bug.svg';
-// import { animated, useSpring } from 'react-spring';
-// import { animated, useSpring } from '@react-spring/web';
-import SpringList from 'react-spring-dnd';
 
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
 
@@ -61,66 +58,29 @@ const Task: React.FC<{
 }> = ({ isid, title, index, columnId, type, manager }) => {
 
   const navigate = useNavigate(); // useNavigate 사용
-  const handleTaskClick = () => { 
-    navigate(`/issue/${isid}`); 
-    // 드래그 중이 아닐 때만 클릭 이벤트 실행
-    // if (!isDragging) {
-    //   navigate(`/issue/${isid}`);
-    // }
-  }; // isid를 포함하여 IssueDetail 페이지로 이동
+  const handleTaskClick = () => { navigate(`/issue/${isid}`); }; // isid를 포함하여 IssueDetail 페이지로 이동
 
-
-  // const [, dragRef] = useDrag({
-  //   type: "TASK",
-  //   item: { isid, title, index, fromColumn: columnId, type }, // 드래그 중 전달할 데이터
-  //   //여기서 fromColumn 값이 ColumnKey 타입으로 정확히 전달
-  //   collect: (monitor) => {
-  //     if (monitor.isDragging()) {
-  //       console.log(`Dragging Task: ${title}`); // 드래그 시작 시 title 출력
-  //     }
-
-  //   },
-  // });
-
-  // const [{ isDragging }, dragRef] = useDrag(() => ({
-  //   type: "TASK",
-  //   item: { isid, title, index, fromColumn: columnId, type }, // 드래그 중 전달할 데이터
-  //   collect: (monitor) => ({
-  //     isDragging: monitor.isDragging(), // isDragging 상태 반환
-  //   }),
-  // }));
-
-
-  // const springProps = useSpring({
-  //   to: { transform: `translateY(${index * 10}px)` },
-  //   config: { tension: 120, friction: 14 },
-  //   // immediate: !isDragging, // 드래그 중일 때는 즉시 업데이트
-  // });
-
-  // 드래그 중 스타일
-  // const draggingStyle = {
-  //   opacity: isDragging ? 0.5 : 1, // 드래그 중 투명도 설정
-  //   transform: isDragging ? "scale(1.05)" : "scale(1)", // 드래그 중 확대
-  // };
+  const [, dragRef] = useDrag({
+    type: "TASK",
+    item: { isid, title, index, fromColumn: columnId, type }, // 드래그 중 전달할 데이터
+    //여기서 fromColumn 값이 ColumnKey 타입으로 정확히 전달
+    collect: (monitor) => {
+      if (monitor.isDragging()) {
+        console.log(`Dragging Task: ${title}`); // 드래그 시작 시 title 출력
+      }
+    },
+  });
 
   return (
-    // <SpringList>
-      <TaskContainer
-        //  ref={dragRef}
-        id={`task-${isid}`}
-        onClick={handleTaskClick}
-      //  style={springProps}
-      // style={{ ...springProps, ...draggingStyle }}
-      >
-        <TaskTitle>{title}</TaskTitle>
-        <IconContainer>
-          {type === 'task' && <IssueTaskIcon />}
-          {type === 'bug' && <IssueBugIcon />}
-          <span>{type === 'task' ? '작업' : '버그'}</span>
-          {manager && <p>{manager}</p>}
-        </IconContainer>
-      </TaskContainer>
-    // </SpringList>
+    <TaskContainer ref={dragRef} id={`task-${isid}`} onClick={handleTaskClick}>
+      <TaskTitle>{title}</TaskTitle>
+      <IconContainer>
+        {type === 'task' && <IssueTaskIcon />}
+        {type === 'bug' && <IssueBugIcon />}
+        <span>{type === 'task' ? '작업' : '버그'}</span>
+        {manager && <p>{manager}</p>}
+      </IconContainer>
+    </TaskContainer>
   );
 };
 
