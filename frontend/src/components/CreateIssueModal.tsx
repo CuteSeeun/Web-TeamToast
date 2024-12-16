@@ -632,6 +632,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
 
 return (
   <CreateIssueModalWrap>
+    <div className="CreateIssueInner">
     <div className="modal" onClick={(e) => e.stopPropagation()}>
       <h3>이슈 생성</h3>
       <form onSubmit={handleSubmit}>
@@ -799,6 +800,7 @@ return (
           </div>
         </div>
       </form>
+    </div>
     </div>
   </CreateIssueModalWrap>
   );

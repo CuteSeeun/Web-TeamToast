@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { userState } from '../../recoil/atoms/userAtoms';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,6 +12,34 @@ const Intro = () => {
     const user = useRecoilValue(userState);
     const [space , setSpace] = useState(false);
     const [isFadingOut, setIsFadingOut] = useState(false); // 페이드아웃 상태
+    const navigate = useNavigate();
+
+    const [tabVisible , setTabvisible] = useState(false); // 애니메이션
+    const tabRef = useRef(null);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setTabvisible(true); // 요소가 보이면 애니메이션 상태 변경
+            } else {
+              setTabvisible(false); // 사라질 때
+            }
+          });
+        },
+        { threshold: 0.5 } // 50% 이상 보이면 실행
+      );
+  
+      if (tabRef.current) {
+        observer.observe(tabRef.current);
+      }
+  
+      return () => {
+        if (tabRef.current) observer.unobserve(tabRef.current);
+      };
+    }, []);
+
 
     const openSpaceModal = () => {
         if (user) {
@@ -21,7 +49,7 @@ const Intro = () => {
             setIsFadingOut(false); // 초기화
           }, 500); // 애니메이션 지속 시간과 맞춤
         } else {
-          alert("로그인 후 입장해주세요.");
+          navigate('/join');
         }
       };
 
@@ -72,9 +100,6 @@ const Intro = () => {
               <SpaceView onClose={closeSpaceModal} />
             </div>
           ) : (
-            // <img src="/dash.jpg" alt="" 
-            // style={{width:'600px', height:'350px'}}
-            // />
             <video
               className={`intro-video ${isFadingOut ? "fade-out" : ""}`}
               src="/video.mp4"
@@ -87,7 +112,7 @@ const Intro = () => {
             </div>
 
             {/* 새로운 탭 섹션 추가 */}
-            <div className="tab-section">
+            <div  ref={tabRef} className={`tab-section ${tabVisible ? 'animate-fade-in' : 'animate-fade-out'}`}>
                 <TabSection />
             </div>
 

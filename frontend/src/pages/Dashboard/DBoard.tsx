@@ -15,9 +15,10 @@ const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 10px 25px 25px;
-  /* overflow: hidden; */
+  overflow-y: scroll;
   /* background: pink; */
   width:100%;
+  height: 623px;
 
   /* background: linear-gradient(180deg, #FFFFFF, #81C5C5); */
   /* background:rgb(206, 237, 237); */
@@ -41,7 +42,7 @@ const Breadcrumb = styled.div`
 `;
 const DashboardSection = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-top: 20px;
   gap: 20px;
   /* background: red; */
@@ -49,22 +50,21 @@ const DashboardSection = styled.div`
 const ActiveSprintSection = styled.div`
 display: flex;
 justify-content: space-between;
-margin-top: 20px;
-gap: 20px;
+margin: 20px 0px 0 20px;
+width: 100%;
+max-width: 1086px;
+position: relative;
 `;
 const ChartContainer = styled.div`
-width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
-  max-width: 700px; /* 최대 크기를 지정하여 박스 내부에 제한 */
-  width: 100%;
-
+  width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
+  max-width: 450px; /* 최대 크기를 지정하여 박스 내부에 제한 */
   height: 500px; /* 높이 증가 */
 
-  padding: 20px;
+  padding: 30px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-  /* background:yellow; */
 `;
 
 
@@ -103,9 +103,11 @@ const InfoCard = styled.div`
   }
 `;
 const Datediv = styled.div`
-display: flex; /* Flexbox 사용 */
-/* align-items: center;  */
- gap:3px;
+  display: flex;
+  align-items: center; /* 세로축 정렬 */
+  justify-content: center; /* 가운데 정렬 */
+  gap: 10px; /* 아이콘과 텍스트 사이 간격 */
+  margin-top: 10px;
 `;
 
 type TimelineBar = {
@@ -346,13 +348,26 @@ const DBoard: React.FC = () => {
 
           <ActiveSprintSection>{/*활성스프린트 설명*/}
             <InfoCard>
-              <h4>{sprintDetails.spname}</h4>
+              {/* <h4>{sprintDetails.spname}</h4>
               <p>목표 : {sprintDetails.goal}</p>
               <br />
               <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
               <span>{remainingDays}일</span>
               <p>시작일 : {formattedStartDate}</p>
-              <p>마감일 : {formattedEndDate}</p>
+              <p>마감일 : {formattedEndDate}</p> */}
+              
+               <h4>{sprintDetails.spname}</h4>
+               <p style={{marginBottom:'-20px'}}>목표 : {sprintDetails.goal}</p>
+               <br />
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                 <Datediv>
+                   <FcLeave style={{marginBottom:'10px'}} />
+                   <h4>남은 기간</h4>
+                 </Datediv>
+                 <span>{remainingDays}일</span>
+               </div>
+               <p>시작일 : {formattedStartDate}</p>
+               <p>마감일 : {formattedEndDate}</p>
             </InfoCard>
           </ActiveSprintSection>
         </>

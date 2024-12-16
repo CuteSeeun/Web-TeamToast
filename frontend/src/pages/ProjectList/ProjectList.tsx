@@ -36,7 +36,7 @@ const ProjectList = () => {
   const existingNames = projects.map(p => p.pname);//프로젝트 이름 리스트를 저장
   const navigate = useNavigate();
   const { sid } = useParams<{ sid: string }>() || { sid: '' };//url의 sid를 가져옴
-  const [hasError, setHasError] = useState(false); // 에러 상태 관리
+  // const [hasError, setHasError] = useState(false); // 에러 상태 관리
   const [loading, setLoading] = useState<boolean>(true);
 
   // 2초 후 로딩 상태 종료 (추가)
@@ -238,14 +238,10 @@ const ProjectList = () => {
     );
   };
 
-  // if (hasError) {
-  //   return renderProjectAlert(isAdmin, openModal);
-  // }
-
   // 로딩 상태에 따른 조건부 렌더링
   if (loading) {
     return (
-        <ProjectListWrap style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop:'200px' }}>
+        <ProjectListWrap style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',height:'80vh'}}>
             <HashLoader color="#36d7b7" />
         </ProjectListWrap>
     );

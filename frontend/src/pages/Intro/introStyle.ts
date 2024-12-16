@@ -47,7 +47,7 @@ export const IntroWrap = styled.div`
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding-top: 200px; 
+  padding-top:150px;
 
   .intro-container {
     display: flex;
@@ -132,13 +132,7 @@ export const IntroWrap = styled.div`
     }
   }
 
-  .tab-section {
-    margin-top: 50px;
-    padding: 100px 20px;
-    border-radius: 10px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+ 
 
 
 /* 페이드 아웃 */
@@ -168,6 +162,49 @@ export const IntroWrap = styled.div`
     opacity: 1;
   }
 }
+
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+}
+
+
+.tab-section {
+    margin-top: 50px;
+    padding: 100px 20px;
+    border-radius: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+    opacity: 0; /* 기본 숨김 상태 */
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+   
+    &.animate-fade-in {
+      animation: fadeInUp 1s ease-in-out forwards;
+    }
+
+    &.animate-fade-out {
+    animation: fadeOutDown 0.8s ease-in-out forwards;
+  }
+  
+  }
 
 
 

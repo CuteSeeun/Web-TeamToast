@@ -44,7 +44,11 @@ const TabSection:React.FC = () => {
     타임라인: {
       image:'/sprint.jpg',
       title: '타임라인',
-      description: '',
+      description: `타임라인은 프로젝트의 전체 일정을 한눈에 확인할 수 있는 기능으로,
+      각 작업과 스프린트의 기간을 시각화하여 표시합니다.
+      결과적으로 팀원들은 타임라인을 통해 진행 상태를 파악하고,
+      앞으로의 일정을 예측하여 프로젝트 관리의 효율성을 높일 수 있습니다.
+      `,
     },
     채팅: {
       image: '/sprint.jpg',

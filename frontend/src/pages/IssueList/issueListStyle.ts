@@ -93,24 +93,25 @@ export const TableContainer = styled.div`
   margin-top: 20px;
   max-height: 400px; /* 표의 최대 높이 */
   overflow-y: auto; /* 세로 스크롤 활성화 */
-  border: 1px solid #dee2e6; /* 테두리 */
+  border: 1px solid white; /* 테두리 */
   border-radius: 8px; /* 테두리 둥글게 */
 `;
 export const IssueTable = styled.table`
   width: 100%;
 border-collapse: collapse;
   th {
-    background-color: #f8f9fa; /* 헤더 배경색 */
+    background-color: white; /* 헤더 배경색 */
     text-align: left;
     padding: 12px;
     font-size: 14px;
     font-weight: bold;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #000;
   }
   td {
+    background: #fff;
     padding: 12px;
     font-size: 14px;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #000;
   }
   .status {
     display: inline-block;

@@ -90,11 +90,11 @@ const Profile:React.FC = () => {
                     </div>
 
                     <div className="form-row">
-                        <label>비밀번호</label>
+                        {/* <label>비밀번호</label> */}
                         <div className="password-group">
                             <button className="change-pwd-btn" 
                              onClick={() => setIsPasswordModalOpen(true)}>비밀번호 변경하기</button>
-                            <button className="save-btn" onClick={editInfo}>수정</button>
+                            <button className="save-btn" onClick={editInfo}>정보 수정</button>
                         </div>
                     </div>
                 </div>

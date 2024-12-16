@@ -56,18 +56,22 @@ const IBoard: React.FC = () => {
   useEffect(() => {
     localStorage.setItem("recentIssues", JSON.stringify(recentIssues));
   }, [recentIssues]);
+
   // input 클릭 시 최근 조회된 이슈 표시
   const handleInputFocus = () => {
     setShowDropdown(true);
   };
+
   // 최근 조회된 이슈 클릭 시 동작
   const handleRecentIssueClick = (issue: Issue) => {
     setSearchText(issue.title); // 검색어에 선택한 제목을 설정
     setShowDropdown(false); // 드롭다운 닫기
   };
+
   const handleInputBlur = () => {
     setTimeout(() => setShowDropdown(false), 200); // 클릭 후 닫기 지연
   };
+  
   const handleIssueClick = (issue: Issue) => {
     // 최근 조회된 이슈를 업데이트하고 중복 제거
     const updatedIssues = [issue, ...recentIssues.filter((i) => i.isid !== issue.isid)].slice(0, 5);
@@ -85,6 +89,7 @@ const IBoard: React.FC = () => {
     );
   }
 
+  
 
   return (
     <BoardContainer>

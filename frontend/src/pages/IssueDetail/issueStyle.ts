@@ -70,8 +70,7 @@ export const Label = styled.div`
   font-size: 14px;
   font-weight: bold;
   margin-bottom: 5px;
-  min-width: 80px; 
-  /* margin-right: 20px;  */
+  min-width: 80px;
 `;
 
 
@@ -156,8 +155,12 @@ export const FileItem = styled.div`
 
 export const ButtonContainer = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: flex-end; /* 오른쪽 정렬 */
   gap: 10px;
+/* padding-bottom: 20px; */
+ padding-right: 60px; /* 박스 끝 라인에 맞추기 위한 패딩 */
+
+ button {background: #038c8c; color:#fff}
 `;
 
 export const Button = styled.button<{ primary?: boolean }>`
