@@ -164,7 +164,7 @@ const IBoard: React.FC = () => {
             {filteredIssues.length > 0 ? (
               filteredIssues.map((issue: Issue) => (
                 <tr key={issue.isid}>
-                  <td style={{ display: 'flex', alignItems: 'center' }}>
+                  <td style={{ display: 'flex', alignItems: 'center', textAlign:'center', justifyContent: 'center', }}>
                     {issue.type === Type.process && <IssueTaskIcon style={{ marginRight: '10px' }} />}
                     {issue.type === Type.bug && <IssueBugIcon style={{ marginRight: '10px' }} />}
                     {TypeMap[issue.type]}

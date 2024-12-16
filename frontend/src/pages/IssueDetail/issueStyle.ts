@@ -10,7 +10,7 @@ export const BoardContainer = styled.div`
   width: 100%;
   /* overflow-y: hidden; */
   box-sizing: border-box; 
-  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+  background:rgb(226, 241, 241);
 
 `;
 

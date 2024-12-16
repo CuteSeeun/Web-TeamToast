@@ -101,18 +101,21 @@ export const IssueTable = styled.table`
 border-collapse: collapse;
   th {
     background-color: white; /* 헤더 배경색 */
-    text-align: left;
+    text-align: center;
     padding: 12px;
     font-size: 14px;
     font-weight: bold;
-    border-bottom: 1px solid #000;
+    border-bottom: 1px solid #e7e7e7;
+    background:rgb(243, 243, 243);
   }
   td {
     background: #fff;
+    text-align: center;
     padding: 12px;
     font-size: 14px;
-    border-bottom: 1px solid #000;
+    /* border-bottom: 1px solid #007bff; */
   }
+  
   .status {
     display: inline-block;
     padding: 4px 8px;
