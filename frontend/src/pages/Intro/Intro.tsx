@@ -12,6 +12,8 @@ const Intro = () => {
     const user = useRecoilValue(userState);
     const [space , setSpace] = useState(false);
     const [isFadingOut, setIsFadingOut] = useState(false); // 페이드아웃 상태
+    const navigate = useNavigate();
+
 
     const openSpaceModal = () => {
         if (user) {
@@ -21,7 +23,7 @@ const Intro = () => {
             setIsFadingOut(false); // 초기화
           }, 500); // 애니메이션 지속 시간과 맞춤
         } else {
-          alert("로그인 후 입장해주세요.");
+          navigate('/join');
         }
       };
 

@@ -15,9 +15,10 @@ const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 10px 25px 25px;
-  /* overflow: hidden; */
+  overflow-y: scroll;
   /* background: pink; */
   width:100%;
+  height: 623px;
 
   background: linear-gradient(180deg, #FFFFFF, #81C5C5);
   /* background: linear-gradient(180deg, #81C5C5, #BFE3E3, #FFFFFF); */
@@ -39,7 +40,7 @@ const Breadcrumb = styled.div`
 `;
 const DashboardSection = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-top: 20px;
   gap: 20px;
   /* background: red; */
@@ -47,22 +48,20 @@ const DashboardSection = styled.div`
 const ActiveSprintSection = styled.div`
 display: flex;
 justify-content: space-between;
-margin-top: 20px;
-gap: 20px;
+margin: 20px 0px 0 20px;
+width: 100%;
+max-width: 1080px;
 `;
 const ChartContainer = styled.div`
-width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
-  max-width: 700px; /* 최대 크기를 지정하여 박스 내부에 제한 */
-  width: 100%;
-
+  width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
+  max-width: 450px; /* 최대 크기를 지정하여 박스 내부에 제한 */
   height: 500px; /* 높이 증가 */
 
-  padding: 20px;
+  padding: 30px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-  /* background:yellow; */
 `;
 
 

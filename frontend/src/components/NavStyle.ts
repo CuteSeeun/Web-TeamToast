@@ -162,7 +162,7 @@ export const JoinWrap = styled.div`
   align-items: center;
   height: 100vh;
   background-color: #f5f5f5;
-  padding:60px 0 60px 0;
+  padding:100px 0 100px 0;
 
   .Join-pass {
     display: flex;
