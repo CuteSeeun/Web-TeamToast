@@ -14,7 +14,7 @@ import { ReactComponent as SprintAlert } from '../../assets/images/sprintAlert.s
 import { Issue } from '../../recoil/atoms/issueAtoms';
 import { HashLoader } from 'react-spinners';
 
-type Task = Pick<Issue, 'isid' | 'title' | 'type' | 'manager'>;
+type TaskType = Pick<Issue, 'isid' | 'title' | 'type' | 'manager'>;
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
 
 const BoardContainer = styled.div`
@@ -31,7 +31,8 @@ const BoardContainer = styled.div`
 
   width:1161px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0F.1);
-  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+  /* background: linear-gradient(180deg, #FFFFFF, #81C5C5); */
+  background:rgb(226, 241, 241);
 
 
 `;
@@ -97,7 +98,6 @@ const DropdownMenu = styled.ul<{ open: boolean }>`
     }
   }
 `;
-
 const BoardMain = styled.div`
   display: flex;
   flex-wrap: nowrap; /* 줄바꿈 허용하지 않음 */
@@ -171,7 +171,7 @@ const SBoard: React.FC = () => {
   const [filter, setFilter] = useRecoilState(filterState);
   const pid = sessionStorage.getItem('pid');
 
-  // 2초 후 로딩 상태 종료 (추가)
+  // 스피너 : 2초 후 로딩 상태 종료 (추가)
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -188,15 +188,12 @@ const SBoard: React.FC = () => {
 
   //columns 상태는 컬럼과 그 안에 태스크 목록을 저장한다
   const [columns, setColumns] = useState<{
-    backlog: Task[];
-    inProgress: Task[];
-    done: Task[];
-    qa: Task[];
+    backlog: TaskType[];
+    inProgress: TaskType[];
+    done: TaskType[];
+    qa: TaskType[];
   }>({
-    backlog: [],
-    inProgress: [],
-    done: [],
-    qa: [],
+    backlog: [], inProgress: [], done: [], qa: [],
   });
 
   // Recoil에서 가져온 데이터를 columns에 매핑
@@ -232,22 +229,23 @@ const SBoard: React.FC = () => {
 
   //태스크를 원래 컬럼에서 제거하고 새로운 컬럼에 삽입 후 상태를 업데이트하는 함수
   //컬럼 간 이동 및 같은 컬럼 내 삽입을 모두 처리한다. 
-  const moveTask = (fromColumn: ColumnKey, toColumn: ColumnKey, fromIndex: number, toIndex: number) => {
-    setColumns((prevColumns) => {
-      const updatedColumns = { ...prevColumns };
+  // const moveTask = (fromColumn: ColumnKey, toColumn: ColumnKey, fromIndex: number, toIndex: number) => {
+  //   setColumns((prevColumns) => {
+  //     const updatedColumns = { ...prevColumns };
 
-      const [movedTask] = updatedColumns[fromColumn].splice(fromIndex, 1);// 드래그된 태스크를 원래 위치에서 제거
-      updatedColumns[toColumn].splice(toIndex, 0, movedTask);// 드롭된 위치에 태스크 삽입
+  //     const [movedTask] = updatedColumns[fromColumn].splice(fromIndex, 1);// 드래그된 태스크를 원래 위치에서 제거
+  //     updatedColumns[toColumn].splice(toIndex, 0, movedTask);// 드롭된 위치에 태스크 삽입
 
-      return updatedColumns;
-    });
-  };
+  //     return updatedColumns;
+  //   });
+  // };
 
-  // AddIssueButton 클릭 시 모달 여는 함수
+  // 이슈 생성 : AddIssueButton 클릭 시 모달 여는 함수
   const handleAddIssue = () => {
     setIsModalOpen(true);
   };
 
+  //필터링-----------------------------------------------
   // 현재 렌더링 중인 이슈들(모든 컬럼 합치기)
   const allDisplayedTasks = [
     ...columns.backlog, ...columns.inProgress,
@@ -278,7 +276,43 @@ const SBoard: React.FC = () => {
     setPriorityOpen(false);
   };
 
-  // 로딩 상태에 따른 조건부 렌더링
+
+
+  // 같은 컬럼 내 순서 변경
+  const handleReorder = (columnId: ColumnKey, newOrder: TaskType[]) => {
+    setColumns((prevColumns) => ({
+      ...prevColumns,
+      [columnId]: newOrder, // 해당 컬럼의 Task 순서 업데이트
+    }));
+  };
+
+  // 다른 컬럼으로 Task 이동
+  const handleMoveTask = (taskId: number, targetColumnId: ColumnKey) => {
+    setColumns((prevColumns) => {
+      const newColumns = { ...prevColumns };
+      let movedTask: TaskType | undefined;
+
+      // 원래 컬럼에서 Task 제거
+      Object.keys(newColumns).forEach((key) => {
+        newColumns[key as ColumnKey] = newColumns[key as ColumnKey].filter((task) => {
+          if (task.isid === taskId) {
+            movedTask = task; // 이동할 Task 저장
+            return false;
+          }
+          return true;
+        });
+      });
+
+      if (movedTask) {
+        // 새 컬럼에 Task 추가
+        newColumns[targetColumnId].push(movedTask);
+      }
+
+      return newColumns;
+    });
+  };
+
+  // <스피너> 로딩 상태에 따른 조건부 렌더링
   if (loading) {
     return (
       <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -286,6 +320,8 @@ const SBoard: React.FC = () => {
       </BoardContainer>
     );
   }
+
+  
 
   return (
     <>
@@ -347,10 +383,35 @@ const SBoard: React.FC = () => {
           // 활성 스프린트가 있는 경우
           <DndProvider backend={HTML5Backend}>
             <BoardMain>
-              <Column title="백로그" tasks={columns.backlog} columnId="backlog" onMoveTask={moveTask} onAddIssue={handleAddIssue} />
-              <Column title="진행 중" tasks={columns.inProgress} columnId="inProgress" onMoveTask={moveTask} onAddIssue={handleAddIssue} />
-              <Column title="개발 완료" tasks={columns.done} columnId="done" onMoveTask={moveTask} onAddIssue={handleAddIssue} />
-              <Column title="QA 완료" tasks={columns.qa} columnId="qa" onMoveTask={moveTask} onAddIssue={handleAddIssue} />
+              <Column title="백로그" tasks={columns.backlog} columnId="backlog" onMoveTask={handleMoveTask} onAddIssue={handleAddIssue} onReorder={(newOrder: TaskType[]) => handleReorder('backlog', newOrder)} />
+              <Column title="진행 중" tasks={columns.inProgress} columnId="inProgress" onMoveTask={handleMoveTask} onAddIssue={handleAddIssue} onReorder={(newOrder: TaskType[]) => handleReorder('inProgress', newOrder)}/>
+              <Column title="개발 완료" tasks={columns.done} columnId="done" onMoveTask={handleMoveTask} onAddIssue={handleAddIssue} onReorder={(newOrder: TaskType[]) => handleReorder('done', newOrder)}/>
+              <Column title="QA 완료" tasks={columns.qa} columnId="qa" onMoveTask={handleMoveTask} onAddIssue={handleAddIssue} onReorder={(newOrder: TaskType[]) => handleReorder('qa', newOrder)}/>
+
+{/* <Column
+          title="백로그그"
+          columnId="backlog"
+          tasks={tasksByColumn('backlog')}
+          onReorder={(newOrder) => handleReorder('backlog', newOrder)}
+          onMoveTask={handleMoveTask}
+          onAddIssue={handleAddIssue}
+        />
+        <Column
+          title="진행중"
+          columnId="inProgress"
+          tasks={tasksByColumn('inProgress')}
+          onReorder={(newOrder) => handleReorder('inProgress', newOrder)}
+          onMoveTask={handleMoveTask}
+          onAddIssue={handleAddIssue}
+        />
+        <Column
+          title="개발완료"
+          columnId="done"
+          tasks={tasksByColumn('done')}
+          onReorder={(newOrder) => handleReorder('done', newOrder)}
+          onMoveTask={handleMoveTask}
+          onAddIssue={handleAddIssue}
+        /> */}
             </BoardMain>
           </DndProvider>
         )}

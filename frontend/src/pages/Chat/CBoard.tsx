@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ChatContainer from './ChatContainer';
 import TapMenu from './TapMenu';
-import { connectSocket, disconnectSocket } from '../../socketClient';
+import { connectSocket, disconnectSocket, onMessage, sendMessage, Message } from '../../socketClient';
 import { HashLoader } from 'react-spinners';
+import { requestNotificationPermission, showNotification } from '../../socketClient';
 
 const BoardContainer = styled.div`
   position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
@@ -21,6 +22,8 @@ const BoardContainer = styled.div`
 
 const CBoard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
+  const [messages, setMessages] = useState<Message[]>([]);
+  // const receivedMessageIds = new Set(); // 메시지 ID를 추적
 
   // 2초 후 로딩 상태 종료 (추가)
   useEffect(() => {
@@ -31,10 +34,37 @@ const CBoard: React.FC = () => {
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
   }, []);
 
-  //프로젝트 -> 활성스프린트 들어갈 때 작성할 코드
+  //프로젝트 헤더에 작성할 코드 : 소켓 연결, 알림 허용용
   useEffect(() => {
+    // 알림 권한 요청
+    requestNotificationPermission();
     // 컴포넌트가 마운트될 때 소켓 연결
     connectSocket();
+
+    onMessage((message: Message) => {
+      setMessages((prev) => [...prev, message]);
+
+      // **알림 표시**
+      showNotification(
+        `새 메시지 - ${message.user}`,
+        message.content,
+        '/chat-icon.png'
+      );
+    });
+
+    // onMessage((message: Message) => {
+    //   if (!receivedMessageIds.has(message.mid)) { // 이미 받은 메시지인지 확인
+    //     receivedMessageIds.add(message.mid);
+    //     setMessages((prev) => [...prev, message]);
+    
+    //     // 알림 표시
+    //     showNotification(
+    //       `새 메시지 - ${message.user}`,
+    //       message.content,
+    //       '/chat-icon.png'
+    //     );
+    //   }
+    // });
 
     // 컴포넌트가 언마운트될 때 소켓 연결 해제
     return () => {

@@ -1,6 +1,7 @@
 import { io, Socket } from 'socket.io-client';
+import nofiIcon from './assets/icons/nofi.png.png';
 
-interface Message {
+export interface Message {
   mid: number;       // 메시지 ID (고유값, UUID 사용 권장)
   rid: number;       // 방 ID
   content: string;    // 메시지 내용
@@ -9,15 +10,38 @@ interface Message {
   user: string;  // 보낸 사용자 이름
 };
 
+//알림 권한 요청 및 알림 생성 함수
+export const requestNotificationPermission = () => {
+  if (!("Notification" in window)) {
+    console.log('브라우저가 데스크탑의 알림을 지원하지 않는다');
+    return;
+  }
+Notification.requestPermission().then((permission) => {
+  if (permission === "granted") {
+    console.log('알림 권한이 허용되었다.');
+  }else{
+    console.log('알림권한이 거부되었다.');
+  }
+});
+};
+export const showNotification = (user:string, content:string, icon?:string) => {
+  if(Notification.permission === "granted"){
+    new Notification(user, {
+      body: content, 
+      // icon: icon || "/default-icon.png", //알림 아이콘 경로
+      icon: icon || nofiIcon,
+    });
+  }
+};
+
 // 전역 소켓 객체
 let socket: Socket | null = null;
 
 // 서버 연결
 export const connectSocket = (): Socket => {
-  if (!socket) {
+  if (!socket || !socket.connected) {
     socket = io('http://localhost:3001'); // 백엔드 URL
     console.log('야야야야야야야 소켓 연결된다.');
-    console.log('Socket connected:', socket.id);
   }
   return socket;
 
@@ -55,10 +79,10 @@ export const sendMessage = (messageData: Message) => { //{ mid: number; content:
 export const onMessage = (callback: (message: Message) => void) => {
   if (socket) {
     // 기존 리스너 제거
-    socket.off('newMessage'); 
+    socket.off('newMessage');
     socket.on('newMessage', callback);// 새로운 리스너 등록
     console.log('!!!모든 클라이언트들에게 메시지 보내줄게!!!');
-  }else {
+  } else {
     console.warn('소켓 연결 안됨');
   }
 };
