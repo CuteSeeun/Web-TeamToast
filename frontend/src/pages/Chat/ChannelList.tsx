@@ -12,13 +12,11 @@ const ChannelListWrapper = styled.div<{ isOpen: boolean }>`
   overflow: hidden;
   transition: height 0.3s ease; /* 부드러운 애니메이션 */
 `;
-
 const ChannelListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
 `;
-
 const ChannelItem = styled.div<{ active?: boolean }>`
   display: flex;
   align-items: center;

@@ -19,8 +19,10 @@ const BoardContainer = styled.div`
   /* background: pink; */
   width:100%;
 
-  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
-  /* background: linear-gradient(180deg, #81C5C5, #BFE3E3, #FFFFFF); */
+  /* background: linear-gradient(180deg, #FFFFFF, #81C5C5); */
+  /* background:rgb(206, 237, 237); */
+  background:rgb(226, 241, 241);
+
 `;
 const BoardHeader = styled.div`
   display: flex;
