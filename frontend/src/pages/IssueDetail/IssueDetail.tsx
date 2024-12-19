@@ -3,7 +3,9 @@ import IDBoard from './IDBoard';
 
 const IssueDetail: React.FC = () => {
   return (
+  
         <IDBoard />
+ 
   );
 };
 

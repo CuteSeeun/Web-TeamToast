@@ -1,12 +1,13 @@
 import styled from "styled-components";
 
 export const ProfileWrap = styled.div`
-   max-width: 800px;
+   max-width: 500px;
  height: 570px;
  margin: 0 auto;
  background: white;
  border-radius: 8px;
  border: 1px solid #f0f0f0;
+ margin-top: 50px;
 
  h1 {
    font-size: 20px;

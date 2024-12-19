@@ -12,6 +12,7 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 import { projectListState, currentProjectState } from '../../recoil/atoms/projectAtoms';
 import { ReactComponent as ProjectAlert } from '../../assets/images/proejctAlert.svg';
 import AccessToken from '../Login/AccessToken';
+import {HashLoader} from 'react-spinners';
 
 interface ModalState {
   isOpen: boolean;
@@ -24,7 +25,6 @@ const ProjectList = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // 현재 페이지 번호를 저장
   const [modal, setModal] = useState<ModalState>({ isOpen: false, type: null }); // 생성 수정 삭제 모달을 열거나 닫을때
   const [projects, setProjects] = useRecoilState<Project[]>(projectListState); // 현재 스페이스의 프로젝트 리스트를 저장
-  const [isReady, setIsReady] = useState(false);//api로 데이터 가져오는 동안 "로딩중"메시지 표시
   const setCurrentProject = useSetRecoilState(currentProjectState); //선택한 프로젝트 이름 ,설명
   const itemsPerPage = 10; // 한 페이지에 들어갈 아이템 개수
   // 페이지네이션 계산
@@ -36,7 +36,21 @@ const ProjectList = () => {
   const existingNames = projects.map(p => p.pname);//프로젝트 이름 리스트를 저장
   const navigate = useNavigate();
   const { sid } = useParams<{ sid: string }>() || { sid: '' };//url의 sid를 가져옴
-  const [hasError, setHasError] = useState(false); // 에러 상태 관리
+  // const [hasError, setHasError] = useState(false); // 에러 상태 관리
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // 2초 후 로딩 상태 종료 (추가)
+      useEffect(() => {
+          const timer = setTimeout(() => {
+              setLoading(false);
+          }, 3000);
+  
+          return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+      }, []);
+
+      useEffect(()=>{
+        sessionStorage.removeItem('pid')
+    },[])
 
   //세션스토리지에서 userRole가져오기
   useEffect(() => {
@@ -60,13 +74,10 @@ const ProjectList = () => {
         const { data } = await AccessToken.get(`/projects/all/${sid}`);
         console.log("Response from API:", data);
         setProjects(data || []);
-        setHasError(false); // 에러 상태 설정
       } catch (err) {
         console.error(`프로젝트를 받아오는 중 에러 발생: ${err}`);
         renderProjectAlert(isAdmin, openModal); // 바로 경고 메시지 반환
-        setHasError(true); // 에러 상태 설정
       } finally {
-        setIsReady(true); // 로딩 완료
       }
     };
     getProjList();
@@ -220,22 +231,29 @@ const ProjectList = () => {
           <button className="create-btn" onClick={() => openModal('create')}>
             <GoPlus /> 새 프로젝트 생성
           </button>
+         
         </div>
       </div>
       </ProjectListWrap>
     );
   };
 
-  if (hasError) {
-    return renderProjectAlert(isAdmin, openModal);
-  }
+  // 로딩 상태에 따른 조건부 렌더링
+  if (loading) {
+    return (
+        <ProjectListWrap style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',height:'80vh'}}>
+            <HashLoader color="#36d7b7" />
+        </ProjectListWrap>
+    );
+}
 
 
   return (
     <ProjectListWrap>
       <div className="project-header">
         <h2>프로젝트</h2>
-      </div> {projects.length !== 0 && <div className="table-container">
+      </div> 
+      {projects.length !== 0 && <div className="table-container">
         {isAdmin && (
           <button className="create-btn" onClick={() => openModal('create')}>
             <GoPlus /> 새 프로젝트 생성
@@ -297,17 +315,6 @@ const ProjectList = () => {
             </button>
           </div>
         </>) : (
-        // <>
-        //   <div className='project-alert-container'>
-        //     <div className='project-alert-wrap'>
-        //       <ProjectAlert className='alert-svg' />
-        //       {isAdmin ? <p>현재 생성된 프로젝트가 없습니다. <br /> 새 프로젝트를 생성해 주세요.</p> : <p>현재 생성된 프로젝트가 없습니다. <br /> 관리자에게 문의해 주세요.</p>}
-        //       <button className="create-btn" onClick={() => openModal('create')}>
-        //         <GoPlus /> 새 프로젝트 생성
-        //       </button>
-        //     </div>
-        //   </div>
-        // </>
         renderProjectAlert(isAdmin, openModal)
       )
       }

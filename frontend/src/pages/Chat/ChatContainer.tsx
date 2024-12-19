@@ -12,6 +12,9 @@ import chatAlert from '../../assets/images/chatAlert.svg';
 import { sendMessage, onMessage, offMessage } from '../../socketClient'; // 소켓 메시지 전송 함수 가져오기
 import ExitModal from './ExitModal';
 import AddFriendModal from './AddFriendModal'; // AddFriendModal 가져오기
+import axios, { AxiosError } from 'axios';
+import { showNotification } from '../../socketClient';
+
 
 const ProfileImage = styled.div`
    width: 30px;
@@ -30,9 +33,12 @@ const ChatContainer = styled.div`
   flex: 1;
   flex-direction: column;
   width: 100%;
+  max-width: 950px;
   height: 100vh;
   background-color: #ffffff;
+  height: 630px;
   /* border: 1px solid #ddd; */
+  /* background: pink; */
 `;
 const ChatHeader = styled.div`
   padding: 10px 20px;
@@ -81,6 +87,7 @@ const InputContainer = styled.div`
   background-color: #fff;
   /* border-top: 1px solid #ddd; */
   position: relative; /* 아이콘 배치를 위해 추가 */
+  /* background:green; */
 `;
 const InputField = styled.input`
   flex: 1;
@@ -231,18 +238,43 @@ const ChatContainerComponent: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // 이모티콘 선택기 상태 : 이모티콘 선택기의 표시 상태를 관리
   // const messageListRef = useRef<HTMLDivElement | null>(null); // 메시지 리스트 참조
   //selectedChannel과 newMesages : selectedChannel의 메시지 리스트를 업데이트할 때 새 메시지를 추가한다. 
-
+  const messageListRef = useRef<HTMLDivElement | null>(null);
 
   // 채팅방 퇴장 모달을 열거나 닫는 핸들러
   const OpenExitModal = () => setExitModalOpen(true);
   const CloseExitModal = () => setExitModalOpen(false);
 
   // 채팅방 퇴장 시 실행될 로직
-  const handleLeaveChannel = () => {
+  const handleLeaveChannel = async () => {
     console.log('채널에서 퇴장했습니다.');
     setExitModalOpen(false);
 
     //rid(채팅방번호)에서 로그인한 유저 이메일로 룸멤버테이블에서 해당 레코드 삭제하기
+    //1. 현재 방 정보, 유저 정보로 룸 테이블, 룸 멤버 테이블에서 해당 레코드 제거
+    if (!loggedInUser || !loggedInUser.email) {
+      console.error('유저 정보가 없습니다.'); // 로그 추가
+      return; // 실행 중단
+    }
+    try {
+      const response = await axios.delete('/channel/exit', {
+        data: { // DELETE 요청 시 payload를 data로 전달
+          email: loggedInUser.email,
+          rid: selectedChannel?.rid,
+        },
+      });
+
+      if (response.status === 200) {
+        console.log('채널에서 퇴장했습니다.');
+        setExitModalOpen(false);
+        // 필요한 상태 업데이트
+      } else {
+        console.error('채널 퇴장 실패:', response.data.message);
+      }
+    } catch (error) {
+      // console.error('오류 발생:', error.response?.data || error.message);
+      const axiosError = error as AxiosError;
+      console.error('오류 발생:', axiosError.response?.data || axiosError.message);
+    }
 
   };
 
@@ -273,6 +305,7 @@ const ChatContainerComponent: React.FC = () => {
     console.log('선택된 멤버:', selectedMembers);
     setFriendModalOpen(false);
     // 여기서 선택된 멤버에 대한 로직을 추가할 수 있음
+
   };
 
   // 이모티콘 추가 핸들러
@@ -281,41 +314,7 @@ const ChatContainerComponent: React.FC = () => {
     setShowEmojiPicker(false); // 선택 후 이모티콘 선택기 닫기
   };
 
-
-  // useEffect(() => {
-  //   // 새로운 메시지 수신 핸들러 등록
-  //   onMessage((newMessage) => {
-  //     console.log("새 메시지 수신:", newMessage);
-
-  //     // 메시지를 현재 채널에 추가
-  //     setSelectedChannel((prev) => {
-  //       if (!prev || prev.rid !== newMessage.rid) return prev; // 현재 채널이 아닐 경우 무시
-  //       return {
-  //         ...prev,
-  //         messages: [...prev.messages, newMessage], // 메시지 추가
-  //       };
-  //     });
-
-  //     // 전체 채널 상태도 업데이트
-  //     setChannels((prevChannels) =>
-  //       prevChannels.map((channel) =>
-  //         channel.rid === newMessage.rid
-  //           ? {
-  //               ...channel,
-  //               messages: [...channel.messages, newMessage],
-  //             }
-  //           : channel
-  //       )
-  //     );
-  //   });
-
-  //   // 컴포넌트 언마운트 시 핸들러 제거
-  //   return () => {
-  //     offMessage();
-  //   };
-  // }, [setSelectedChannel, setChannels]);
-
-
+  //새로운 메시지 렌더링
   useEffect(() => {
     onMessage((newMessage) => {
       console.log('onMessage 호출됨:', newMessage);
@@ -333,145 +332,202 @@ const ChatContainerComponent: React.FC = () => {
           messages: [...(prev.messages || []), newMessage],
         };
       });
-    });
 
-    return () => {
-      // offMessage();
-    };
-  }, [selectedChannel, newMessages]);
+      // **알림 표시** - 여기서 실행 : 이건 내가 보낸 메시지도 알람이 뜸뜸
+      // showNotification(
+      //   `새 메시지 - ${newMessage.user}`,
+      //   newMessage.content,
+      //   "/chat-icon.png" // 알림 아이콘 경로
+      // );
+   
+      // **본인이 보낸 메시지는 알림을 표시하지 않음**
+    if (newMessage.user_email !== loggedInUser?.email) {
+      showNotification(
+        `${newMessage.user}`,
+        newMessage.content,
+        "/chat-icon.png" // 알림 아이콘 경로
+      );
+    }
 
-  // 메시지 전송 핸들러 _ 메시지 추가할 때 selectedChannel상태 업데이트
-  const handleSendMessage = () => {
-    if (!currentInput.trim() || !selectedChannel) return;
+  });
 
-    const newMessage: Message = {
-      mid: new Date().getTime(), // 혹은 UUID 등 고유 ID 생성 로직
-      rid: selectedChannel.rid,
-      content: currentInput,
-      timestamp: new Date().toLocaleTimeString(),
-      user_email: loggedInUser?.email || '(이메일없음)',
-      user: loggedInUser?.uname || '(알수없음)',
-    };
+  return () => {
+    // offMessage();
+  };
+}, [selectedChannel, newMessages]);
 
-    // 소켓을 통해 서버로 메시지 전송
-    sendMessage(newMessage);
+// 메시지 전송 핸들러 _ 메시지 추가할 때 selectedChannel상태 업데이트
+const handleSendMessage = () => {
+  if (!currentInput.trim() || !selectedChannel) return;
 
-    // selectedChannel 업데이트
-    setSelectedChannel((prev) => ({
-      ...prev,
-      messages: [...prev.messages], // 기존메시지에서 새 메시지 추가
-    }));
-
-    // setChannels((prevChannels) =>
-    //   prevChannels.map((channel) =>
-    //     channel.rid === selectedChannel.rid
-    //       ? {
-    //         ...channel,
-    //         messages: [...selectedChannel.messages, newMessage], // 배열로 보장
-    //       }
-    //       : channel
-    //   )
-    // );
-
-    // 입력 필드 초기화
-    setCurrentInput('');
+  const newMessage: Message = {
+    mid: new Date().getTime(), // 혹은 UUID 등 고유 ID 생성 로직
+    rid: selectedChannel.rid,
+    content: currentInput,
+    timestamp: new Date().toLocaleTimeString(),
+    user_email: loggedInUser?.email || '(이메일없음)',
+    user: loggedInUser?.uname || '(알수없음)',
   };
 
-  // 메시지가 추가되거나 렌더링될 때 스크롤을 가장 아래로 설정
-  // useEffect(() => {
-  //   if (messageListRef.current) {
-  //     messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-  //   }
-  // }, [selectedChannel?.messages]); // 메시지가 변경될 때 실행
+  // 소켓을 통해 서버로 메시지 전송
+  sendMessage(newMessage);
 
-  return (
-    <ChatContainer>
+  // selectedChannel 업데이트
+  setSelectedChannel((prev) => ({
+    ...prev,
+    messages: [...prev.messages], // 기존메시지에서 새 메시지 추가
+  }));
 
-      <ChatHeaderContainer>
-        <HeaderTitle>{selectedChannel?.rname || '대화를 시작해보세요!'}</HeaderTitle>
-        {selectedChannel?.rname && (
-          <HeaderIcons>
-            <IoPersonAddOutline onClick={openFriendModal} />
-            {isNotificationsOn ? (
-              <IoNotificationsOutline onClick={toggleNotifications} />
-            ) : (
-              <IoNotificationsOffOutline onClick={toggleNotifications} />
+  // setChannels((prevChannels) =>
+  //   prevChannels.map((channel) =>
+  //     channel.rid === selectedChannel.rid
+  //       ? {
+  //         ...channel,
+  //         messages: [...selectedChannel.messages, newMessage], // 배열로 보장
+  //       }
+  //       : channel
+  //   )
+  // );
+
+  // 입력 필드 초기화
+  setCurrentInput('');
+};
+
+//최신 메시지로 이동
+useEffect(() => {
+  if (messageListRef.current) {
+    // 스크롤을 최하단으로 이동
+    messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+  }
+}, [selectedChannel?.messages]); // 메시지가 변경될 때 실행
+
+//timestamp를 포맷팅하는 함수
+const formatTimestamp = (timestamp: any) => {
+  const date = new Date(timestamp);
+  const hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const period = hours >= 12 ? '오후' : '오전';
+  const formattedHours = hours % 12 || 12; // 0을 12로 변환
+
+  return `${period} ${formattedHours}:${minutes}`;
+};
+//날짜 표시
+const formatDate = (timestamp: any) => {
+  const date = new Date(timestamp);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    weekday: 'long', // 'long', 'short', 'narrow' 중 선택 가능
+  };
+  return date.toLocaleDateString('ko-KR', options);
+};
+const formattedMessages = selectedChannel?.messages.map((msg, index) => {
+  const currentDate = formatDate(msg.timestamp); // 현재 메시지의 날짜
+  const previousDate =
+    index > 0 ? formatDate(selectedChannel.messages[index - 1].timestamp) : null; // 이전 메시지의 날짜
+  const showDate = currentDate !== previousDate; // 날짜가 다를 경우 표시
+
+  return {
+    ...msg,
+    currentDate,
+    showDate,
+  };
+});
+
+
+return (
+  <ChatContainer>
+
+    {/* 채팅 헤더 */}
+    <ChatHeaderContainer>
+      <HeaderTitle>{selectedChannel?.rname || '대화를 시작해보세요!'}</HeaderTitle>
+      {selectedChannel?.rname && (
+        <HeaderIcons>
+          <IoPersonAddOutline onClick={openFriendModal} />
+          {isNotificationsOn ? (
+            <IoNotificationsOutline onClick={toggleNotifications} />
+          ) : (
+            <IoNotificationsOffOutline onClick={toggleNotifications} />
+          )}
+          <IoLogOutOutline onClick={OpenExitModal} />
+        </HeaderIcons>
+      )}
+
+      {isFriendModalOpen && (
+        <AddFriendModal onClose={closeFriendModal} onApply={handleApplyFriends} channelName={selectedChannel?.rname || ''} />
+      )}
+      {temporaryIcon && <TemporaryIcon fading={isFading}>{temporaryIcon}</TemporaryIcon>}
+      {/* 모달 표시 */}
+      {isExitModalOpen && (
+        <ExitModal onClose={CloseExitModal} onLeave={handleLeaveChannel} />
+      )}
+    </ChatHeaderContainer>
+
+    {/* 대화 내역 */}
+    <MessageList ref={messageListRef}>
+      {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
+        formattedMessages.map((msg, index) => (
+          <React.Fragment key={`msg-${index}`}>
+            {msg.showDate && (
+              <div style={{ textAlign: 'center', margin: '10px 0', color: '#666', fontSize: '14px' }}>
+                <span
+                  style={{
+                    background: '#e1e9f0',
+                    padding: '5px 10px',
+                    borderRadius: '20px',
+                  }}
+                >
+                  {msg.currentDate}
+                </span>
+              </div>
             )}
-            <IoLogOutOutline onClick={OpenExitModal} />
-          </HeaderIcons>
-        )}
 
-        {isFriendModalOpen && (
-          <AddFriendModal onClose={closeFriendModal} onApply={handleApplyFriends} />
-        )}
-        {temporaryIcon && <TemporaryIcon fading={isFading}>{temporaryIcon}</TemporaryIcon>}
-        {/* 모달 표시 */}
-        {isExitModalOpen && (
-          <ExitModal onClose={CloseExitModal} onLeave={handleLeaveChannel} />
-        )}
-      </ChatHeaderContainer>
-
-      <MessageList>
-        {selectedChannel?.messages && selectedChannel.messages.length > 0 ? (
-
-          selectedChannel?.messages.map((msg, index) => (
-            <MessageItem key={`msg-${index}`} isMine={msg.user_email === loggedInUser?.email}>
+            <MessageItem isMine={msg.user_email === loggedInUser?.email}>
               {loggedInUser && msg.user_email !== loggedInUser.email && (
                 <ProfileImage>{msg.user.slice(0, 1)}</ProfileImage>
               )}
               <MessageBubble isMine={msg.user_email === loggedInUser?.email}>
                 {msg.content}
               </MessageBubble>
-              <MessageTime>{msg.timestamp}</MessageTime>
-              {/* <MessageTime>{new Date(msg.timestamp).toLocaleTimeString()}</MessageTime> */}
+              <MessageTime>{formatTimestamp(msg.timestamp)}</MessageTime>
             </MessageItem>
-          ))
-        ) : (
-          // messages가 null 또는 빈 배열일 경우에만 렌더링
-          // <FcCollaboration style={{ fontSize: "300px", margin: "100px auto", display: "block" }} />
-
-          // <img
-          //   src={gif}
-          //   alt="로딩 중"
-          //   style={{ width: "300px", margin: "100px auto", display: "block" }}
-          // />
-          <div style={{ textAlign: "center" }}>
-            <img
-              src={chatAlert}
-              alt="채팅 알림"
-              style={{ width: "300px", margin: "50px auto", display: "block" }}
-            />
-            <p style={{ textAlign: "center", fontSize: "20px", color: "#555" }}>
-              채널을 선택해주세요
-            </p>
-          </div>
-
-        )}
-      </MessageList>
+          </React.Fragment>
+        ))
 
 
-      {selectedChannel?.rname ? (
-          <InputContainer>
-            <InputField placeholder="메시지 입력" value={currentInput}
-              onChange={(e) => setCurrentInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-            />
-            <InputIcon>
-              <StyledSmileIcon onClick={() => setShowEmojiPicker((prev) => !prev)} />
-              <StyledAttachmentIcon />
-              <StyledCompassIcon onClick={handleSendMessage} />
-            </InputIcon>
-            {/* {showEmojiPicker && (
+      ) : (
+        <div style={{ textAlign: "center" }}>
+          <img src={chatAlert} alt="채팅 알림" style={{ width: "300px", margin: "50px auto", display: "block" }} />
+          <p style={{ textAlign: "center", fontSize: "20px", color: "#555" }}> 채널을 선택해주세요 </p>
+        </div>
+
+      )}
+    </MessageList>
+
+    {/* 인풋필드 */}
+    {selectedChannel?.rname ? (
+      <InputContainer>
+        <InputField placeholder="메시지 입력" value={currentInput}
+          onChange={(e) => setCurrentInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+        />
+        <InputIcon>
+          <StyledSmileIcon onClick={() => setShowEmojiPicker((prev) => !prev)} />
+          <StyledAttachmentIcon />
+          <StyledCompassIcon onClick={handleSendMessage} />
+        </InputIcon>
+        {/* {showEmojiPicker && (
               <EmojiPickerWrapper>
                 <Picker onEmojiSelect={addEmoji} />
               </EmojiPickerWrapper>
             )} */}
-          </InputContainer>
-        ) : (<></>)
-      }
+      </InputContainer>
+    ) : (<></>)
+    }
 
-    </ChatContainer >
-  );
+  </ChatContainer >
+);
 };
 
 export default ChatContainerComponent;

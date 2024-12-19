@@ -28,9 +28,17 @@ import Plan from './pages/Plan/Plan';
 import { useAuth } from './hooks/useAuth';
 import { RiTimeLine } from "react-icons/ri";
 import Timeline from "./pages/TimeLine/TimeLine";
+import PassFind from "./pages/Login/PassFind";
 
 const App: React.FC = () => {
-  useAuth(); // 로그인 상태 관리 
+//   const loading = useAuth();
+// if(loading){
+//   return <div>스피너 추가할랭</div>;
+// }
+
+useAuth();
+
+ 
 
   return (
     <>
@@ -41,6 +49,7 @@ const App: React.FC = () => {
             <Route index element={<Intro />}/>
             <Route path="/login" element={<Login />}/>
             <Route path="/join" element={<Join />} />
+            <Route path="/pass" element={<PassFind />} />
             <Route path="/rate" element={<RatePlan />} />
             <Route path="/space" element={<SpaceAll />} />
             <Route path="/projectlist/:sid" element={<ProjectList />} />

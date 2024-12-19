@@ -83,6 +83,11 @@ export const filteredIssuesState = selector({
     const allIssues = get(allIssuesState);// 모든 이슈 가져오기
     const enabledSprintIds = enabledSprints.map((sprint) => sprint.spid);// 활성 스프린트 ID 추출
 
+     //현진 로그 추가
+     console.log('Filter:', filter);
+     console.log('Enabled Sprints:', enabledSprints);
+     console.log('All Issues:', allIssues);
+
     // 활성 스프린트에 속한 이슈만 필터링
     let filteredIssues = allIssues.filter((issue) =>
       enabledSprintIds.includes(issue.sprint_id || 0)
@@ -103,6 +108,8 @@ export const filteredIssuesState = selector({
       const mappedType = filter.type === 'task' ? '작업' : '버그';
       filteredIssues = filteredIssues.filter((issue) => issue.type === mappedType);
     }
+    //현진 
+    console.log('Filtered Issues:', filteredIssues); // 필터링 후 결과 확인
     return filteredIssues;
   },
 });

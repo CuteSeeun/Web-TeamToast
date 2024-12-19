@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
@@ -8,15 +8,22 @@ import { useRecoilValue } from 'recoil';
 import { issuesByStatusState, issuesByManagerAndStatusState } from '../../recoil/atoms/issueAtoms'; // issuesByStatusState 셀렉터를 가져오는 경로 확인 필요
 import { enabledSprintsState } from '../../recoil/atoms/sprintAtoms';
 import { differenceInDays, format } from 'date-fns';
+import {HashLoader} from 'react-spinners';
 
 // 스타일 정의
 const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 25px;
-  overflow: hidden;
+  padding: 10px 25px 25px;
+  overflow-y: scroll;
   /* background: pink; */
   width:100%;
+  height: 623px;
+
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+  /* background:rgb(206, 237, 237); */
+  /* background:rgb(226, 241, 241); */
+
 `;
 const BoardHeader = styled.div`
   display: flex;
@@ -35,7 +42,7 @@ const Breadcrumb = styled.div`
 `;
 const DashboardSection = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-top: 20px;
   gap: 20px;
   /* background: red; */
@@ -43,22 +50,21 @@ const DashboardSection = styled.div`
 const ActiveSprintSection = styled.div`
 display: flex;
 justify-content: space-between;
-margin-top: 20px;
-gap: 20px;
+margin: 20px 0px 0 20px;
+width: 100%;
+max-width: 1086px;
+position: relative;
 `;
 const ChartContainer = styled.div`
-width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
-  max-width: 700px; /* 최대 크기를 지정하여 박스 내부에 제한 */
-  width: 100%;
-
+  width: 100%; /* 그래프의 크기에 맞게 자동으로 조정 */
+  max-width: 450px; /* 최대 크기를 지정하여 박스 내부에 제한 */
   height: 500px; /* 높이 증가 */
 
-  padding: 20px;
+  padding: 30px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-  /* background:yellow; */
 `;
 
 
@@ -97,9 +103,11 @@ const InfoCard = styled.div`
   }
 `;
 const Datediv = styled.div`
-display: flex; /* Flexbox 사용 */
-/* align-items: center;  */
- gap:3px;
+  display: flex;
+  align-items: center; /* 세로축 정렬 */
+  justify-content: center; /* 가운데 정렬 */
+  gap: 10px; /* 아이콘과 텍스트 사이 간격 */
+  margin-top: 10px;
 `;
 
 type TimelineBar = {
@@ -121,6 +129,7 @@ const timelineData: TimelineBar[] = [
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, ArcElement, Tooltip, Legend);
 
 const DBoard: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const pname = sessionStorage.getItem('pname');
   const issuesByStatus = useRecoilValue(issuesByStatusState);
   const issuesByManagerAndStatus = useRecoilValue(issuesByManagerAndStatusState);
@@ -134,6 +143,15 @@ const DBoard: React.FC = () => {
   const remainingDays = differenceInDays(endDate, today);
   const formattedStartDate = format(startDate, 'yyyy.MM.dd');
   const formattedEndDate = format(endDate, 'yyyy.MM.dd');
+
+  // 2초 후 로딩 상태 종료 (추가)
+        useEffect(() => {
+            const timer = setTimeout(() => {
+                setLoading(false);
+            }, 1000);
+    
+            return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+        }, []);
 
 
   // 드래그 핸들러
@@ -188,28 +206,36 @@ const DBoard: React.FC = () => {
     {
       label: '백로그',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['백로그'] || 0),
-      backgroundColor: '#E63946',
+      // backgroundColor: '#E63946',
+      // backgroundColor: '#64B2B2',
+      backgroundColor: '#9B72CF',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: '진행 중',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['작업중'] || 0),
-      backgroundColor: '#F1FAEE',
+      // backgroundColor: '#F1FAEE',
+      // backgroundColor: '#A8DADC',
+      backgroundColor: '#FF729F',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: '개발 완료',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['개발완료'] || 0),
-      backgroundColor: '#A8DADC',
+      // backgroundColor: '#A8DADC',
+      // backgroundColor: '#F1FAEE',
+      backgroundColor: '#FDBA74',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
     {
       label: 'QA 완료',
       data: labels.map((manager) => issuesByManagerAndStatus[manager]?.['QA완료'] || 0),
-      backgroundColor: '#457B9D',
+      // backgroundColor: '#457B9D',
+      // backgroundColor: '#457B9D',
+      backgroundColor: '#4ABFF7',
       barPercentage: 0.5,
       categoryPercentage: 0.8,
     },
@@ -289,6 +315,15 @@ const DBoard: React.FC = () => {
   console.log('issuesByManagerAndStatus:', issuesByManagerAndStatus);
   console.log('labels:', labels);
 
+  // 로딩 상태에 따른 조건부 렌더링
+        if (loading) {
+            return (
+                <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <HashLoader color="#36d7b7" />
+                </BoardContainer>
+            );
+        }
+
   return (
     <BoardContainer>
       <BoardHeader>{/* 헤더 */}
@@ -313,13 +348,26 @@ const DBoard: React.FC = () => {
 
           <ActiveSprintSection>{/*활성스프린트 설명*/}
             <InfoCard>
-              <h4>{sprintDetails.spname}</h4>
+              {/* <h4>{sprintDetails.spname}</h4>
               <p>목표 : {sprintDetails.goal}</p>
               <br />
               <Datediv><FcLeave /><h4>남은 기간</h4></Datediv>
               <span>{remainingDays}일</span>
               <p>시작일 : {formattedStartDate}</p>
-              <p>마감일 : {formattedEndDate}</p>
+              <p>마감일 : {formattedEndDate}</p> */}
+              
+               <h4>{sprintDetails.spname}</h4>
+               <p style={{marginBottom:'-20px'}}> ■ 목표 : {sprintDetails.goal}</p>
+               <br />
+               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                 <Datediv>
+                   <FcLeave style={{marginBottom:'10px'}} />
+                   <h4>남은 기간</h4>
+                 </Datediv>
+                 <span>{remainingDays}일</span>
+               </div>
+               <p>시작일 : {formattedStartDate}</p>
+               <p>마감일 : {formattedEndDate}</p>
             </InfoCard>
           </ActiveSprintSection>
         </>

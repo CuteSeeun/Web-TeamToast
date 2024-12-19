@@ -9,28 +9,41 @@ const Sidebar = styled.aside`
 width: 220px;
   min-width: 180px;
   background-color: #ffffff;
-  border-right: 1px solid #ddd;
+  /* border-right: 1px solid #ddd; */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin-top: 10px;
+  /* background:pink; */
+
+  flex-shrink:0;
+  height: 600px;
+  overflow: hidden;
+  background-color: #ffffff;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 0;
+  /* background: green; */
 
 `;
-
 const SidebarTitle = styled.h1`
   font-size: 24px;
   font-weight: bold;
+  margin-left:15px;
+  /* background:gray; */
 `;
-
 const ChannerSection = styled.div`
-margin-top: 20px;
+margin-top: 5px;
 padding: 0 20px;
+/* background:pink; */
 `;
-
 const FriendSection = styled.div`
-margin-top: 40px;
-margin-bottom: 20px;
+/* margin-top: 40px; */
+margin-bottom: 40px;
 padding: 0 20px;
+/* background:yellow; */
 `;
 
 const ChannerSectionHeader = styled.div<{ isOpen: boolean }>`
@@ -49,7 +62,6 @@ const ChannerSectionHeader = styled.div<{ isOpen: boolean }>`
     transform: ${({ isOpen }) => (isOpen ? 'rotate(180deg)' : 'rotate(0deg)')}; /* 회전 */
   }
 `;
-
 const FriendSectionHeader = styled.div<{ isOpen: boolean }>`
   display: flex;
   justify-content: space-between;
@@ -78,7 +90,6 @@ const FriendListWrapper = styled.div<{ isOpen: boolean }>`
   overflow: hidden;
   transition: height 0.3s ease; /* 부드러운 애니메이션 */
 `;
-
 const AddButton = styled.div`
   display: flex;
   align-items: center;
@@ -101,13 +112,11 @@ const AddButton = styled.div`
     }
   }
 `;
-
 const FriendList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
 `;
-
 const FriendItem = styled.div`
   display: flex;
   align-items: center;
@@ -124,7 +133,6 @@ const FriendItem = styled.div`
     font-weight: bold;
   }
 `;
-
 const ProfileImage = styled.div`
   width: 30px;
   height: 30px;
@@ -137,7 +145,6 @@ const ProfileImage = styled.div`
   font-weight: bold;
   color: white;
 `;
-
 const UserName = styled.span`
 flex: 1;
   margin-left: 6px; /* ProfileImage와 사용자 이름 간 간격 */
@@ -149,7 +156,7 @@ const StyledChevronLeft = styled.div`
   font-size: 14px; /* 크기 줄이기 */
   color: #aaa; /* 회색으로 변경 */
   cursor: pointer;
-  margin-left: 145px;
+  margin-left: 10px;
   
 
   position: relative; /* 툴팁 위치 기준 */
@@ -163,7 +170,6 @@ const StyledChevronLeft = styled.div`
     visibility: visible; /* 툴팁 활성화 */
   }
 `;
-
 // Tooltip: 툴팁 스타일
 const Tooltip = styled.span`
   position: absolute;
@@ -184,10 +190,12 @@ const Tooltip = styled.span`
 
  
 `;
-
 const TapMenuContainer = styled.div`
   position: relative; /* Tooltip과 같은 위치 조정 시 필요 */
+
+
 `;
+
 
 const TapMenu: React.FC = () => {
 
@@ -251,9 +259,9 @@ const TapMenu: React.FC = () => {
           <FriendSectionHeader isOpen={isFriendListOpen} onClick={toggleFriendList}>친구<FaChevronDown /></FriendSectionHeader>
           <FriendListWrapper isOpen={isFriendListOpen}>
             <FriendList>
-              <FriendItem><ProfileImage>1</ProfileImage> <UserName>김정연</UserName></FriendItem>
-              <FriendItem><ProfileImage>2</ProfileImage> <UserName>한채경</UserName></FriendItem>
-              <FriendItem><ProfileImage>3</ProfileImage> <UserName>김현진</UserName></FriendItem>
+              <FriendItem><ProfileImage>김</ProfileImage> <UserName>김정연</UserName></FriendItem>
+              <FriendItem><ProfileImage>한</ProfileImage> <UserName>한채경</UserName></FriendItem>
+              <FriendItem><ProfileImage>김</ProfileImage> <UserName>김현진</UserName></FriendItem>
             </FriendList>
           </FriendListWrapper>
           <AddButton onClick={() => openChannelModal('friend')}><AiOutlinePlus /> 멤버 추가하기</AddButton>
@@ -263,6 +271,7 @@ const TapMenu: React.FC = () => {
           <AddChannelModal onClose={closeChannelModal} onApply={handleApplyChannel} type={modalType} />
         )}
       </Sidebar>
+
     </TapMenuContainer>
   );
 };

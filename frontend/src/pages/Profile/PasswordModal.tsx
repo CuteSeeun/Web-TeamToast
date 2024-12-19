@@ -19,19 +19,14 @@ const PasswordModal = ({ isOpen, onClose }: PasswordChangeModalProps) => {
     //현재 비밀번호 확인
     const checkCurrentPassword = async(password:string)=>{
         try {
-            // const token = localStorage.getItem('accessToken');
+            const token = localStorage.getItem('accessToken');
 
-            // if (!token) {
-            //     throw new Error('인증 토큰이 없습니다.');
-            // }
+            if (!token) {
+                throw new Error('인증 토큰이 없습니다.');
+            }
 
             const response = await AccessToken.post('http://localhost:3001/editUser/check-password',{
-                currentPw : password
-            // },{
-            //     headers:{
-            //         Authorization : `Bearer ${token}`
-            //     }
-            });
+                currentPw : password});
             setCurrentPasswordValid(response.data.valid);
         } catch (error) {
             setCurrentPasswordValid(false);
@@ -66,10 +61,6 @@ const PasswordModal = ({ isOpen, onClose }: PasswordChangeModalProps) => {
             await AccessToken.post('http://localhost:3001/editUser/change-password',{
                 currentPw: currentPassword,
                 newpw: newPassword
-            // },{
-            //     headers:{
-            //         Authorization:`Bearer ${localStorage.getItem('accessToken')}`
-            //     }
             })
             alert('비밀번호가 성공적으로 변경되었습니다.');
             onClose();

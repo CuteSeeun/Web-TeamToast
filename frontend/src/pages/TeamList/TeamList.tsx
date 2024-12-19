@@ -24,6 +24,11 @@ interface TeamListProps {
   onOpenInviteModal: () => void;
 }
 
+const PASTEL_COLORS = [
+  "#ff9a9e", "#ffd280", "#aff1b6", "#81deea", "#c4b5fd",
+  "#e4b8ff", "#f4b400", "#b8e986", "#89cff0", "#f8c8dc"
+];
+
 const TeamList: React.FC<TeamListProps> = ({
   spaceId,
   teamMembers,
@@ -34,6 +39,8 @@ const TeamList: React.FC<TeamListProps> = ({
 }) => {
   const currentUser = useRecoilValue(userState);
   const currentUserEmail = currentUser?.email || "";
+
+  const getRandomColor = (index: number) => PASTEL_COLORS[index % PASTEL_COLORS.length];
 
   // 권한 변경 API 호출
   const handleRoleChange = async (email: string, newRole: string) => {
@@ -126,12 +133,15 @@ const TeamList: React.FC<TeamListProps> = ({
       </div>
 
       <div className="member-list">
-        {teamMembers.map((member) => (
-          <div className="member-item" key={member.id}>
-            <img
-              src={`https://ui-avatars.com/api/?name=${member.name}`}
-              alt={`${member.name} profile`}
-            />
+        {teamMembers.map((member,idx) => (
+          <div className="member-item" key={idx}>
+            <div
+              className="avatar"
+              style={{ backgroundColor: getRandomColor(idx) }}
+            >
+              {member.name[0]}
+            </div>
+            
             <div className="info">
               <span className="name">{member.name}</span>
               <span className="email">{member.email}</span>

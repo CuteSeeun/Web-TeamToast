@@ -107,7 +107,7 @@ const SprintBox: React.FC<SprintProps> = ({ sprint, onDrop, activeMenuId, setAct
     };
 
     return (
-        <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? 'lightgreen' : 'white' }}>
+        <StyledSprintBox ref={drop} style={{ backgroundColor: isOver ? '#dbdbdb' : 'white' }}>
             <SprintHeader>
                 <div>
                     <SprintName>{sprint.spname}</SprintName>

@@ -2,11 +2,18 @@ import styled from "styled-components";
 import { Link } from 'react-router-dom';
 
 export const BoardContainer = styled.div`
-//   position: relative; /* 스프린트 완료 버튼 위치를 위한 설정 */
+  /* position: relative; 
   display: flex;
   flex-direction: column;
-  padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  overflow: hidden; /* BoardContainer에서 스크롤 막기 */
+  padding-left: 25px;  */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-left: 25px; 
+  padding-right: 70px;
+  width: 1600px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
 `;
 export const BoardHeader = styled.div`
   display: flex;
@@ -86,25 +93,29 @@ export const TableContainer = styled.div`
   margin-top: 20px;
   max-height: 400px; /* 표의 최대 높이 */
   overflow-y: auto; /* 세로 스크롤 활성화 */
-  border: 1px solid #dee2e6; /* 테두리 */
+  border: 1px solid white; /* 테두리 */
   border-radius: 8px; /* 테두리 둥글게 */
 `;
 export const IssueTable = styled.table`
   width: 100%;
 border-collapse: collapse;
   th {
-    background-color: #f8f9fa; /* 헤더 배경색 */
-    text-align: left;
+    background-color: white; /* 헤더 배경색 */
+    text-align: center;
     padding: 12px;
     font-size: 14px;
     font-weight: bold;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #e7e7e7;
+    background:rgb(243, 243, 243);
   }
   td {
+    background: #fff;
+    text-align: center;
     padding: 12px;
     font-size: 14px;
-    border-bottom: 1px solid #dee2e6;
+    /* border-bottom: 1px solid #007bff; */
   }
+  
   .status {
     display: inline-block;
     padding: 4px 8px;

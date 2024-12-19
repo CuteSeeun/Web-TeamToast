@@ -9,6 +9,7 @@ const ActiveSprint: React.FC = () => {
   // Recoil 상태 가져오기
   const sprints = useRecoilValue(sprintState);//Sidebar가 가져온 스프린트 데이터
   const allIssues = useRecoilValue(allIssuesState);//Sidebar가 가져온 이슈 데이터
+  
 
   // 상태 값 콘솔 출력
   useEffect(() => {
@@ -17,7 +18,9 @@ const ActiveSprint: React.FC = () => {
   }, [allIssues, sprints]);
 
   return (
+      <div style={{height:'100%' , overflow:'hidden'}}>
         <SBoard />
+      </div>
   );
 };
 

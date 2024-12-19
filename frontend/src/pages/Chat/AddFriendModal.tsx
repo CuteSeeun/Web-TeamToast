@@ -108,23 +108,16 @@ interface Member {
 interface ModalProps {
   onClose: () => void;
   onApply: (selectedMembers: Member[]) => void;
-  showChannelName?: boolean; // 추가: 선택적 속성으로 정의
+  
+  channelName: string; // 채널명 props
 }
 
 // 모달 컴포넌트
-const AddFriendModal: React.FC<ModalProps> = ({ onClose, onApply, showChannelName = true }) => {
+const AddFriendModal: React.FC<ModalProps> = ({ onClose, onApply, channelName = true }) => {
   const teamMembers = useRecoilValue(teamMembersState); // Recoil 상태 가져오기
-  const [channelName, setChannelName] = useState<string>('');
+  // const [channelName, setChannelName] = useState<string>('');
+  const [channelInput, setChannelInput] = useState(channelName); // 채널명 초기값 설정
   const [searchTerm, setSearchTerm] = useState<string>('');
-  // const [members, setMembers] = useState<Member[]>([
-  //   { id: 1, name: '사용자 1', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  //   { id: 2, name: '사용자 2', avatar: 'https://via.placeholder.com/30' },
-  // ]);
   const [selectedMembers, setSelectedMembers] = useState<Set<number>>(new Set());
 
   // 스크롤 방지 처리
@@ -157,13 +150,19 @@ const AddFriendModal: React.FC<ModalProps> = ({ onClose, onApply, showChannelNam
       <ModalContainer>
         <ModalHeader>초대하기</ModalHeader>
 
-        {showChannelName && (
-          <>
+        
         <Label>채널명</Label>
-        <Input value={channelName} onChange={(e) => setChannelName(e.target.value)} />
-        </>
-        )}
-
+        {/* <Input value={channelInput} onChange={(e) => setChannelInput(e.target.value)} /> */}
+        <div style={{ 
+  padding: '5px 10px 5px 10px', 
+  border: '1px solid #ddd', 
+  borderRadius: '4px', 
+  backgroundColor: '#f9f9f9',
+  color: '#333' 
+}}>
+  {channelInput}
+</div>
+      
         <Label>대화상대 선택</Label>
         <SearchInput
           placeholder="사용자 검색"

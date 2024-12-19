@@ -1,11 +1,13 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GoBell } from "react-icons/go";
 import { NotificationCard, NotificationsPopup } from '../styles/HeaderStyle';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { notificationsAtom } from '../recoil/atoms/notificationsAtom';
 import { userState } from '../recoil/atoms/userAtoms';
+
+
 
 const PJheaderBell = () => {
   const [notifications, setNotifications] = useRecoilState(notificationsAtom); // 알림 데이터
@@ -13,40 +15,53 @@ const PJheaderBell = () => {
     const [popOpen , setPopOpen] = useState(false);
     const [loading , setLoading] = useState(false);
 
-    console.log(notifications);
+    // console.log(notifications);
+    const navigate = useNavigate();
     
 
-    const toggleOnPopup = async() =>{
-        setPopOpen(true);
+    useEffect(()=>{
+      const fetchNotification = async()=>{
 
-        //팝업이 열릴 때만 서버에서 알림 데이터 가져옴
-        if(notifications.length === 0){
-            try {
-                setLoading(true);
-                const response = await axios.get('http://localhost:3001/alarm/notifications',{
-                  params: {userEmail: user?.email},
-                })
-                setNotifications(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('데이터 없슴 : ',error);
-                setLoading(false);
-            }
+        if (!user?.email) {
+          console.warn("유효한 사용자 이메일이 없습니다.");
+          return;
         }
-    }
 
-    const toggleDownPopup = () => {
-            setPopOpen(false); // 팝업 닫기
+        try {
+          const response = await axios.get('http://localhost:3001/alarm/notifications',{
+            params:{userEmail : user?.email},
+          });
+          setNotifications(response.data);
+        } catch (error) {
+          console.error('알림 데이터를 가져오지 못했습니다.',error);
+        }
       };
+      if(user?.email){
+        fetchNotification();
+      }
+    },[user?.email , setNotifications]);
 
       // 알림 클릭 시 읽음 처리 및 세션 저장
-      const notificationClick =async(notiId:number,projectId:number)=>{
+      const notificationClick =async(issueId:number,projectId:number)=>{
+
+        console.log("Issue ID:", issueId);
+        console.log("Project ID:", projectId); 
+
+
+        if (!projectId) {
+          console.error("Project ID is undefined!");
+          return;
+        }
+
         try {
           // 서버에 알림 읽음 상태 업데이트
-          await axios.post('http://localhost:3001/alarm/markAsRead',{notiId});
+          await axios.post('http://localhost:3001/alarm/markAsRead',{issueId});
           //읽은 알림 삭제
-          setNotifications((prev)=>prev.filter((n)=>n.isid !== notiId));
+          setNotifications((prev)=>prev.filter((n)=>n.issue_id !== issueId));
           sessionStorage.setItem('pid',projectId.toString());
+
+          //페이지 이동
+          navigate(`/issue/${issueId}`);
         } catch (error) {
           console.error("알림 읽음 처리 실패:", error);
         }
@@ -55,8 +70,8 @@ const PJheaderBell = () => {
     return (
         <div
         style={{ position: 'relative' }}
-        onMouseEnter={toggleOnPopup} // 팝업 열림
-        onMouseLeave={toggleDownPopup} // 팝업 닫힘
+        onMouseEnter={()=>setPopOpen(true)} // 팝업 열림
+        onMouseLeave={()=>setPopOpen(false)} // 팝업 닫힘
       >
         {/* 알림 아이콘 */}
         <div className="notification-icon">
@@ -73,13 +88,11 @@ const PJheaderBell = () => {
             <div className="loading-message">로딩 중...</div> // 로딩 메시지
           ) : notifications.length > 0 ? (
             notifications.map((notification) => (
-              <NotificationCard key={notification.isid}
-              onClick={async() => {await notificationClick(notification.isid ,notification.project_id)
+              <NotificationCard key={notification.issue_id}
+              onClick={async() => {await notificationClick(notification.issue_id ,notification.project_id)
               setPopOpen(false);
               }}>
-                <Link to={`/issue/${notification.isid}`}
-                 style={{ textDecoration: 'none', color: 'inherit' }}
-                >
+               
                 <div className="notification-header">
                     {notification.projectTitle}
                   </div>
@@ -89,7 +102,7 @@ const PJheaderBell = () => {
                   <div className="notification-body">
                     {notification.issueDetail}
                   </div>
-                </Link>
+                {/* </Link> */}
               </NotificationCard>
             ))
           ) : (

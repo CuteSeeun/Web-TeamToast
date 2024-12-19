@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TabSectionWrap } from './introStyle';
 
-type TabKey = '회사 전체' | '마케팅' | '운영' | 'IT' | '제품';
+type TabKey = '스프린트' | '백로그' | '이슈' | '타임라인' | '채팅';
 type TabData = {
   [key in TabKey]: {
     image: string;
@@ -11,32 +11,55 @@ type TabData = {
 };
 
 const TabSection:React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabKey>('회사 전체');
+  const [activeTab, setActiveTab] = useState<TabKey>('스프린트');
   const tabData:TabData = {
-    '회사 전체': {
+    '스프린트': {
       image: '/sprint.jpg',
-      title: '회사 전체',
-      description: '회사 전체에 대한 설명입니다. 회사 전반의 흐름을 이해하고 팀워크를 높이세요.',
+      title: '스프린트',
+      description: `스프린트는 팀이 목표를 정해 일정 기간 동안 작업을 진행하는 단위로, 
+      우선순위를 설정해 중요한 작업을 먼저 해결하고, 
+      스프린트 보드에서 작업 상태를 한눈에 확인하며,
+      완료된 작업과 남은 작업을 분석해 다음 스프린트를 준비합니다.`,
     },
-    마케팅: {
+    백로그: {
       image: '/sprint.jpg',
-      title: '마케팅',
-      description: '마케팅에 대한 설명입니다. 전략과 기획을 중심으로 성과를 높이세요.',
+      title: '백로그',
+      description:  `
+      백로그는 스프린트에서 처리할 작업의 목록으로, 
+      팀이 앞으로 진행할 이슈들을 관리하고 우선순위에 
+      따라 정리하는 공간입니다.
+      `,
     },
-    운영: {
+    이슈: {
       image: '/sprint.jpg',
-      title: '운영',
-      description: '운영에 대한 설명입니다. 효율적인 관리를 통해 더 나은 결과를 만들어 보세요.',
+      title: '이슈',
+      description: `
+      이슈는 프로젝트의 작업 단위로, 상태(백로그, 작업중, 완료 등), 
+      우선순위, 담당자와 같은 세부 정보를 포함합니다. 
+      작업 상태와 우선순위에 따라 필터링하거나 정렬할 수 있고, 
+      이슈 상세 페이지에서는 제목, 설명, 스프린트, 
+      파일 첨부와 같은 정보를 관리하며 댓글로 팀원과 소통할 수 있습니다.
+      `,
     },
-    IT: {
+    타임라인: {
       image:'/sprint.jpg',
-      title: 'IT',
-      description: 'IT에 대한 설명입니다. 기술을 활용해 혁신을 이끄세요.',
+      title: '타임라인',
+      description: `타임라인은 프로젝트의 전체 일정을 한눈에 확인할 수 있는 기능으로,
+      각 작업과 스프린트의 기간을 시각화하여 표시합니다.
+      결과적으로 팀원들은 타임라인을 통해 진행 상태를 파악하고,
+      앞으로의 일정을 예측하여 프로젝트 관리의 효율성을 높일 수 있습니다.
+      `,
     },
-    제품: {
+    채팅: {
       image: '/sprint.jpg',
-      title: '제품',
-      description: '제품에 대한 설명입니다. 고객 중심의 제품을 설계하세요.',
+      title: '채팅',
+      description: `
+      채팅은 팀원 간의 실시간 커뮤니케이션을 돕는 기능으로, 
+      채널별로 메시지를 나누어 관리할 수 있고 
+      팀원과의 소통을 간편하게 진행할 수 있습니다. 
+      메시지 입력 창을 통해 대화하고, 
+      소켓 연결을 통해 실시간 업데이트가 이루어집니다.
+      `,
     },
   };
 
@@ -63,7 +86,7 @@ const TabSection:React.FC = () => {
         <div className="text-container">
           <h2>{tabData[activeTab].title}</h2>
           <p>{tabData[activeTab].description}</p>
-          <button className="cta-button">자세히 보기</button>
+          {/* <button className="cta-button">자세히 보기</button> */}
         </div>
       </div>
         </TabSectionWrap>

@@ -12,13 +12,11 @@ const ChannelListWrapper = styled.div<{ isOpen: boolean }>`
   overflow: hidden;
   transition: height 0.3s ease; /* 부드러운 애니메이션 */
 `;
-
 const ChannelListContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
 `;
-
 const ChannelItem = styled.div<{ active?: boolean }>`
   display: flex;
   align-items: center;
@@ -87,12 +85,13 @@ const ChannelList: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
         // console.log('해당 스페이스:', space.Id);
 
         const response = await axios.get('http://localhost:3001/channel', {
-          params: { email: user.email, space_id:1 }, // 이메일을 쿼리로 전달
+          params: { email: user.email, space_id:61 }, // 이메일을 쿼리로 전달
         });
         
 
         setChannels(response.data); // API로 가져온 데이터를 상태에 저장
         console.log('채팅 채널 이름 가져와 상태에 저장 성공');
+        console.log(channels);
       } catch (err) {
         console.error('채팅 채널 이름 가져오기 개실패', err);
       }

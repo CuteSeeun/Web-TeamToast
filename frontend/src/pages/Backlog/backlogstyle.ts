@@ -6,21 +6,25 @@ export const PageContainer = styled.div`
   /* height: 100vh; */
   /* background: pink; */
   /* flex: 1; */
-`;
-
-export const ContentContainer = styled.div`
-  display: flex;
-  flex: 1;
+  height: 100vh; /* 전체 화면 높이 */
+  overflow-y: auto; /* 스크롤 추가 */
 `;
 
 export const BoardContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  padding-left: 25px; 
+  padding-left: 30px; 
   padding-right: 70px;
-  width: 1600px;
-  overflow: hidden;
+  width: 100%; /* 부모 요소 너비에 맞게 설정 */
+  max-width: 1100px;
+  height: 658px; /* 높이 고정 */
+  overflow-y: auto;
+  overflow-x: hidden; /* 가로 스크롤 제거 */
+
+
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+  /* background: linear-gradient(180deg, #81C5C5, #BFE3E3, #FFFFFF); */
 `;
 
 export const BoardHeader = styled.div`
@@ -35,6 +39,7 @@ export const BoardHeader = styled.div`
 export const BoardTitle = styled.h1`
   font-size: 24px;
   font-weight: bold;
+  padding-top: 10px;
 `;
 
 export const Breadcrumb = styled.div`
@@ -166,7 +171,6 @@ export const AddIssueLink = styled.div`
   font-size: 14px;
   color: #4D4D4D;
   cursor: pointer;
-
   &:active {
     transform: translateY(2px);
   }
@@ -176,11 +180,12 @@ export const AddSprint = styled.button`
 background-color: #fff;
 border: 1px solid #dee2e6;
 border-radius: 5px;
-padding: 10px 20px;
+padding: 7px 10px 7px 10px;
 cursor: pointer;
 font-size: 14px;
 color: #495057;
-margin-right: 10px;
+margin-left: 1050px;
+width:120px;
 
 &:hover {
     background-color: #026b6b;

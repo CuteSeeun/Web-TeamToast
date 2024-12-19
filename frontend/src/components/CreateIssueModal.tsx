@@ -413,6 +413,7 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
   const [previews, setPreviews] = useState<{ type: string; url: string }[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { pid, isOpen, onClose } = props; // pid 추출
+  const pname = sessionStorage.getItem('pname');
    
   // const setManager = useSetRecoilState(managerAtoms);//담당자 아톰 상태 업데이트 함수
   const setNotifications = useSetRecoilState(notificationsAtom); // 알림 업데이트
@@ -517,10 +518,10 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
     selectedFiles.forEach((file) => formData.append("files", file));
 
 
-    if ([(issue.title || '').trim(), issue.type, issue.status, issue.project_id, issue.priority].some((field) => !field)) {
-      alert('필수 데이터가 누락되었습니다.');
-      return;
-    }
+    // if ([(issue.title || '').trim(), issue.type, issue.status, issue.project_id, issue.priority].some((field) => !field)) {
+    //   alert('필수 데이터가 누락되었습니다.');
+    //   return;
+    // }
 
     interface UploadedFile {
       originalFilename: string;
@@ -582,17 +583,20 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
 
 
       console.log('이슈 생성 성공:', newIssue);
+        
       if (newIssue.manager) {
 
         // 알림 추가
         const newNotification = {
-          isid: newIssue.isid,
-          type: 'new',
-          projectTitle:`프로젝트 ID ${newIssue.project_id}`, // 예시
-          issueTitle: newIssue.title,
-          manager: newIssue.manager,
-          project_id:newIssue.project_id,
-          issueDetail:newIssue.detail || '',
+          isid: newIssue.isid, // 이슈 ID
+          createdAt: new Date().toISOString(), // 생성 시간
+          isread: 0, // 읽음 상태 (0: 읽지 않음)
+          issue_id: newIssue.isid, // 이슈 ID
+          manager: newIssue.manager || 'Unknown Manager', // 관리자 정보
+          projectTitle: `프로젝트 ${newIssue.project_id}`, // 프로젝트 제목
+          issueTitle: newIssue.title || '제목 없음', // 이슈 제목
+          issueDetail: newIssue.detail || '세부사항 없음', // 이슈 상세
+          project_id: newIssue.project_id, // 프로젝트 ID
         };
         setNotifications((prev) => [...prev, newNotification]); // 알림 배열에 추가
       }
@@ -629,13 +633,14 @@ export const CreateIssueModal = (props: IssueModalProps): JSX.Element | null => 
 
 return (
   <CreateIssueModalWrap>
+    <div className="CreateIssueInner">
     <div className="modal" onClick={(e) => e.stopPropagation()}>
       <h3>이슈 생성</h3>
       <form onSubmit={handleSubmit}>
         <div className="bodycontent">
           <div className="input-group">
             <label>프로젝트 이름</label>
-            <input type="text" value={pid || ''} className="disabled" />
+            <input type="text" value={pname || ''} className="disabled" />
           </div>
           <div className="input-group">
             <label>스프린트를 선택해주세요</label>
@@ -796,6 +801,7 @@ return (
           </div>
         </div>
       </form>
+    </div>
     </div>
   </CreateIssueModalWrap>
   );

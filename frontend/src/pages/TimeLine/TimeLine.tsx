@@ -5,6 +5,7 @@ import { useRecoilValue } from 'recoil';
 import { sprintBasicInfoState } from '../../recoil/atoms/sprintAtoms';
 import { Gantt, Task, ViewMode } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
+import { HashLoader } from 'react-spinners';
 
 
 // Task 타입 확장
@@ -25,6 +26,7 @@ const BoardContainer = styled.div`
   overflow: hidden;
   /* background: pink; */
   width:100%;
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
 `;
 const BoardHeader = styled.div`
   display: flex;
@@ -43,14 +45,16 @@ const Breadcrumb = styled.div`
 `;
 
 const TimelineContainer = styled.div`
-  margin-top: 20px;
+  /* margin-top: 20px; */
   padding: 20px;
   background: #fff;
   border-radius: 8px;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow-x: scroll;
+  height:400px;
+  margin: 20px;
 `;
 const CalendarGrid = styled.div`
   display: flex;
@@ -113,55 +117,17 @@ const Timeline: React.FC = () => {
   const sprintBasicInfo = useRecoilValue(sprintBasicInfoState);
   const pname = sessionStorage.getItem('pname');
   const [view, setView] = useState<ViewMode>(ViewMode.Day);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Gantt 차트 더미 데이터
-  // const tasks: CustomTask[] = [
-  //   {
-  //     start: new Date(2023, 10, 1), // 시작 날짜
-  //     end: new Date(2023, 10, 10), // 종료 날짜
-  //     name: "스프린트 1",
-  //     id: "Task 1",
-  //     type: "task",
-  //     progress: 50, // 진행률
-  //     styles: {
-  //       progressColor: "#81C5C5", // 진행률 색상
-  //       progressSelectedColor: "#038C8C", // 선택된 진행률 색상
-  //       backgroundColor: "#f3f3f3", // 태스크 배경색
-  //       barCornerRadius: 10, // 태스크 바의 둥근 모서리
-  //       barHeight: 8, // 태스크 바의 높이
-  //     },
-  //   },
-  //   {
-  //     start: new Date(2023, 10, 11),
-  //     end: new Date(2023, 10, 20),
-  //     name: "스프린트 2",
-  //     id: "Task 2",
-  //     type: "task",
-  //     progress: 30,
-  //     styles: {
-  //       progressColor: "#81C5C5", // 진행률 색상
-  //       progressSelectedColor: "#038C8C", // 선택된 진행률 색상
-  //       backgroundColor: "#f3f3f3", // 태스크 배경색
-  //       barCornerRadius: 10, // 태스크 바의 둥근 모서리
-  //       barHeight: 8, // 태스크 바의 높이
-  //     },
-  //   },
-  //   {
-  //     start: new Date(2023, 10, 21),
-  //     end: new Date(2023, 10, 30),
-  //     name: "스프린트 3",
-  //     id: "Task 3",
-  //     type: "task",
-  //     progress: 80,
-  //     styles: {
-  //       progressColor: "#81C5C5", // 진행률 색상
-  //       progressSelectedColor: "#038C8C", // 선택된 진행률 색상
-  //       backgroundColor: "#f3f3f3", // 태스크 배경색
-  //       barCornerRadius: 10, // 태스크 바의 둥근 모서리
-  //       barHeight: 8, // 태스크 바의 높이
-  //     },
-  //   },
-  // ];
+  // 2초 후 로딩 상태 종료 (추가)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+  }, []);
+
   const tasks: CustomTask[] = sprintBasicInfo.map((sprint, index) => ({
     start: new Date(sprint.startdate), // 시작 날짜
     end: new Date(sprint.enddate), // 종료 날짜
@@ -175,8 +141,18 @@ const Timeline: React.FC = () => {
       backgroundColor: "#f3f3f3", // 태스크 배경색
       barCornerRadius: 10, // 태스크 바의 둥근 모서리
       barHeight: 8, // 태스크 바의 높이
+      fontColor: "#000", // 텍스트 색상을 검정색으로 설정
     },
   }));
+
+  // 로딩 상태에 따른 조건부 렌더링
+  if (loading) {
+    return (
+      <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <HashLoader color="#36d7b7" />
+      </BoardContainer>
+    );
+  }
 
 
   return (
@@ -186,12 +162,11 @@ const Timeline: React.FC = () => {
         <Breadcrumb>프로젝트 &gt; {pname} &gt; 대시보드</Breadcrumb>
       </BoardHeader>
 
-    <TimelineContainer>
+      <TimelineContainer>
 
-      <Gantt
+        <Gantt
           tasks={tasks} // Gantt에 표시할 태스크
           viewMode={view} // 현재 뷰 모드
-
           onDateChange={(task) => console.log("Date changed:", task)} // 날짜 변경 이벤트
           onProgressChange={(task) => console.log("Progress changed:", task)} // 진행률 변경 이벤트
           onDoubleClick={(task) => alert(`Task ${task.name} was double-clicked.`)} // 더블 클릭 이벤트
@@ -199,11 +174,11 @@ const Timeline: React.FC = () => {
             console.log(`Task ${task.name} is ${isSelected ? "selected" : "unselected"}.`)
           } // 태스크 선택 이벤트
 
-          listCellWidth={"80px"} // 좌측 태스크 리스트 폭
+          listCellWidth={"150px"} // 좌측 태스크 리스트 폭
           columnWidth={60} // 열 폭
-          ganttHeight={200} // 간트 차트 높이
+          ganttHeight={300} // 간트 차트 높이
         />
-    </TimelineContainer>
+      </TimelineContainer>
 
     </BoardContainer>
   );

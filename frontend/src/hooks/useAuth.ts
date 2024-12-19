@@ -2,14 +2,16 @@
 
 import { useSetRecoilState } from "recoil"
 import { userState } from "../recoil/atoms/userAtoms"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import AccessToken from "../pages/Login/AccessToken";
+import axios from "axios";
 
 
 export const useAuth = () =>{
 
     const setUser = useSetRecoilState(userState);
+    const [loading , setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -25,36 +27,17 @@ export const useAuth = () =>{
     
           if (accessToken) {
             try {
-
-              // const { exp } = jwtDecode<{ exp: number }>(accessToken);
-              // const now = Date.now() / 1000;
-
-              // // 토큰이 만료되었거나 만료 임박한 경우
-              // if (exp - now <= 90) {
-              //     // 토큰 재발급 시도
-              //     const { uid } = jwtDecode<{ uid: number }>(accessToken);
-              //     const response = await AccessToken.post('/editUser/refresh/token', 
-              //         { uid },
-              //     );
-                  
-              //     if (response.data.accessToken) {
-              //         localStorage.setItem('accessToken', response.data.accessToken);
-              //     }
-              // }
-
               const response = await AccessToken.get('/editUser/me');                
-              
               //서버에서 유저정보 보낸게 있으면 리코일에 유저정보 저장
               if (response.data?.user) {
                 setUser({
                   uid: response.data.user.uid,
                   uname: response.data.user.uname,
                   email: response.data.user.email,
-                  isLoggedIn: true,
-                  // token: localStorage.getItem('accessToken') || undefined,
-                  // role: 'member'
                 });
-              } 
+              }else {
+                setUser(null);
+              }
             } catch (error) {
               console.error('에러 발생', error);
               localStorage.removeItem('accessToken');
@@ -63,8 +46,11 @@ export const useAuth = () =>{
           } else {
             setUser(null);
           }
+          setLoading(false); //로딩 끝
         };
     
         fetchUserData();
       }, [setUser]);
+
+      return loading; // 로딩 상태 반환
 }

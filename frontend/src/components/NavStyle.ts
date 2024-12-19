@@ -162,7 +162,7 @@ export const JoinWrap = styled.div`
   align-items: center;
   height: 100vh;
   background-color: #f5f5f5;
-  padding:60px 0 60px 0;
+  padding:100px 0 100px 0;
 
   .Join-pass {
     display: flex;
@@ -192,6 +192,45 @@ export const JoinWrap = styled.div`
             text-decoration: underline;
         }
     }
+}
+.message {
+  margin-top:-10px;
+  margin-bottom: 5px;
+}
+
+.emailBtn {
+  background: #038c8c;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80px;
+  height: 25px;
+  margin-top: 5px;
+}
+
+.telBtn {
+  background: #038c8c;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 80px;
+  height: 25px;
+  margin-top: 5px;
+}
+
+.telCheckBtn {
+  background: #038c8c;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width: 80px;
+  height: 25px;
+  margin-top: 5px;
+  padding-bottom: 3px;
+  margin-left: 5px;
+  border-radius: 2px;
 }
 
   .inner {

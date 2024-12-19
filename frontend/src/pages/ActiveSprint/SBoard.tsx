@@ -12,6 +12,7 @@ import { enabledSprintsState, filterState } from '../../recoil/atoms/sprintAtoms
 import { issuesByStatusState } from '../../recoil/atoms/issueAtoms';
 import { ReactComponent as SprintAlert } from '../../assets/images/sprintAlert.svg';
 import { Issue } from '../../recoil/atoms/issueAtoms';
+import { HashLoader } from 'react-spinners';
 
 type Task = Pick<Issue, 'isid' | 'title' | 'type' | 'manager'>;
 type ColumnKey = 'backlog' | 'inProgress' | 'done' | 'qa';
@@ -21,7 +22,19 @@ const BoardContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-left: 25px; /* 사이드 메뉴와 간격 조정 */
-  overflow: hidden; /* BoardContainer에서 스크롤 막기 */
+  /* height: 90vh; */
+  height: 656px;
+  overflow-y: scroll; 
+  /* margin-top:10px; */
+  /* margin-left:20px; */
+  /* margin-right:20px; */
+
+  width:1161px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0F.1);
+  background: linear-gradient(180deg, #FFFFFF, #81C5C5);
+  /* background:rgb(226, 241, 241); */
+
+
 `;
 const BoardHeader = styled.div`
   display: flex;
@@ -88,13 +101,10 @@ const DropdownMenu = styled.ul<{ open: boolean }>`
 
 const BoardMain = styled.div`
   display: flex;
-  flex: 1;
   flex-wrap: nowrap; /* 줄바꿈 허용하지 않음 */
-  margin-left: 18px; /* 왼쪽 여백을 주고 싶다면 margin-left를 사용하세요 */
-  margin-top: 0px; /* 필요하다면 위쪽 여백을 제거하세요 */
-  
-  // overflow-x: auto; /* 필요하면 스크롤 추가 */
-  overflow-y: hidden; /* 세로 스크롤 방지 */ /*근데 이걸 해야 가로 스크롤이 생김..*/
+  gap:8px;
+  padding-bottom: 10px;
+  /* overflow-y: hidden; 세로 스크롤 방지 */
   // width: 100%; /* 부모 컨테이너 크기에 맞춤 */
 `;
 const SprintCompleteButton = styled.button`
@@ -126,6 +136,7 @@ color: #fff;
 font-size: 14px;
 border: none;
 border-radius: 10px;
+height:50px;
 cursor: pointer;
 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
 &:hover {
@@ -135,9 +146,24 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transform: translateY(2px); /* 클릭 시 약간 눌리는 효과 */
 }
 `;
+const NoSprint = styled.div`
+/* margin-top: 20px; */
+padding: 10px;
+  background: #fff;
+  border-radius: 8px;
+  /* margin-bottom: 20px; */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow-x: scroll;
+  height:500px;
+  margin: 10px;
+  display: flex;
+  flex-direction: row;
+`;
 
 
 const SBoard: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate(); // useNavigate 훅 호출
   const pname = sessionStorage.getItem('pname');
   const [isModalOpen, setIsModalOpen] = useState(false);// 모달 열림/닫힘 상태 관리
@@ -145,6 +171,15 @@ const SBoard: React.FC = () => {
   const issuesByStatus = useRecoilValue(issuesByStatusState); // 활성스프린트의 상태별 이슈 데이터 가져오기
   const [filter, setFilter] = useRecoilState(filterState);
   const pid = sessionStorage.getItem('pid');
+
+  // 2초 후 로딩 상태 종료 (추가)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
+  }, []);
 
 
   // Backlog 페이지로 이동
@@ -231,54 +266,6 @@ const SBoard: React.FC = () => {
   const [typeOpen, setTypeOpen] = useState(false);
   const [priorityOpen, setPriorityOpen] = useState(false);
 
-  // const closeAllDropdowns = () => {
-  //   setManagerOpen(false);
-  //   setTypeOpen(false);
-  //   setPriorityOpen(false);
-  // };
-  // const handleManagerClick = () => {
-  //   closeAllDropdowns(); // 다른 드롭다운 닫기
-  //   setManagerOpen(true);
-  // };
-
-  // const handleTypeClick = () => {
-  //   closeAllDropdowns();
-  //   setTypeOpen(true);
-  // };
-
-  // const handlePriorityClick = () => {
-  //   closeAllDropdowns();
-  //   setPriorityOpen(true);
-  // };
-
-  // const handleManagerChange = (newManager: string) => {
-  //   setFilter((prev) => ({ ...prev, manager: newManager }));
-  //   setManagerOpen(false);
-  // };
-  // const handleTypeChange = (newType: string) => {
-  //   setFilter((prev) => ({ ...prev, type: newType }));
-  //   setTypeOpen(false);
-  // };
-  // const handlePriorityChange = (newPriority: string) => {
-  //   setFilter((prev) => ({ ...prev, priority: newPriority }));
-  //   setPriorityOpen(false);
-  // };
-
-  // // 클릭 시 드롭다운 외부 영역 클릭하면 닫히게
-  // useEffect(() => {
-  //   const handleClickOutside = (e: MouseEvent) => {
-  //     const target = e.target as HTMLElement;
-  //     // Filters 내부를 클릭했는지 검사 (특정 조건이 없다면 무조건 닫기)
-  //     // 여기서는 간단히 모든 드롭다운을 닫는 로직
-  //     if (!target.closest('.filter-label')) {
-  //       closeAllDropdowns();
-  //     }
-  //   };
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   return () => document.removeEventListener('mousedown', handleClickOutside);
-  // }, []);
-
-  // 필터 변경 핸들러
   const handleManagerChange = (newManager: string) => {
     setFilter((prev) => ({ ...prev, manager: newManager }));
     setManagerOpen(false); // 선택 후 닫기
@@ -292,6 +279,15 @@ const SBoard: React.FC = () => {
     setPriorityOpen(false);
   };
 
+  // 로딩 상태에 따른 조건부 렌더링
+  if (loading) {
+    return (
+      <BoardContainer style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <HashLoader color="#36d7b7" />
+      </BoardContainer>
+    );
+  }
+
   return (
     <>
       <BoardContainer>
@@ -300,7 +296,7 @@ const SBoard: React.FC = () => {
         <BoardHeader>
           <BoardTitle>활성 스프린트</BoardTitle>{/* 제목 */}
           <Breadcrumb>프로젝트 &gt; {pname} &gt; 활성 스프린트</Breadcrumb>{/* 네비게이션 텍스트 */}
-          
+
           {enabledSprints.length !== 0 && (
             <>
               <Filters>
@@ -331,36 +327,6 @@ const SBoard: React.FC = () => {
                   </DropdownMenu>
                 </div>
 
-{/* <div className="filter-label" onClick={handleManagerClick}>
-                  담당자 <FaChevronDown />
-                  <DropdownMenu open={managerOpen}>
-                    <li onClick={() => handleManagerChange('')}>전체</li>
-                    {managerOptions.map((m) => (
-                      <li key={m} onClick={() => handleManagerChange(m)}>{m}</li>
-                    ))}
-                  </DropdownMenu>
-                </div>
-
-                <div className="filter-label" onClick={handleTypeClick}>
-                  유형 <FaChevronDown />
-                  <DropdownMenu open={typeOpen}>
-                    <li onClick={() => handleTypeChange('')}>전체</li>
-                    <li onClick={() => handleTypeChange('task')}>작업</li>
-                    <li onClick={() => handleTypeChange('bug')}>버그</li>
-                  </DropdownMenu>
-                </div>
-
-                <div className="filter-label" onClick={handlePriorityClick}>
-                  우선순위 <FaChevronDown />
-                  <DropdownMenu open={priorityOpen}>
-                    <li onClick={() => handlePriorityChange('')}>전체</li>
-                    <li onClick={() => handlePriorityChange('높음')}>높음</li>
-                    <li onClick={() => handlePriorityChange('보통')}>보통</li>
-                    <li onClick={() => handlePriorityChange('낮음')}>낮음</li>
-                  </DropdownMenu>
-                </div> */}
-
-
               </Filters>
 
               <SprintCompleteButton>스프린트 완료</SprintCompleteButton>
@@ -370,11 +336,14 @@ const SBoard: React.FC = () => {
 
         {enabledSprints.length === 0 ? (
           // 활성 스프린트가 없는 경우
-          <>
+          <NoSprint>
+
             <SprintAlert style={{ marginBottom: '20px' }} />
+            <div style={{display: 'flex', flexDirection:'column', gap:'20px', marginTop:'200px', marginLeft: '150px' }}>
             <p>활성 스프린트가 없습니다<br />이슈를 생성해주세요</p>
             <BacklogMoveButton onClick={handleBacklogMove}>백로그로 이동</BacklogMoveButton>
-          </>
+            </div>
+          </NoSprint>
         ) : (
           // 활성 스프린트가 있는 경우
           <DndProvider backend={HTML5Backend}>
