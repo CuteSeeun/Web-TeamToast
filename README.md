@@ -1,5 +1,5 @@
 ## 업무관리 협업 툴 서비스
-<img src="https://github.com/CuteSeeun/Web-TeamToast/blob/main/cover.png" alt="홈 화면 예시" width="400" />
+<img src="https://github.com/CuteSeeun/Web-TeamToast/blob/main/cover.png" alt="홈 화면 예시" width="500" />
 
 ## 프로젝트 소개
 - TeamToast는 누구나 쉽게 사용할 수 있는 업무 관리 협업 서비스입니다.
