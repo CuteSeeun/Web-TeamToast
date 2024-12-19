@@ -1,8 +1,8 @@
 ## 업무관리 협업 툴 서비스
 <img src="https://github.com/CuteSeeun/Web-TeamToast/blob/main/cover.png" alt="홈 화면 예시" width="500" />
 
-<br/>
 
+  
 ## 프로젝트 소개
 - TeamToast는 누구나 쉽게 사용할 수 있는 업무 관리 협업 서비스입니다.
 - 팀은 독립적인 협업 공간을 만들어 팀의 목표에 따라 스프린트와 이슈를 체계적으로 관리할 수 있습니다.
