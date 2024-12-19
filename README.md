@@ -1,5 +1,6 @@
 # 업무관리 협업 툴 서비스
 
+![이미지 설명](https://github.com/CuteSeeun/Web-TeamToast/blob/main/cover.png)
 
 
 # 프로젝트 소개
