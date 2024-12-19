@@ -15,7 +15,8 @@
 - **디자인** 1주
 - **개발** 3주
 
-<br/>
+
+  
 ## 팀원 소개 (역할 분담)
 - **[김정연](https://github.com/lakelover0611)** : 기획 담당  /  팀목록page, 결제/구독page
 - **[김현진](https://github.com/0515khj)** : 퍼블리싱 담당  /  인트로page, 로그인/회원가입page, 스페이스page, 프로필page
