@@ -52,20 +52,14 @@ export const join = async (req: Request, res: Response): Promise<void> => {
 // 로그인 함수
 export const login = async (req: Request, res: Response): Promise<void> => {
   
-  console.log('Login request received:', req.body); 
-
   const { useremail, userpw } = req.body;
 
   try {
-
-    console.log('Querying user:', useremail); 
 
     const [rows] = await pool.query<UserRow[]>(
       'SELECT * FROM User WHERE email = ?',
       [useremail]
     );
-
-    console.log('Query result:', rows[0]);  
 
     if (rows.length === 0) {
       res.status(401).json({ message: '사용자 없음' });
@@ -73,10 +67,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const user = rows[0];
-    console.log('DB에서 가져온 사용자:', user);
 
     const isPw = await bcrypt.compare(userpw, user.passwd);
-    console.log('Password check:', isPw);
 
     if (!isPw) {
       res.status(401).json({ message: '비밀번호 틀림' });
@@ -112,7 +104,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.json({
       message: '로그인 성공',
       accessToken,
-      refreshToken,
+      // refreshToken,
       user: {
         uid: user.uid,
         uname: user.uname,

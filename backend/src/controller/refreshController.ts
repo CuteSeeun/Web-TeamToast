@@ -33,7 +33,6 @@ export const RefreshToken =async(req:Request , res:Response):Promise<void>=>{
 };
 
 export const reAccessToken = async(req:Request,res:Response):Promise<void>=>{
-    // const {refreshToken} = req.body;
     
     try {
         const userId = req.body.uid || req.user?.uid; // 미들웨어 또는 클라이언트에서 uid 가져옴

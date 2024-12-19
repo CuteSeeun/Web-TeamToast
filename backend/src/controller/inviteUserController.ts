@@ -125,9 +125,3 @@ export const inviteUser = async (
     res.status(500).json({ message: "사용자 초대 중 오류가 발생했습니다." });
   }
 };
-
-// // 이메일 가져와서 이름 끄집어냄
-// export const checkName = async(req:Request , res:Response) =>{
-//   const {email} = req.body;
-
-// }

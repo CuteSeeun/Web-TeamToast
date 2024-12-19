@@ -32,8 +32,6 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
     const [spaces, setSpaces] = useState<SpaceItem[]>([]); // 스페이스 리스트
     const [error, setError] = useState<string>(''); // 에러 메시지
     const [loading, setLoading] = useState<boolean>(true);
-    
-    // (추가)
     const [newSpaceName , setNewSpaceName] = useState(''); // 새로운 스페이스 이름
     const [showNewSpaceField, setShowNewSpaceField] = useState(false); // 새 필드 표시 여부
     const newSpaceRef = useRef<HTMLDivElement | null>(null);
@@ -45,7 +43,6 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
         const timer = setTimeout(() => {
             setLoading(false);
         }, 3000);
-
         return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 클리어
     }, []);
 
@@ -53,7 +50,7 @@ const SpaceView: React.FC<SpaceViewProps> = () => {
     useEffect(()=>{
         const fetchSpaces = async () => {
             try {
-                const response = await AccessToken.get('/space/my-spaces');
+            const response = await AccessToken.get('/space/my-spaces');
             setSpaces(response.data.space || []);
         } catch (err) {
             if (axios.isAxiosError(err) && err.response?.status === 401) {

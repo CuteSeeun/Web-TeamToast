@@ -52,7 +52,6 @@ const verifyPhoneCode = async (
    try {
        await connection.beginTransaction();
        const { phoneNumber, code } = req.body;
-       console.log('받은 데이터:', { phoneNumber, code }); 
 
        //db에서 인증번호 확인
        const [rows] = await connection.query<any[]>(

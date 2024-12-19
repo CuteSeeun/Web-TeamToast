@@ -64,7 +64,6 @@ const kakaoLogin = (req: Request, res: Response): void => {
 // 카카오 토큰 처리 및 사용자 정보 저장
 const kakaoTokenHandler = async (req: Request, res: Response): Promise<void> => {
     const { code } = req.body;
-    console.log('Received kakao code:', req.body.code);
     
     try {
         //카카오 액세스 토큰 저장
@@ -152,12 +151,6 @@ const kakaoTokenHandler = async (req: Request, res: Response): Promise<void> => 
             // 요청 설정 과정에서 에러 발생
             console.error("요청 설정 에러:", error.message);
         }
-
-        console.error("환경변수 확인:", {
-            KAKAO_REST_API_KEY: process.env.KAKAO_REST_API_KEY?.slice(0, 5) + "...",
-            KAKAO_REDIRECT_URI: process.env.KAKAO_REDIRECT_URI,
-            code: code ? code.slice(0, 5) + "..." : "없음"
-        });
 
         res.status(500).json({ message: '카카오 로그인 실패' });
 

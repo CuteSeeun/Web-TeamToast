@@ -6,7 +6,6 @@ import { getAllProjects, getProjects, getProject, newProject, modifyProject, del
 import { validateSid, validatePid } from '../middlewares/idMiddleware.js';
 import { validateProjectFields } from '../middlewares/checkProjectInputs.js';
 import { checkToken } from '../middlewares/authMiddleware.js';
-import { setTemporaryUser } from '../middlewares/temporaryAuthMiddleware';
 
 const router = express.Router();
 

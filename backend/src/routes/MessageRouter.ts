@@ -9,7 +9,6 @@ const router = Router(); // Router 객체 생성
 
 router.get('/', async (req: Request, res: Response): Promise<void> => {
     const rid = req.query.rid; // 클라이언트에서 채널 ID 전달
-    console.log('클라이언트에서 받은 rid:', rid);
   
     try {
       const [messages] = await pool.query<RowDataPacket[]>(
@@ -20,7 +19,6 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
          ORDER BY timestamp ASC;`,
         [rid]
       );
-      console.log('쿼리 결과:', messages);
       res.json(messages);
       console.log('해당 채팅 방의 메시지 리스트 가져오기 성공');
     } catch (err) {

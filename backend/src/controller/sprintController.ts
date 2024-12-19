@@ -72,9 +72,6 @@ export const InsertSprint = async (req: Request, res: Response): Promise<void> =
     const { spname, startDate, endDate, goal, project_id } = req.body; // 추가된 project_id 확인
     const { pid } = req.params; // URL에서 pid 추출
 
-    console.log('Request Body:', req.body); // 요청 본문 데이터 출력
-    console.log('Request Params:', req.params); // 요청 경로 파라미터 출력
-
     // 모든 필드가 제대로 전달되었는지 확인
     if (!spname || !startDate || !endDate || !project_id) {
         res.status(400).json({ success: false, message: '필수 필드를 입력해 주세요.' });

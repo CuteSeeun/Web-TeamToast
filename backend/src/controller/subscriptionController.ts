@@ -278,13 +278,6 @@ export const updatedLimit = async (
     const proRataAmount =
       deltaUsers * unitPrice * (remainingDays / totalDaysInCycle);
 
-    console.log("Pro-Rata Calculation:", {
-      deltaUsers,
-      remainingDays,
-      totalDaysInCycle,
-      proRataAmount,
-    });
-
     // Credit 테이블 업데이트
     const [creditResult]: any = await db.execute(
       `SELECT billingKey, totalAmount FROM Credit WHERE customerKey = ? AND status = 'active' LIMIT 1`,

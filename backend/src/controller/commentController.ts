@@ -80,8 +80,6 @@ export const editComment = async (req: Request, res: Response) => {
     const cid = parseInt(req.params.cid, 10); // req.params에서 cid 가져오기
     const { content } = req.body; // content를 body에서 가져옵니다
 
-    console.log('요청 받은 데이터:', req.body);
-
     if (isNaN(cid)) {
         console.error('잘못된 댓글 ID:', cid);
         res.status(400).json({ error: 'Invalid comment ID' });
@@ -93,7 +91,6 @@ export const editComment = async (req: Request, res: Response) => {
             UPDATE Comment SET content = ? WHERE cid = ?
         `;
         const [result] = await pool.query(query, [content, cid]); // ResultSetHeader 타입 사용
-        console.log('쿼리 결과:', result);
 
         res.status(200).json({ message: 'Comment updated successfully' });
     } catch (error) {
@@ -104,8 +101,6 @@ export const editComment = async (req: Request, res: Response) => {
 
 export const deleteComment = async (req: Request, res: Response) => {
     const cid = parseInt(req.params.cid, 10); // req.params에서 cid 가져오기
-
-    console.log('요청 받은 댓글 ID:', cid);
 
     if (isNaN(cid)) {
         console.error('잘못된 댓글 ID:', cid);
@@ -118,7 +113,6 @@ export const deleteComment = async (req: Request, res: Response) => {
             DELETE FROM Comment WHERE cid = ?
         `;
         const [result] = await pool.query(query, [cid]);
-        console.log('쿼리 결과:', result);
 
         res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {

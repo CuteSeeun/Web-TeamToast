@@ -8,7 +8,6 @@ import axios from 'axios';
 const Login:React.FC = () => {
     const [useremail , setUseremail] = useState<string>('');
     const [userpw , setUserpw] = useState<string>('');
-    // const [isLoading,setIsLoading] = useState<boolean>(false);
     const navi = useNavigate();
 
     //로그인 정보 확인

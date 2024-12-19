@@ -43,11 +43,11 @@ const Intro = () => {
 
     const openSpaceModal = () => {
         if (user) {
-          setIsFadingOut(true); // 비디오 페이드아웃 시작
+          setIsFadingOut(true);
           setTimeout(() => {
-            setSpace(true); // 비디오가 사라진 후 SpaceView를 표시
-            setIsFadingOut(false); // 초기화
-          }, 500); // 애니메이션 지속 시간과 맞춤
+            setSpace(true); 
+            setIsFadingOut(false); 
+          }, 500); 
         } else {
           navigate('/join');
         }
@@ -76,23 +76,24 @@ const Intro = () => {
                     <p className="sub-title">
                         원활한 소통과 매끄러운 업무 흐름을 가장 쉬운 협업 공간,<br/>TeamToast에서 경험해 보세요.
                     </p>
+
                     <div className="button-group">
                         {user ? (
                             <>
-                                 <button className="secondary-button" onClick={openSpaceModal}>
+                          <button className="secondary-button" onClick={openSpaceModal}>
                             시작하기
-                        </button>
+                          </button>
                             </>
                         ):(
                             <>
-                             <button className="secondary-button" onClick={openSpaceModal}>
+                          <button className="secondary-button" onClick={openSpaceModal}>
                             회원가입
-                        </button>
+                          </button>
                             </>
                         )
                     }
-                       
                     </div>
+
                 </div>
                 <div className="visual-section">
                 {space ? (

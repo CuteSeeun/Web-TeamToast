@@ -5,8 +5,6 @@ import { RowDataPacket } from "mysql2";
 
 export const getIssueAlarm = async(req:Request,res:Response) =>{
     const userEmail = req.query.userEmail as string;
-    console.log('알람 컨트롤러 이메일',userEmail);
-    
 
     // 로그인한 유저 이메일 프론트에서 받아옴
     // 그래야 로그인한 사람한테 알림을 줄수있으니

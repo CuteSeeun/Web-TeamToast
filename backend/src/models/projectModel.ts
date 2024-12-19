@@ -95,7 +95,6 @@ export const getProjectsByUUIDQuery = async (uuid: string) => {
         `, // space_id와 uuid를 조인하여 프로젝트 검색
         [uuid]
       );
-      console.log('Fetched projects:', rows);
       return rows;
   } finally {
       connection.release();

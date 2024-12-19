@@ -39,7 +39,6 @@ export const findUserPassword = async(req:Request , res:Response): Promise<void>
             [uname , email]
         )
         if(rows.length === 0){
-            // return res.status(404).json({message :'사용자 없음'});
             res.status(404).json({message :'사용자 없음'});
         }
         // 새 비밀번호 해시화
@@ -105,9 +104,6 @@ export const findUserPassword = async(req:Request , res:Response): Promise<void>
         const isValid = await bcrypt.compare(currentPw , rows[0].passwd);
         res.json({valid:isValid});
 
-        //더미데이터도 다 비교함 나중에 지우는거 ******
-        // const isValid = currentPw === rows[0].passwd;
-        // res.json({valid: isValid});  // 이 응답 부분이 필요합니다
 
     } catch (error) {
             
@@ -155,27 +151,6 @@ export const findUserPassword = async(req:Request , res:Response): Promise<void>
             [hashNewPasswd , decoded.uid]
         );
         res.status(200).json({message:'비밀번호가 성공적으로 변경되었습니다.'});
-
-
-        //------------------------------------------------
-        // 나중에 삭제
-
-          // 더미데이터이므로 직접 비교
-        //   const isValid = currentPw === user[0].passwd;
-        //   if(!isValid){
-        //       res.status(400).json({message:'현재 비밀번호가 일치하지 않습니다.'});
-        //       return;
-        //   }
-  
-        //   // 새 비밀번호 저장 (해시화 없이)
-        //   await pool.query(
-        //       'update User set passwd = ? where uid = ?',
-        //       [newpw, decoded.uid]  // newpw를 그대로 저장
-        //   );
-        //   res.status(200).json({message:'비밀번호가 성공적으로 변경되었습니다.'});
-
-        // --------------------------------------------------
-
 
     } catch (error) {
         console.error('비밀번호 변경 중 오류 :',error);
