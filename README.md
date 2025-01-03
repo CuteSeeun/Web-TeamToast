@@ -3,7 +3,7 @@
 
 - 배포 레파지토리 : 
 
-  
+
 ## 프로젝트 소개
 "누구나 쉽게 사용할 수 있는 업무 관리 협업 서비스"를 주제로 한 웹 기반 플랫폼입니다. 팀 구성원들이 독립적인 협업 공간을 생성하여 팀 목표에 따라 스프린트와 이슈를 체계적으로 관리할 수 있는 서비스를 제공하고자 하였습니다. 또한, 검색, 드래그 앤 드롭, 차트 그래프를 통해 스프린트와 이슈를 검색/수정하며 직관적으로 확인할 수 있는 기능과 팀원 간 실시간 소통을 위한 채팅 기능을 구현하였습니다.
 
@@ -13,10 +13,10 @@
   <rect x="3" y="7" width="13" height="10" rx="2" ry="2"></rect>
   <polygon points="16 7 22 11 22 13 16 17 16 7"></polygon>
 </svg>
-    TeamToast.mp4
+    TeamToast 유튜브 영상
   </summary>
 
-  [![유튜브 미리보기 이미지](https://img.youtube.com/vi/영상_ID/0.jpg)](https://www.youtube.com/watch?v=4sR4FVVXjDQ)
+  [![유튜브 미리보기 이미지](https://img.youtube.com/vi/4sR4FVVXjDQ/0.jpg)](https://www.youtube.com/watch?v=4sR4FVVXjDQ)
 </details>
 
 
@@ -42,13 +42,11 @@
 - **Back-end** : Node.js
 - **Database** : MySQL
 
-## 프로젝트 아키텍처
-
 
 ## 데이터베이스 설계
 - **DB 엔진** : MySQL 8.0
 - **주요 테이블**
-
+<img src="https://github.com/CuteSeeun/Web-TeamToast/blob/main/table.png" alt="홈 화면 예시" width="900" />
 
 ## 페이지별 주요 기능
 
