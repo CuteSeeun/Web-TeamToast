@@ -24,7 +24,7 @@
 
 
 ## 개발 기간
-- 2024.11.11(월) ~ 2024.12.16(월)
+- 2024.11.11 ~ 2024.12.16 
 - **기획** 1주
 - **디자인** 1주
 - **개발** 3주
@@ -42,7 +42,7 @@
 
 ## 개발 환경
 - **Front-end** : React, TypeScript, Recoil, Styled-components
-- **Back-end** : Node.js
+- **Back-end** : Node.js, Express.js
 - **Database** : MySQL
 
 
