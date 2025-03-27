@@ -30,10 +30,10 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     environment: # 환경 변수 추가
-      MYSQL_ROOT_PASSWORD: "teampassword"
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_DATABASE: 
+      MYSQL_USER: 
+      MYSQL_PASSWORD: 
     networks:
       - app_network
 
